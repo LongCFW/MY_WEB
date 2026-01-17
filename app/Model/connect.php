@@ -1,13 +1,16 @@
 <?php
-$servername = "localhost"; // Tên server (mặc định: localhost)
-$username = "root"; // Username MySQL (mặc định: root)
-$password = "baolong!@#123"; // Password MySQL (mặc định: trống)
-$dbname = "ecostore"; // Tên database
-// Tạo kết nối
-$conn = new mysqli($servername, $username, $password, $dbname);
-// Kiểm tra kết nối
-if ($conn->connect_error) {
-    die("Kết nối thất bại: " . $conn->connect_error);
+$servername = "localhost";
+$username = "root";
+$password = "baolong!@#123";
+$dbname = "ecostore";
+
+try {
+    $dsn = "mysql:host=$servername;dbname=$dbname;charset=utf8mb4";
+    $conn = new PDO($dsn, $username, $password);
+
+    // Bật chế độ báo lỗi
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+} catch (PDOException $e) {
+    die("Kết nối thất bại: " . $e->getMessage());
 }
-// Set charset UTF-8
-$conn->set_charset("utf8mb4");
