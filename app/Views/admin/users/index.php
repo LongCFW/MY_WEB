@@ -8,29 +8,55 @@
 <body>
     <?php require_once '../app/Views/layouts/admin_sidebar.php'; ?>
 
-    <h2>Danh sách Khách hàng</h2>
-    <table class="table table-hover mt-3 bg-white">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Họ tên</th>
-                <th>Email</th>
-                <th>SĐT</th>
-                <th>Vai trò</th>
-                <th>Ngày tham gia</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($users as $u): ?>
-            <tr>
-                <td><?= $u['id'] ?></td>
-                <td><?= $u['name'] ?></td>
-                <td><?= $u['email'] ?></td>
-                <td><?= $u['phone'] ?></td>
-                <td><?= ($u['role_id'] == 1) ? '<span class="badge badge-danger">Admin</span>' : '<span class="badge badge-success">User</span>' ?></td>
-                <td><?= $u['created_at'] ?></td>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>👥 Quản lý Khách hàng / Admin</h2>
+            <a href="/MY_WEB/public/admin/user/create" class="btn btn-success">Thêm mới</a>
+        </div>
+
+        <table class="table table-bordered table-hover bg-white shadow-sm">
+            <thead class="thead-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>SĐT</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($users as $u): ?>
+                <tr>
+                    <td><?= $u['id'] ?></td>
+                    <td><strong><?= $u['name'] ?></strong></td>
+                    <td><?= $u['email'] ?></td>
+                    <td><?= $u['phone'] ?></td>
+                    <td>
+                        <?php if($u['role_id'] == 1): ?>
+                            <span class="badge badge-danger">Admin</span>
+                        <?php else: ?>
+                            <span class="badge badge-info">Khách hàng</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?= ($u['status'] == 1) ? '<span class="text-success">Active</span>' : '<span class="text-muted">Blocked</span>' ?>
+                    </td>
+                    <td>
+                        <a href="/MY_WEB/public/admin/user/edit/<?= $u['id'] ?>" class="btn btn-warning btn-sm">Sửa</a>
+                        <?php if($u['id'] != $_SESSION['admin_id']): ?>
+                            <a href="/MY_WEB/public/admin/user/delete/<?= $u['id'] ?>" 
+                               onclick="return confirm('Xóa người dùng này sẽ xóa cả lịch sử đơn hàng của họ. Bạn chắc chứ?')" 
+                               class="btn btn-danger btn-sm">Xóa</a>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
     <?php require_once '../app/Views/layouts/admin_footer.php'; ?>
+</body>
+</html>

@@ -45,15 +45,14 @@ class Order extends Model {
     }
 
     public function getOrderItems($orderId) {
-        // Lấy danh sách sản phẩm trong đơn (Dựa vào product_snapshot JSON hoặc join variants)
-        // Ở đây tôi join bảng variants và products để lấy tên và ảnh hiện tại cho dễ hiển thị
-        $sql = "SELECT oi.*, p.name as product_name, p_img.image_url
+        $sql = "SELECT oi.*, p.name as product_name, p.sku as product_sku, 
+                       MIN(img.image_url) as image_url
                 FROM order_items oi
                 LEFT JOIN product_variants pv ON oi.variant_id = pv.id
                 LEFT JOIN products p ON pv.product_id = p.id
-                LEFT JOIN product_images p_img ON p.id = p_img.product_id
+                LEFT JOIN product_images img ON p.id = img.product_id
                 WHERE oi.order_id = ?
-                GROUP BY oi.id"; // Group by để tránh trùng ảnh
+                GROUP BY oi.id";
         return $this->db->fetchAll($sql, [$orderId]);
     }
 
