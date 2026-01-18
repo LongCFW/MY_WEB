@@ -2,55 +2,75 @@
 namespace App\Core;
 
 class App {
-    protected $controller = 'HomeController'; // Mặc định vào trang chủ
-    protected $method = 'index';             // Mặc định gọi hàm index
-    protected $params = [];                  // Tham số trên URL
+    protected $controller = 'HomeController'; 
+    protected $method = 'index';
+    protected $params = [];
 
     public function __construct() {
-        $url = $this->parseUrl();
+        $url = $this->parseUrl(); // Ví dụ: ['admin', 'auth', 'login']
 
-        // 1. Kiểm tra xem Controller có tồn tại không
-        // Giả sử URL là: /admin/dashboard
-        // Cần xử lý logic để tìm đúng file Controller
-        
-        // Demo đơn giản: URL dạng /Controller/Method/Param
-        if (isset($url[0])) {
-            // Chuẩn hóa tên: home -> HomeController
-            $controllerName = ucfirst($url[0]) . 'Controller';
+        // 1. XỬ LÝ ADMIN ROUTE
+        // Nếu URL bắt đầu bằng 'admin'
+        if (isset($url[0]) && strtolower($url[0]) == 'admin') {
             
-            // Kiểm tra file trong folder Client trước (mặc định)
-            if (file_exists('../app/Controllers/Client/' . $controllerName . '.php')) {
-                $this->controller = $controllerName;
-                unset($url[0]);
-                require_once '../app/Controllers/Client/' . $this->controller . '.php';
-                $this->controller = new ("App\\Controllers\\Client\\" . $this->controller);
-            } 
-            // Kiểm tra folder Admin (nếu URL bắt đầu bằng 'admin')
-            // ... Logic này ta sẽ nâng cấp sau cho chặt chẽ
-        } else {
-             // Mặc định require HomeController
-             require_once '../app/Controllers/Client/HomeController.php';
-             $this->controller = new \App\Controllers\Client\HomeController;
-        }
+            // Xóa chữ 'admin' khỏi mảng và sắp xếp lại index
+            array_shift($url); // Mảng còn: ['auth', 'login']
+            
+            // Mặc định Admin Controller
+            $this->controller = 'DashboardController'; 
+            $folder = 'Admin';
 
-        // 2. Kiểm tra Method
-        if (isset($url[1])) {
-            if (method_exists($this->controller, $url[1])) {
-                $this->method = $url[1];
-                unset($url[1]);
+            // Kiểm tra xem phần tử tiếp theo có phải Controller không
+            if (isset($url[0])) {
+                $controllerName = ucfirst($url[0]) . 'Controller';
+                if (file_exists('../app/Controllers/Admin/' . $controllerName . '.php')) {
+                    $this->controller = $controllerName;
+                    array_shift($url); // Xóa tên controller, mảng còn: ['login']
+                }
+            }
+        } else {
+            // 2. XỬ LÝ CLIENT ROUTE
+            $folder = 'Client';
+            if (isset($url[0])) {
+                $controllerName = ucfirst($url[0]) . 'Controller';
+                if (file_exists('../app/Controllers/Client/' . $controllerName . '.php')) {
+                    $this->controller = $controllerName;
+                    array_shift($url);
+                }
             }
         }
 
-        // 3. Lấy tham số
+        // 3. REQUIRE FILE CONTROLLER
+        $file = '../app/Controllers/' . $folder . '/' . $this->controller . '.php';
+        
+        if (file_exists($file)) {
+            require_once $file;
+            // Namespace đầy đủ
+            $class = "App\\Controllers\\$folder\\" . $this->controller;
+            $this->controller = new $class;
+        } else {
+            // Nếu không tìm thấy file, báo lỗi hoặc về trang chủ
+            die("Controller không tồn tại: " . $this->controller);
+        }
+
+        // 4. XỬ LÝ METHOD (Hàm)
+        // Lúc này trong mảng $url, phần tử đầu tiên [0] chính là method (nếu có)
+        if (isset($url[0])) {
+            if (method_exists($this->controller, $url[0])) {
+                $this->method = $url[0];
+                array_shift($url); // Xóa method, còn lại là params
+            }
+        }
+
+        // 5. LẤY THAM SỐ CÒN LẠI
         $this->params = $url ? array_values($url) : [];
 
-        // 4. Gọi hàm thực thi: Controller->method(params)
+        // 6. GỌI HÀM
         call_user_func_array([$this->controller, $this->method], $this->params);
     }
 
     public function parseUrl() {
         if (isset($_GET['url'])) {
-            // Cắt chuỗi URL, lọc ký tự lạ
             return explode('/', filter_var(rtrim($_GET['url'], '/'), FILTER_SANITIZE_URL));
         }
         return [];

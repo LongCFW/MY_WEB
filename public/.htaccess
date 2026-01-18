@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+  Options -Multiviews
+  RewriteEngine On
+  
+  # Dòng này cực quan trọng khi chạy localhost/Tên_Dự_Án
+  # Nó bảo server biết gốc của web nằm ở đâu
+  RewriteBase /MY_WEB/public/
+
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+</IfModule>
