@@ -6,30 +6,36 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-header">
-                <h3>Thêm danh mục mới</h3>
+    <?php require_once '../app/Views/layouts/admin_sidebar.php'; ?>
+
+    <div class="container-fluid">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Thêm danh mục mới</h5>
             </div>
             <div class="card-body">
                 <form action="/MY_WEB/public/admin/category/store" method="POST">
                     <div class="form-group">
-                        <label>Tên danh mục</label>
-                        <input type="text" name="name" class="form-control" required>
+                        <label>Tên danh mục <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" required placeholder="Ví dụ: Điện thoại, Thời trang...">
                     </div>
                     <div class="form-group">
-                        <label>Slug (Đường dẫn tĩnh)</label>
-                        <input type="text" name="slug" class="form-control" required placeholder="vidu-nhu-the-nay">
+                        <label>Slug (Đường dẫn tĩnh) <span class="text-danger">*</span></label>
+                        <input type="text" name="slug" class="form-control" required placeholder="dien-thoai">
+                        <small class="text-muted">Viết liền không dấu, dùng dấu gạch ngang (-).</small>
                     </div>
                     <div class="form-group">
                         <label>Mô tả</label>
-                        <textarea name="description" class="form-control"></textarea>
+                        <textarea name="description" class="form-control" rows="3"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Lưu lại</button>
-                    <a href="/MY_WEB/public/admin/category" class="btn btn-secondary">Hủy</a>
+                    <hr>
+                    <button type="submit" class="btn btn-success">Lưu lại</button>
+                    <a href="/MY_WEB/public/admin/category" class="btn btn-secondary">Hủy bỏ</a>
                 </form>
             </div>
         </div>
     </div>
+
+    <?php require_once '../app/Views/layouts/admin_footer.php'; ?>
 </body>
 </html>
