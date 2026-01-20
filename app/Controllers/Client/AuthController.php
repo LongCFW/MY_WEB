@@ -11,7 +11,7 @@ class AuthController extends Controller {
             header('Location: /MY_WEB/public/');
             exit();
         }
-        $this->view('client/auth/login');
+        $this->view('auth/login');
     }
 
     // 2. Xử lý Đăng nhập
@@ -56,7 +56,7 @@ class AuthController extends Controller {
             
             // Check email tồn tại
             if ($userModel->findByEmail($email)) {
-                $this->view('client/auth/register', ['error' => 'Email đã tồn tại']);
+                $this->view('auth/register', ['error' => 'Email đã tồn tại']);
                 return;
             }
 
