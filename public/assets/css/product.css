@@ -255,27 +255,41 @@
 
 /* --- FIXED & STICKY SIDEBAR (DESKTOP) --- */
 @media (min-width: 992px) {
-    /* Cột chứa sidebar phải có chiều cao full để sticky hoạt động */
     .col-lg-3 {
-        height: 100%; 
+        height: 100%;
     }
 
     .filter-sidebar-wrapper {
-        /* Sticky logic: Neo sidebar khi cuộn */
         position: -webkit-sticky;
         position: sticky;
-        top: 100px; /* Cách mép trên 100px (để chừa chỗ cho Header) */
+        top: 100px;
         z-index: 900;
-        
-        /* UX quan trọng: Nếu sidebar dài quá màn hình thì cho cuộn riêng */
-        max-height: calc(100vh - 120px); 
+
+        max-height: calc(100vh - 120px);
         overflow-y: auto;
-        
-        /* Thẩm mỹ scrollbar cho sidebar */
-        scrollbar-width: thin;
-        scrollbar-color: var(--eco-primary) #f1f1f1;
+    }
+
+    /* ✅ Chrome / Safari / Samsung Internet */
+    .filter-sidebar-wrapper::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .filter-sidebar-wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .filter-sidebar-wrapper::-webkit-scrollbar-thumb {
+        background: var(--eco-primary);
+        border-radius: 10px;
+    }
+
+    .filter-sidebar-wrapper::-webkit-scrollbar-thumb:hover {
+        filter: brightness(0.9);
     }
 }
+
+
 
 /* --- MOBILE OFFCANVAS SIDEBAR --- */
 @media (max-width: 991px) {
