@@ -206,17 +206,23 @@
                     <h2 id="qv-price" class="text-success fw-bold m-0 mb-4"></h2>
                     <p id="qv-desc" class="text-muted mb-4 small"></p>
 
-                    <form action="/MY_WEB/public/cart/add" method="POST" class="mt-auto">
-                        <input type="hidden" name="product_id" id="qv-id">
-                        <div class="d-flex gap-3">
-                            <div class="input-group border rounded-pill overflow-hidden" style="width: 120px;">
-                                <button type="button" class="btn btn-light border-0" onclick="document.getElementById('qv-qty').stepDown()"><i class="fas fa-minus small"></i></button>
-                                <input type="number" id="qv-qty" name="quantity" value="1" min="1" class="form-control border-0 text-center fw-bold bg-white">
-                                <button type="button" class="btn btn-light border-0" onclick="document.getElementById('qv-qty').stepUp()"><i class="fas fa-plus small"></i></button>
-                            </div>
-                            <button type="submit" class="btn btn-success rounded-pill fw-bold px-4 flex-grow-1 shadow-sm">Mua ngay</button>
-                        </div>
-                    </form>
+                    <div class="mt-auto">
+    <input type="hidden" id="qv-id"> 
+    
+    <div class="d-flex gap-3">
+        <div class="input-group border rounded-pill overflow-hidden" style="width: 120px;">
+            <button type="button" class="btn btn-light border-0" onclick="document.getElementById('qv-qty').stepDown()"><i class="fas fa-minus small"></i></button>
+            <input type="number" id="qv-qty" value="1" min="1" class="form-control border-0 text-center fw-bold bg-white">
+            <button type="button" class="btn btn-light border-0" onclick="document.getElementById('qv-qty').stepUp()"><i class="fas fa-plus small"></i></button>
+        </div>
+
+        <button type="button" 
+                class="btn btn-success rounded-pill fw-bold px-4 flex-grow-1 shadow-sm"
+                onclick="addToCartGlobal(document.getElementById('qv-id').value, document.getElementById('qv-qty').value)">
+            Mua ngay
+        </button>
+    </div>
+</div>
 
                     <div class="mt-4 pt-3 border-top text-center">
                         <a id="qv-link" href="#" class="text-secondary text-decoration-none small fw-bold">Xem chi tiết sản phẩm <i class="fas fa-arrow-right ms-1"></i></a>

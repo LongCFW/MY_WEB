@@ -17,8 +17,7 @@
                 <i class="fas fa-bolt me-2"></i>Xem nhanh
             </button>
         </div>
-        
-        </div>
+    </div>
 
     <div class="card-body d-flex flex-column">
         <div class="product-category"><?= $p['category_name'] ?? 'Sản phẩm' ?></div>
@@ -28,13 +27,12 @@
         <div class="mt-auto d-flex justify-content-between align-items-center">
             <div class="product-price"><?= number_format($p['price_cents']) ?> đ</div>
             
-            <form action="/MY_WEB/public/cart/add" method="POST">
-                <input type="hidden" name="product_id" value="<?= $p['id'] ?>">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn-add-cart-mini" title="Thêm vào giỏ">
-                    <i class="fas fa-plus"></i>
-                </button>
-            </form>
+            <button type="button" 
+                    class="btn-add-cart-mini" 
+                    title="Thêm vào giỏ" 
+                    onclick="addToCartGlobal(<?= $p['id'] ?>, 1)">
+                <i class="fas fa-plus"></i>
+            </button>
         </div>
     </div>
 </div>

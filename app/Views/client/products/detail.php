@@ -110,25 +110,33 @@
                         </p>
                     </div>
 
-                    <form action="/MY_WEB/public/cart/add" method="POST">
-                        <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                    <div>
+    <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
+        <div class="input-group border rounded-pill overflow-hidden" style="width: 140px;">
+            <button type="button" class="btn btn-light border-0" onclick="updateQty(-1)">
+                <i class="fas fa-minus text-secondary" style="font-size: 0.8rem;"></i>
+            </button>
+            
+            <input type="number" id="qtyInput" class="form-control border-0 text-center bg-white fw-bold" 
+                   value="1" min="1" max="<?= $product['stock'] ?>">
+            
+            <button type="button" class="btn btn-light border-0" onclick="updateQty(1)">
+                <i class="fas fa-plus text-secondary" style="font-size: 0.8rem;"></i>
+            </button>
+        </div>
 
-                        <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
-                            <div class="input-group border rounded-pill overflow-hidden" style="width: 140px;">
-                                <button type="button" class="btn btn-light border-0" onclick="updateQty(-1)"><i class="fas fa-minus text-secondary" style="font-size: 0.8rem;"></i></button>
-                                <input type="number" id="qtyInput" name="quantity" class="form-control border-0 text-center bg-white fw-bold" value="1" min="1" max="<?= $product['stock'] ?>">
-                                <button type="button" class="btn btn-light border-0" onclick="updateQty(1)"><i class="fas fa-plus text-secondary" style="font-size: 0.8rem;"></i></button>
-                            </div>
+        <button type="button" 
+                class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm flex-grow-1" 
+                <?= ($product['stock'] <= 0) ? 'disabled' : '' ?>
+                onclick="addToCartGlobal(<?= $product['id'] ?>, document.getElementById('qtyInput').value)">
+            <i class="fas fa-shopping-cart me-2"></i> <?= ($product['stock'] > 0) ? "Thêm vào giỏ" : "Hết hàng" ?>
+        </button>
 
-                            <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm flex-grow-1" <?= ($product['stock'] <= 0) ? 'disabled' : '' ?>>
-                                <i class="fas fa-shopping-cart me-2"></i> <?= ($product['stock'] > 0) ? "Thêm vào giỏ" : "Hết hàng" ?>
-                            </button>
-
-                            <button type="button" class="btn btn-outline-danger rounded-circle p-0 d-flex align-items-center justify-content-center border-2" style="width: 48px; height: 48px;">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                    </form>
+        <button type="button" class="btn btn-outline-danger rounded-circle p-0 d-flex align-items-center justify-content-center border-2" style="width: 48px; height: 48px;">
+            <i class="far fa-heart"></i>
+        </button>
+    </div>
+</div>
 
                     <div class="d-flex gap-4 pt-4 border-top">
                         <div class="d-flex align-items-center gap-2">
