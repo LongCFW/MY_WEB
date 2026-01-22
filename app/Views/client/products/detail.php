@@ -8,10 +8,13 @@
         border-radius: 8px;
         overflow: hidden;
     }
-    .product-gallery-thumb:hover, .product-gallery-thumb.active {
-        border-color: #2e7d32; /* var(--eco-primary) */
+
+    .product-gallery-thumb:hover,
+    .product-gallery-thumb.active {
+        border-color: #2e7d32;
+        /* var(--eco-primary) */
     }
-    
+
     .price-tag-detail {
         background: rgba(76, 175, 80, 0.1);
         padding: 10px 20px;
@@ -29,17 +32,18 @@
         border-bottom: 3px solid transparent;
         padding-bottom: 10px;
     }
+
     .custom-tabs .nav-link.active {
         color: #2e7d32;
         border-bottom-color: #2e7d32;
         background: transparent;
     }
-    
+
     /* Input số lượng không hiện mũi tên tăng giảm mặc định */
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-        -webkit-appearance: none; 
-        margin: 0; 
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
 </style>
 
@@ -60,29 +64,29 @@
         <div class="row mb-5">
             <div class="col-lg-6 mb-4 mb-lg-0">
                 <div class="border rounded-4 overflow-hidden mb-3 position-relative shadow-sm d-flex align-items-center justify-content-center bg-white" style="height: 450px;">
-                    <?php 
-                        $mainImg = !empty($product['images'][0]) ? "/MY_WEB/public/" . $product['images'][0] : "https://placehold.co/600x600?text=No+Image";
+                    <?php
+                    $mainImg = !empty($product['images'][0]) ? "/MY_WEB/public/" . $product['images'][0] : "https://placehold.co/600x600?text=No+Image";
                     ?>
                     <img id="mainImage" src="<?= $mainImg ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="mw-100 mh-100 object-fit-contain">
                 </div>
-                
+
                 <?php if (!empty($product['images']) && count($product['images']) > 1): ?>
-                <div class="d-flex gap-2 justify-content-center">
-                    <?php foreach ($product['images'] as $idx => $img): ?>
-                        <div class="product-gallery-thumb <?= $idx === 0 ? 'active' : '' ?>" style="width: 80px; height: 80px;" onclick="changeMainImage(this, '/MY_WEB/public/<?= $img ?>')">
-                            <img src="/MY_WEB/public/<?= $img ?>" class="w-100 h-100 object-fit-cover" alt="Thumb">
-                        </div>
-                    <?php endforeach; ?>
-                </div>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <?php foreach ($product['images'] as $idx => $img): ?>
+                            <div class="product-gallery-thumb <?= $idx === 0 ? 'active' : '' ?>" style="width: 80px; height: 80px;" onclick="changeMainImage(this, '/MY_WEB/public/<?= $img ?>')">
+                                <img src="/MY_WEB/public/<?= $img ?>" class="w-100 h-100 object-fit-cover" alt="Thumb">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 <?php endif; ?>
             </div>
 
             <div class="col-lg-6">
                 <div class="ps-lg-4">
                     <span class="badge bg-success mb-2 bg-opacity-75 rounded-pill px-3"><?= htmlspecialchars($product['category_name'] ?? 'Sản phẩm') ?></span>
-                    
+
                     <h2 class="fw-bold mb-3 text-dark display-6"><?= htmlspecialchars($product['name']) ?></h2>
-                    
+
                     <div class="d-flex align-items-center gap-3 mb-4">
                         <div class="text-warning small">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
@@ -108,7 +112,7 @@
 
                     <form action="/MY_WEB/public/cart/add" method="POST">
                         <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
-                        
+
                         <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
                             <div class="input-group border rounded-pill overflow-hidden" style="width: 140px;">
                                 <button type="button" class="btn btn-light border-0" onclick="updateQty(-1)"><i class="fas fa-minus text-secondary" style="font-size: 0.8rem;"></i></button>
@@ -119,7 +123,7 @@
                             <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm flex-grow-1" <?= ($product['stock'] <= 0) ? 'disabled' : '' ?>>
                                 <i class="fas fa-shopping-cart me-2"></i> <?= ($product['stock'] > 0) ? "Thêm vào giỏ" : "Hết hàng" ?>
                             </button>
-                            
+
                             <button type="button" class="btn btn-outline-danger rounded-circle p-0 d-flex align-items-center justify-content-center border-2" style="width: 48px; height: 48px;">
                                 <i class="far fa-heart"></i>
                             </button>
@@ -172,59 +176,42 @@
         </div>
 
         <?php if (!empty($relatedProducts)): ?>
-        <div class="py-4 border-top">
-            <h3 class="fw-bold mb-4 text-center">Sản phẩm tương tự</h3>
-            <div class="row g-4">
-                <?php foreach ($relatedProducts as $rel): ?>
-                <div class="col-6 col-md-3">
-                     <div class="card h-100 border-0 product-card-wrapper shadow-sm overflow-hidden">
-                        <div class="product-img-container position-relative bg-white" style="height: 200px; padding: 10px;">
-                            <?php $relImg = !empty($rel['image_url']) ? "/MY_WEB/public/" . $rel['image_url'] : "https://placehold.co/300x300"; ?>
-                            <img src="<?= $relImg ?>" class="card-img-top w-100 h-100 object-fit-contain transition-transform">
-                             <div class="card-actions-overlay position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark bg-opacity-25 opacity-0 hover-opacity-100" style="transition: all 0.3s;">
-                                <a href="/MY_WEB/public/product/detail/<?= $rel['id'] ?>" class="btn btn-light rounded-pill px-3 btn-sm fw-bold text-success shadow action-btn">
-                                    <i class="fas fa-eye me-1"></i> Chi tiết
-                                </a>
-                            </div>
-                        </div>
-                        <div class="card-body p-3 d-flex flex-column">
-                            <div class="text-muted small text-uppercase fw-bold mb-1" style="font-size: 0.7rem;"><?= htmlspecialchars($rel['category_name']) ?></div>
-                            <h6 class="card-title mb-2 text-truncate">
-                                <a href="/MY_WEB/public/product/detail/<?= $rel['id'] ?>" class="text-decoration-none text-dark fw-bold"><?= htmlspecialchars($rel['name']) ?></a>
-                            </h6>
-                            <div class="mt-auto">
-                                <span class="fw-bold text-success"><?= number_format($rel['price_cents']) ?> đ</span>
-                            </div>
-                        </div>
-                    </div>
+            <div class="py-5 border-top">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold m-0">Sản phẩm tương tự</h3>
+                    <a href="/MY_WEB/public/product" class="btn btn-outline-success rounded-pill btn-sm fw-bold">Xem tất cả</a>
                 </div>
-                <?php endforeach; ?>
+
+                <div class="row g-4">
+                    <?php foreach ($relatedProducts as $rel): ?>
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <?php
+                            // Gán biến $p = $rel để component product_card hiểu
+                            $p = $rel;
+                            require '../app/Views/client/components/product_card.php';
+                            ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
-        </div>
         <?php endif; ?>
 
     </div>
 </div>
-
+<?php require_once '../app/Views/client/components/quick_view_modal.php'; ?>
 <script>
-    // 1. Logic thay đổi ảnh chính khi click thumbnail
     function changeMainImage(element, src) {
         document.getElementById('mainImage').src = src;
-        // Xóa class active cũ
         document.querySelectorAll('.product-gallery-thumb').forEach(el => el.classList.remove('active'));
-        // Thêm active cho cái mới
         element.classList.add('active');
     }
 
-    // 2. Logic tăng giảm số lượng
     function updateQty(change) {
         const input = document.getElementById('qtyInput');
         let newVal = parseInt(input.value) + change;
-        const max = parseInt(input.getAttribute('max')) || 100; // Mặc định nếu ko có stock thì max 100
-        
+        const max = parseInt(input.getAttribute('max')) || 100;
         if (newVal < 1) newVal = 1;
         if (newVal > max) newVal = max;
-        
         input.value = newVal;
     }
 </script>

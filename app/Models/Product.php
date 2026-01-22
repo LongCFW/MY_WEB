@@ -150,13 +150,13 @@ class Product extends Model {
 
         // Lấy thông tin biến thể (Giá, SKU, Tồn kho) - Lấy cái đầu tiên làm mặc định hoặc list tất cả
         // Giả sử ta lấy biến thể đầu tiên để hiển thị giá chính
-        $sqlVariant = "SELECT price_cents, sku, stock_quantity FROM product_variants WHERE product_id = ? LIMIT 1";
+        $sqlVariant = "SELECT price_cents, sku, stock FROM product_variants WHERE product_id = ? LIMIT 1";
         $variant = $this->db->fetch($sqlVariant, [$id]);
         
         if ($variant) {
             $product['price_cents'] = $variant['price_cents'];
             $product['sku'] = $variant['sku'];
-            $product['stock'] = $variant['stock_quantity'];
+            $product['stock'] = $variant['stock'];
         } else {
             // Fallback nếu không có variant
              $product['price_cents'] = 0;
