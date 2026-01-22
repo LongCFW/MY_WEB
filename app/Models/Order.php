@@ -5,6 +5,12 @@ use App\Core\Model;
 class Order extends Model {
     protected $table = 'orders';
 
+    // Lấy danh sách đơn hàng của User (Cho trang Profile)
+    public function getOrdersByUserId($userId) {
+        $sql = "SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY created_at DESC";
+        return $this->db->fetchAll($sql, [$userId]);
+    }
+
     public function countOrders() {
         $sql = "SELECT COUNT(*) as total FROM {$this->table}";
         return $this->db->fetch($sql)['total'];
@@ -33,10 +39,11 @@ class Order extends Model {
         return $this->db->fetchAll($sql);
     }
 
+    // Lấy chi tiết đơn hàng (Kèm thông tin User & Address)
     public function getOrderDetail($id) {
-        // Lấy thông tin đơn + địa chỉ ship
         $sql = "SELECT o.*, u.name as customer_name, u.email,
-                       sa.full_name as ship_name, sa.phone as ship_phone, sa.address_line, sa.city
+                       sa.full_name as ship_name, sa.phone as ship_phone, 
+                       sa.address_line, sa.city, sa.province, sa.country
                 FROM orders o
                 LEFT JOIN users u ON o.user_id = u.id
                 LEFT JOIN shipping_addresses sa ON o.shipping_address_id = sa.id
@@ -45,19 +52,25 @@ class Order extends Model {
     }
 
     public function getOrderItems($orderId) {
-        $sql = "SELECT oi.*, p.name as product_name, p.sku as product_sku, 
-                       MIN(img.image_url) as image_url
-                FROM order_items oi
-                LEFT JOIN product_variants pv ON oi.variant_id = pv.id
-                LEFT JOIN products p ON pv.product_id = p.id
-                LEFT JOIN product_images img ON p.id = img.product_id
-                WHERE oi.order_id = ?
-                GROUP BY oi.id";
-        return $this->db->fetchAll($sql, [$orderId]);
-    }
+    // Kết hợp: Lấy dữ liệu item (chứa snapshot) VÀ Join thêm để lấy thông tin hiện tại (SKU, Category...)
+    // Lưu ý: Trong CheckoutController tôi đã lưu 'product_id' vào order_items, nên ta JOIN thẳng vào products
+    
+    $sql = "SELECT oi.*, 
+                   p.sku as product_sku,           -- Lấy SKU từ bảng sản phẩm hiện tại
+                   p.id as live_product_id,        -- ID để tạo link bấm vào xem sp
+                   MIN(img.image_url) as live_image_url -- Ảnh hiện tại (fallback nếu snapshot lỗi)
+            FROM order_items oi
+            -- Left Join để nếu sản phẩm gốc bị xóa thì đơn hàng vẫn hiện (chỉ mất SKU/Link)
+            LEFT JOIN products p ON oi.product_id = p.id
+            LEFT JOIN product_images img ON p.id = img.product_id
+            WHERE oi.order_id = ?
+            GROUP BY oi.id";
+
+    return $this->db->fetchAll($sql, [$orderId]);
+}
 
     public function updateStatus($id, $status) {
-        $sql = "UPDATE {$this->table} SET status = ? WHERE id = ?";
+        $sql = "UPDATE {$this->table} SET status = ?, updated_at = NOW() WHERE id = ?";
         return $this->db->query($sql, [$status, $id]);
     }
 }

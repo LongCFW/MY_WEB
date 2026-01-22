@@ -52,54 +52,90 @@ class CheckoutController extends Controller {
 
             $userId = $_SESSION['user_id'];
             $addressId = $_POST['address_id'] ?? null;
-            $paymentMethod = $_POST['payment_method'] ?? 'cod';
-            
-            // Tính lại tổng tiền (Backend validation)
-            $cart = $_SESSION['cart'];
-            $totalCents = 0;
-            foreach ($cart as $item) {
-                $totalCents += $item['price'] * $item['quantity'];
-            }
-            $shippingFee = 30000;
-            $totalCents += $shippingFee;
+            $paymentMethod = $_POST['payment_method'] ?? 'cod'; // Mặc định COD
 
-            // === BƯỚC 1: LƯU ORDER ===
+            // Validate Address
+            if (!$addressId) {
+                // Xử lý lỗi nếu chưa chọn địa chỉ (đơn giản là redirect lại)
+                echo "<script>alert('Vui lòng chọn địa chỉ giao hàng!'); window.history.back();</script>";
+                return;
+            }
+            
+            // 1. Tính toán tiền (Backend Calculation)
+            $cart = $_SESSION['cart'];
+            $subtotal = 0;
+            foreach ($cart as $item) {
+                $subtotal += $item['price'] * $item['quantity'];
+            }
+            
+            $shippingFee = 30000;
+            $tax = 0; // Tạm thời 0
+            $totalCents = $subtotal + $shippingFee + $tax;
+
+            // 2. Insert ORDER
             $orderModel = $this->model('Order');
             $orderData = [
                 'user_id' => $userId,
-                'order_number' => 'ORD-' . time() . rand(100, 999),
-                'status' => 'pending',
+                'order_number' => 'ORD-' . strtoupper(uniqid()), // Tạo mã đơn unique
+                'status' => 'pending', // Trạng thái mặc định
+                'subtotal_cents' => $subtotal,
+                'shipping_fee_cents' => $shippingFee,
+                'tax_cents' => $tax,
                 'total_cents' => $totalCents,
-                'shipping_address_id' => $addressId, // Lưu ID địa chỉ đã chọn
-                'payment_method' => $paymentMethod,
+                'shipping_address_id' => $addressId,
+                'billing_address_id' => $addressId, // Tạm thời giống shipping
                 'payment_status' => 'unpaid',
+                'placed_at' => date('Y-m-d H:i:s'),
                 'created_at' => date('Y-m-d H:i:s')
             ];
             
             $orderId = $orderModel->create($orderData);
 
-            // === BƯỚC 2: LƯU ORDER ITEMS ===
+            // 3. Insert ORDER ITEMS
             $orderItemModel = $this->model('OrderItem');
             foreach ($cart as $item) {
+                // Tạo snapshot JSON (lưu tên, ảnh, sku tại thời điểm mua)
+                $snapshot = json_encode([
+                    'name' => $item['name'],
+                    'image' => $item['image'] ?? '',
+                    // 'sku' => ... nếu trong cart có lưu sku
+                ]);
+
                 $itemData = [
                     'order_id' => $orderId,
-                    'variant_id' => null, // Nếu bạn có variant thì điền vào, tạm thời null
-                    'product_id' => $item['id'], // Lưu product_id để dễ truy vấn sau này (cần sửa bảng order_items thêm cột này nếu chưa có)
-                    'product_name' => $item['name'], // Lưu cứng tên phòng khi đổi tên
-                    'unit_price_cents' => $item['price'],
+                    'variant_id' => null, // Nếu có variant system thì điền ID vào đây
+                    'product_snapshot' => $snapshot, 
                     'quantity' => $item['quantity'],
+                    'unit_price_cents' => $item['price'],
                     'total_price_cents' => $item['price'] * $item['quantity']
                 ];
-                // Lưu ý: Model create nhận array key => value khớp với cột database
-                // Bạn cần đảm bảo bảng order_items có các cột này
                 $orderItemModel->create($itemData);
             }
 
-            // === BƯỚC 3: XÓA GIỎ HÀNG & REDIRECT ===
+            // 4. Insert ORDER STATUS HISTORY (Log khởi tạo)
+            $historyModel = $this->model('OrderStatusHistory');
+            $historyModel->addHistory($orderId, 'pending', $userId, 'Đơn hàng mới được tạo');
+
+            // 5. Insert PAYMENT (Nếu cần track COD)
+            if ($paymentMethod === 'cod') {
+                $paymentModel = $this->model('Payment');
+                $paymentModel->create([
+                    'order_id' => $orderId,
+                    'payment_method' => 'cod',
+                    'amount_cents' => $totalCents,
+                    'status' => 'pending',
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+
+            // TODO: Xử lý Coupon (Insert vào order_coupons nếu có logic coupon)
+
+            // 6. Hoàn tất: Xóa giỏ hàng & Redirect
             unset($_SESSION['cart']);
             
-            // Chuyển hướng đến trang thành công
-            header("Location: /MY_WEB/public/checkout/success?order_id=$orderId");
+            // Redirect về Profile tab Orders kèm query param để hiện Toast
+            header("Location: /MY_WEB/public/account?tab=orders&order_success=1");
+            exit;
         }
     }
 

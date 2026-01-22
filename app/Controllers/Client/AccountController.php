@@ -6,31 +6,35 @@ use App\Core\Controller;
 class AccountController extends Controller {
 
     public function index() {
-        // 1. Kiểm tra đăng nhập (Yêu cầu kỹ thuật)
         if (!isset($_SESSION['user_logged_in'])) {
             header('Location: /MY_WEB/public/auth/login');
             exit();
         }
 
-        // 2. Lấy ID từ session
         $userId = $_SESSION['user_id'];
-
-        // 3. Gọi Model để lấy dữ liệu thật
         $userModel = $this->model('User');
         $user = $userModel->find($userId);
 
-        // Nếu không tìm thấy user (trường hợp hiếm, ví dụ bị xóa tay khỏi DB)
         if (!$user) {
             unset($_SESSION['user_logged_in']);
             header('Location: /MY_WEB/public/auth/login');
             exit();
         }
 
-        // 4. Truyền dữ liệu sang View
+        // --- LOGIC MỚI: Xác định trang hiện tại dựa vào GET param ---
+        $currentPage = $_GET['page'] ?? 'info'; // Mặc định là 'info'
+
         $data = [
             'user' => $user,
-            'page_title' => 'Thông tin tài khoản'
+            'current_page' => $currentPage,
+            'page_title' => 'Tài khoản của tôi'
         ];
+
+        // Nếu đang ở trang đơn hàng, lấy thêm dữ liệu đơn hàng
+        if ($currentPage == 'orders') {
+            $orderModel = $this->model('Order');
+            $data['orders'] = $orderModel->getOrdersByUserId($userId);
+        }
 
         $this->view('client/account/profile', $data);
     }

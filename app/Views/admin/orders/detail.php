@@ -69,17 +69,38 @@
                     <div class="card-body">
                         <form action="/MY_WEB/public/admin/order/update_status/<?= $order['id'] ?>" method="POST">
                             <div class="form-group">
-                                <label>Trạng thái hiện tại:</label>
+                                <label>Trạng thái mới:</label>
                                 <select name="status" class="form-control">
-                                    <option value="pending" <?= $order['status'] == 'pending' ? 'selected' : '' ?>>Chờ xác nhận</option>
-                                    <option value="processing" <?= $order['status'] == 'processing' ? 'selected' : '' ?>>Đang xử lý</option>
-                                    <option value="shipping" <?= $order['status'] == 'shipping' ? 'selected' : '' ?>>Đang giao hàng</option>
-                                    <option value="completed" <?= $order['status'] == 'completed' ? 'selected' : '' ?>>Hoàn thành</option>
-                                    <option value="cancelled" <?= $order['status'] == 'cancelled' ? 'selected' : '' ?>>Đã hủy</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-block">Cập nhật ngay</button>
+                            <div class="form-group mt-2">
+                                <label>Ghi chú (Tùy chọn):</label>
+                                <textarea name="note" class="form-control" rows="2" placeholder="Lý do thay đổi..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block mt-3">Cập nhật ngay</button>
                         </form>
+                    </div>
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header bg-white font-weight-bold">Lịch sử trạng thái</div>
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush">
+                                <?php
+                                // Cần lấy history từ controller truyền sang
+                                // Giả sử $history được truyền từ Controller
+                                if (!empty($history)):
+                                    foreach ($history as $his):
+                                ?>
+                                        <li class="list-group-item">
+                                            <small class="text-muted"><?= $his['created_at'] ?></small><br>
+                                            <strong><?= ucfirst($his['status']) ?></strong>
+                                            <?php if ($his['note']): ?> - <span class="text-secondary"><?= $his['note'] ?></span><?php endif; ?>
+                                            <br>
+                                            <small class="text-info">Bởi: <?= $his['changer_name'] ?? 'System' ?></small>
+                                        </li>
+                                <?php endforeach;
+                                endif; ?>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
