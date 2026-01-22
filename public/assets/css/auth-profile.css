@@ -150,19 +150,26 @@
 
 /* Menu Item */
 .profile-menu-item {
-    padding: 16px 30px;
+    display: block;
+    padding: 12px 20px;
     color: #555;
+    text-decoration: none;
     font-weight: 500;
-    transition: all 0.2s ease;
-    border-left: 4px solid transparent;
+    transition: all 0.2s;
+    border-radius: 8px;
+    margin-bottom: 5px;
     display: flex;
     align-items: center;
-    gap: 15px;
-    cursor: pointer;
+}
+
+.profile-menu-item i {
+    width: 25px; /* Cố định chiều rộng icon để text thẳng hàng */
+    text-align: center;
+    margin-right: 10px;
 }
 
 .profile-menu-item:hover {
-    background-color: #f9f9f9;
+    background-color: #f1f8e9;
     color: var(--eco-primary);
     padding-left: 35px;
 }
