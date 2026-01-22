@@ -41,7 +41,7 @@ class AuthController extends Controller {
 
     // 3. Trang Đăng ký
     public function register() {
-        $this->view('client/auth/register');
+        $this->view('auth/register');
     }
 
     // 4. Xử lý Đăng ký
@@ -60,6 +60,13 @@ class AuthController extends Controller {
                 return;
             }
 
+            // check sđt
+            if ($userModel->checkPhoneExists($phone)) {
+                $this->view('auth/register', ['error' => 'Số điện thoại này đã được sử dụng!']);
+                return;
+            }
+
+
             $data = [
                 'name' => $name,
                 'email' => $email,
@@ -69,8 +76,12 @@ class AuthController extends Controller {
                 'status' => 1
             ];
 
-            $userModel->create($data);
-            header('Location: /MY_WEB/public/auth/login');
+            if ($userModel->create($data)) {
+                // Đăng ký thành công -> Chuyển sang login
+                echo "<script>alert('Đăng ký thành công! Vui lòng đăng nhập.'); window.location.href='/MY_WEB/public/auth/login';</script>";
+            } else {
+                $this->view('auth/register', ['error' => 'Có lỗi xảy ra, vui lòng thử lại sau.']);
+            }
         }
     }
 

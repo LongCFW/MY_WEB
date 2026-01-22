@@ -13,6 +13,19 @@ class User extends Model {
         return $this->db->fetch($sql, [$email]);
     }
 
+    // check email
+    public function checkPhoneExists($phone, $excludeId = null) {
+        $sql = "SELECT id FROM {$this->table} WHERE phone = ?";
+        $params = [$phone];
+        
+        if ($excludeId) {
+            $sql .= " AND id != ?";
+            $params[] = $excludeId;
+        }
+        
+        return $this->db->fetch($sql, $params);
+    }
+
     // Hàm check email tồn tại (trừ user hiện tại đang sửa)
     public function checkEmailExists($email, $excludeId = null) {
         $sql = "SELECT id FROM {$this->table} WHERE email = ?";
