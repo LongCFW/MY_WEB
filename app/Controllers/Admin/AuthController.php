@@ -35,13 +35,14 @@ class AuthController extends Controller {
                 // Kiểm tra mật khẩu (Dùng password_verify cho mã hóa)
                 // Lưu ý: Lúc nãy ta insert hash mẫu, nên ở đây verify sẽ đúng
                 if (password_verify($password, $user['password_hash'])) {
-                    
+                    $allowedRoles = [1, 2, 3];
                     // Kiểm tra quyền (Role = 1 là Admin)
-                    if ($user['role_id'] == 1) {
+                    if (in_array($user['role_id'], $allowedRoles)) {
                         // Lưu session
                         $_SESSION['admin_logged_in'] = true;
                         $_SESSION['admin_id'] = $user['id'];
                         $_SESSION['admin_name'] = $user['name'];
+                        $_SESSION['admin_role'] = $user['role_id'];
 
                         // Chuyển hướng vào Dashboard
                         header('Location: /MY_WEB/public/admin/dashboard');
@@ -66,6 +67,7 @@ class AuthController extends Controller {
         unset($_SESSION['admin_logged_in']);
         unset($_SESSION['admin_id']);
         unset($_SESSION['admin_name']);
+        unset($_SESSION['admin_role']);
         header('Location: /MY_WEB/public/admin/auth/login');
     }
 }

@@ -7,6 +7,7 @@ class CategoryController extends Controller {
     
     // 1. Xem danh sách
     public function index() {
+        $this->checkAuth();
         if (!isset($_SESSION['admin_logged_in'])) {
             header('Location: /MY_WEB/public/admin/auth/login');
             exit();
@@ -20,11 +21,13 @@ class CategoryController extends Controller {
 
     // 2. Hiện form thêm mới
     public function create() {
+        $this->checkAuth();
         $this->view('admin/categories/create');
     }
 
     // 3. Xử lý lưu dữ liệu
     public function store() {
+        $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
             // Tạo slug đơn giản từ tên (Ví dụ: "Áo Thun" -> "ao-thun")
@@ -47,6 +50,7 @@ class CategoryController extends Controller {
 
     // 4. Xóa
     public function delete($id) {
+        $this->checkAuth();
         $categoryModel = $this->model('Category');
         $categoryModel->delete($id);
         header('Location: /MY_WEB/public/admin/category');
@@ -54,6 +58,7 @@ class CategoryController extends Controller {
 
     // 5. Hiển thị form sửa (GET)
     public function edit($id) {
+        $this->checkAuth();
         $categoryModel = $this->model('Category');
         $category = $categoryModel->find($id); // Lấy dữ liệu cũ theo ID
 
@@ -69,6 +74,7 @@ class CategoryController extends Controller {
 
     // 6. Xử lý cập nhật (POST)
     public function update($id) {
+        $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
             $slug = $_POST['slug'];
@@ -89,4 +95,22 @@ class CategoryController extends Controller {
             header('Location: /MY_WEB/public/admin/category');
         }
     }
+
+    private function checkAuth() {
+    if (!isset($_SESSION['admin_logged_in'])) {
+        header('Location: /MY_WEB/public/admin/auth/login');
+        exit();
+    }
+
+    // Chỉ cho phép Role 1 (Admin) và 2 (Manager)
+    $allowedRoles = [1, 2];
+    
+    if (!in_array($_SESSION['admin_role'], $allowedRoles)) {
+        echo "<script>
+            alert('Nhân viên không được quyền quản lý Sản phẩm/Danh mục!'); 
+            window.location.href='/MY_WEB/public/admin/dashboard';
+        </script>";
+        exit();
+    }
+}
 }

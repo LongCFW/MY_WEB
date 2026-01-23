@@ -7,6 +7,7 @@ class ProductController extends Controller {
 
     // 1
     public function index() {
+        $this->checkAuth();
         if (!isset($_SESSION['admin_logged_in'])) header('Location: /MY_WEB/public/admin/auth/login');
         
         $productModel = $this->model('Product');
@@ -16,6 +17,7 @@ class ProductController extends Controller {
 
     // 2
     public function create() {
+        $this->checkAuth();
         $categoryModel = $this->model('Category');
         $categories = $categoryModel->all();
         $this->view('admin/products/create', ['categories' => $categories]);
@@ -23,6 +25,7 @@ class ProductController extends Controller {
 
     // --- 3 LOGIC LƯU 3 BẢNG QUAN TRỌNG ---
     public function store() {
+        $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // 1. Lấy dữ liệu từ Form
             $name = $_POST['name'];
@@ -87,6 +90,7 @@ class ProductController extends Controller {
 
     // 4 Xóa (Lưu ý: Do có khóa ngoại Cascade hoặc phải xóa bảng con trước)
     public function delete($id) {
+        $this->checkAuth();
         // Database của bạn có ON DELETE CASCADE ở bảng variant/image chưa?
         // Nếu có rồi thì chỉ cần xóa bảng Product là tự bay hết.
         // Nếu chưa thì phải xóa tay từng bảng. Giả sử đã có CASCADE như DDL bạn gửi.
@@ -97,6 +101,7 @@ class ProductController extends Controller {
 
     // --- 5. HIỂN THỊ FORM SỬA ---
     public function edit($id) {
+        $this->checkAuth();
         $productModel = $this->model('Product');
         $product = $productModel->getProductDetail($id);
 
@@ -117,6 +122,7 @@ class ProductController extends Controller {
 
     // --- 6. XỬ LÝ CẬP NHẬT (Update 3 bảng) ---
     public function update($id) {
+        $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
             $category_id = $_POST['category_id'];
@@ -159,4 +165,22 @@ class ProductController extends Controller {
             header('Location: /MY_WEB/public/admin/product');
         }
     }
+
+    private function checkAuth() {
+    if (!isset($_SESSION['admin_logged_in'])) {
+        header('Location: /MY_WEB/public/admin/auth/login');
+        exit();
+    }
+
+    // Chỉ cho phép Role 1 (Admin) và 2 (Manager)
+    $allowedRoles = [1, 2];
+    
+    if (!in_array($_SESSION['admin_role'], $allowedRoles)) {
+        echo "<script>
+            alert('Nhân viên không được quyền quản lý Sản phẩm/Danh mục!'); 
+            window.location.href='/MY_WEB/public/admin/dashboard';
+        </script>";
+        exit();
+    }
+}
 }

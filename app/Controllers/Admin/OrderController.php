@@ -5,6 +5,7 @@ use App\Core\Controller;
 class OrderController extends Controller {
     
     public function index() {
+        $this->checkAuth();
         if (!isset($_SESSION['admin_logged_in'])) header('Location: /MY_WEB/public/admin/auth/login');
         $this->checkAdmin();
         $orderModel = $this->model('Order');
@@ -13,6 +14,7 @@ class OrderController extends Controller {
     }
 
     public function detail($id) {
+        $this->checkAuth();
         $this->checkAdmin();
         $orderModel = $this->model('Order');
         
@@ -50,6 +52,7 @@ class OrderController extends Controller {
     }
 
     public function update_status($id) {
+        $this->checkAuth();
         $this->checkAdmin();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $status = $_POST['status'];
@@ -92,4 +95,12 @@ class OrderController extends Controller {
         header('Location: /MY_WEB/public/admin/auth/login');
         exit();
     }
+
+    private function checkAuth() {
+    // Chỉ cần kiểm tra đã đăng nhập là được (vì Staff cũng được vào)
+    if (!isset($_SESSION['admin_logged_in'])) {
+        header('Location: /MY_WEB/public/admin/auth/login');
+        exit();
+    }
+}
 }

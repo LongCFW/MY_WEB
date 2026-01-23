@@ -113,8 +113,18 @@ class UserController extends Controller {
     }
 
     private function checkAuth() {
+        // 1. Chưa đăng nhập -> Đá về login
         if (!isset($_SESSION['admin_logged_in'])) {
             header('Location: /MY_WEB/public/admin/auth/login');
+            exit();
+        }
+
+        // 2. Đã đăng nhập nhưng Role không phải Admin (1) -> Báo lỗi & Đá về Dashboard
+        if ($_SESSION['admin_role'] != 1) {
+            echo "<script>
+                alert('Bạn không có quyền truy cập vào Quản lý người dùng!'); 
+                window.location.href='/MY_WEB/public/admin/dashboard';
+            </script>";
             exit();
         }
     }
