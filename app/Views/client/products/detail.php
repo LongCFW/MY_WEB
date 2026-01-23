@@ -45,6 +45,28 @@
         -webkit-appearance: none;
         margin: 0;
     }
+
+
+    /* Hiệu ứng cho nút tim trang chi tiết */
+    .btn-wishlist-detail:hover {
+        background-color: #dc3545;
+        /* Màu đỏ */
+        color: white !important;
+    }
+
+    .btn-wishlist-detail:hover i {
+        color: white !important;
+        /* Icon chuyển sang trắng khi hover nền đỏ */
+    }
+
+    /* Giữ màu đỏ cho tim đặc khi chưa hover */
+    .btn-wishlist-detail i.fas.text-danger {
+        color: #dc3545 !important;
+    }
+
+    .btn-wishlist-detail:hover i.fas.text-danger {
+        color: white !important;
+    }
 </style>
 
 <div class="bg-white pb-5">
@@ -111,32 +133,43 @@
                     </div>
 
                     <div>
-    <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
-        <div class="input-group border rounded-pill overflow-hidden" style="width: 140px;">
-            <button type="button" class="btn btn-light border-0" onclick="updateQty(-1)">
-                <i class="fas fa-minus text-secondary" style="font-size: 0.8rem;"></i>
-            </button>
-            
-            <input type="number" id="qtyInput" class="form-control border-0 text-center bg-white fw-bold" 
-                   value="1" min="1" max="<?= $product['stock'] ?>">
-            
-            <button type="button" class="btn btn-light border-0" onclick="updateQty(1)">
-                <i class="fas fa-plus text-secondary" style="font-size: 0.8rem;"></i>
-            </button>
-        </div>
+                        <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
+                            <div class="input-group border rounded-pill overflow-hidden" style="width: 140px;">
+                                <button type="button" class="btn btn-light border-0" onclick="updateQty(-1)">
+                                    <i class="fas fa-minus text-secondary" style="font-size: 0.8rem;"></i>
+                                </button>
 
-        <button type="button" 
-                class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm flex-grow-1" 
-                <?= ($product['stock'] <= 0) ? 'disabled' : '' ?>
-                onclick="addToCartGlobal(<?= $product['id'] ?>, document.getElementById('qtyInput').value)">
-            <i class="fas fa-shopping-cart me-2"></i> <?= ($product['stock'] > 0) ? "Thêm vào giỏ" : "Hết hàng" ?>
-        </button>
+                                <input type="number" id="qtyInput" class="form-control border-0 text-center bg-white fw-bold"
+                                    value="1" min="1" max="<?= $product['stock'] ?>">
 
-        <button type="button" class="btn btn-outline-danger rounded-circle p-0 d-flex align-items-center justify-content-center border-2" style="width: 48px; height: 48px;">
-            <i class="far fa-heart"></i>
-        </button>
-    </div>
-</div>
+                                <button type="button" class="btn btn-light border-0" onclick="updateQty(1)">
+                                    <i class="fas fa-plus text-secondary" style="font-size: 0.8rem;"></i>
+                                </button>
+                            </div>
+
+                            <button type="button"
+                                class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm flex-grow-1"
+                                <?= ($product['stock'] <= 0) ? 'disabled' : '' ?>
+                                onclick="addToCartGlobal(<?= $product['id'] ?>, document.getElementById('qtyInput').value)">
+                                <i class="fas fa-shopping-cart me-2"></i> <?= ($product['stock'] > 0) ? "Thêm vào giỏ" : "Hết hàng" ?>
+                            </button>
+
+                            <?php
+                            // Logic kiểm tra: Biến $likedIds được truyền từ Controller xuống
+                            // Nếu sản phẩm này nằm trong danh sách đã like -> $isLiked = true
+                            $likedIds = $likedIds ?? [];
+                            $isLiked = in_array($product['id'], $likedIds);
+                            ?>
+                            <button type="button"
+                                class="btn btn-outline-danger rounded-circle p-0 d-flex align-items-center justify-content-center border-2 btn-wishlist-detail"
+                                style="width: 48px; height: 48px; transition: all 0.3s ease;"
+                                onclick="toggleWishlist(this, <?= $product['id'] ?>)"
+                                title="<?= $isLiked ? 'Bỏ yêu thích' : 'Thêm vào yêu thích' ?>">
+
+                                <i class="<?= $isLiked ? 'fas text-danger' : 'far' ?> fa-heart fs-5"></i>
+                            </button>
+                        </div>
+                    </div>
 
                     <div class="d-flex gap-4 pt-4 border-top">
                         <div class="d-flex align-items-center gap-2">
