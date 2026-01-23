@@ -28,7 +28,7 @@
                     <td><strong>#<?= $order['order_number'] ?></strong></td>
                     <td>
                         <?= $order['customer_name'] ?><br>
-                        <small class="text-muted"><?= $order['email'] ?? 'Khách vãng lai/Không có email' ?></small>
+                        <!-- <small class="text-muted"><?= $order['email'] ?? 'Khách vãng lai/Không có email' ?></small> -->
                     </td>
                     <td><?= date('d/m/Y H:i', strtotime($order['created_at'])) ?></td>
                     <td class="text-danger font-weight-bold"><?= number_format($order['total_cents']) ?> đ</td>
