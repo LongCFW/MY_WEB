@@ -181,4 +181,37 @@ class Product extends Model {
         
         return $this->db->fetchAll($sql, [$categoryId, $excludeId]);
     }
+
+    public function delete($id) {
+        // Bước 1: Lấy danh sách Variant ID của sản phẩm này
+        // (Vì Wishlist và CartItem liên kết qua variant_id)
+        $sqlGetVariants = "SELECT id FROM product_variants WHERE product_id = ?";
+        $variants = $this->db->fetchAll($sqlGetVariants, [$id]);
+        
+        // Tạo mảng chứa các ID biến thể
+        $variantIds = array_column($variants, 'id');
+
+        if (!empty($variantIds)) {
+            // Chuyển mảng ID thành chuỗi để dùng trong câu lệnh IN (...)
+            // Ví dụ: 1,2,3
+            $idsString = implode(',', array_map('intval', $variantIds));
+
+            // Bước 2: Xóa trong bảng WISHLISTS trước (Gỡ lỗi khóa ngoại 1451)
+            $this->db->query("DELETE FROM wishlists WHERE variant_id IN ($idsString)");
+
+            // Bước 3: Xóa trong bảng CART_ITEMS (Gỡ lỗi khóa ngoại giỏ hàng nếu có)
+            $this->db->query("DELETE FROM cart_items WHERE variant_id IN ($idsString)");
+            
+            // Bước 4: Xóa các biến thể (PRODUCT_VARIANTS)
+            // (Lưu ý: Nếu bảng order_items có liên kết thì phải xóa ở đó nữa, nhưng thường order_items không xóa)
+            $this->db->query("DELETE FROM product_variants WHERE product_id = ?", [$id]);
+        }
+
+        // Bước 5: Xóa Hình ảnh sản phẩm (product_images)
+        $this->db->query("DELETE FROM product_images WHERE product_id = ?", [$id]);
+
+        // Bước 6: Cuối cùng mới xóa SẢN PHẨM chính
+        $sql = "DELETE FROM {$this->table} WHERE id = ?";
+        return $this->db->query($sql, [$id]);
+    }
 }

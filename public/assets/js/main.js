@@ -32,13 +32,13 @@ function showToast(message) {
 
 // --- ADD TO CART GLOBAL (UPDATED) ---
 function addToCartGlobal(productId, quantity = 1) {
-    // Ép kiểu quantity về số để tránh lỗi
     const qty = parseInt(quantity) > 0 ? parseInt(quantity) : 1;
 
     fetch('/MY_WEB/public/cart/add', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
             product_id: productId,
@@ -48,40 +48,65 @@ function addToCartGlobal(productId, quantity = 1) {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            // 1. Cập nhật số lượng icon giỏ hàng
-            const cartCountBadge = document.querySelector('.cart-count-badge');
-            // Tìm tất cả các badge giỏ hàng (mobile + desktop)
-            const badges = document.querySelectorAll('.cart-count-badge, .badge.bg-danger'); 
             
-            badges.forEach(badge => {
-                badge.innerText = data.cart_count;
-                badge.style.display = 'block'; // Hoặc 'flex' tùy CSS
-            });
+            // --- [FIX] CẬP NHẬT BADGE THÔNG MINH HƠN ---
+            
+            // 1. Tìm nút cha chứa icon giỏ hàng (trong header.php bạn đã có class 'cart-icon-hover')
+            const cartIconContainer = document.querySelector('.cart-icon-hover');
+            
+            if (cartIconContainer) {
+                // 2. Tìm thẻ badge bên trong
+                let badge = cartIconContainer.querySelector('.badge');
 
-            // 2. Hiển thị Toast thay vì Alert
-            showToast(data.message);
-            
-            // 3. Đóng Modal Quick View nếu đang mở
+                if (data.cart_count > 0) {
+                    if (badge) {
+                        // Trường hợp A: Badge đã có -> Chỉ cập nhật số
+                        badge.innerText = data.cart_count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        // Trường hợp B: Badge chưa có (lần đầu mua) -> Tạo mới thẻ SPAN
+                        badge = document.createElement('span');
+                        // Copy y nguyên class từ header.php vào đây
+                        badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light cart-badge';
+                        badge.style.fontSize = '0.7rem';
+                        badge.innerText = data.cart_count;
+                        
+                        // Chèn vào trong nút cha
+                        cartIconContainer.appendChild(badge);
+                    }
+                } else {
+                    // Nếu số lượng = 0 thì ẩn đi
+                    if (badge) badge.style.display = 'none';
+                }
+            }
+
+            // 3. Hiển thị Toast
+            if(typeof showToast === 'function') {
+                showToast(data.message);
+            } else {
+                alert(data.message);
+            }
+
+            // 4. Đóng Modal Quick View (nếu có)
             const qvModalEl = document.getElementById('quickViewModal');
             if (qvModalEl && qvModalEl.classList.contains('show')) {
-                // Kiểm tra xem bootstrap có tồn tại không
                 if (typeof bootstrap !== 'undefined') {
                     const modalInstance = bootstrap.Modal.getInstance(qvModalEl);
                     if(modalInstance) modalInstance.hide();
                 } else {
-                    // Fallback đóng thủ công nếu ko load đc instance
                     const btnClose = qvModalEl.querySelector('.btn-close');
                     if(btnClose) btnClose.click();
                 }
             }
+        } else {
+            alert(data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showToast('Có lỗi xảy ra, vui lòng thử lại!');
+        alert('Có lỗi xảy ra, vui lòng thử lại!');
     });
 }
-
 
 /**
  * Toggle Wishlist

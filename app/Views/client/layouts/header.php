@@ -1,3 +1,23 @@
+<?php
+// --- [LOGIC ĐẾM GIỎ HÀNG] ---
+$cartCount = 0;
+
+if (isset($_SESSION['user_logged_in'])) {
+    // Nếu đã đăng nhập: Gọi Model CartItem để đếm từ Database
+    try {
+        // [SỬA] Đổi Cart thành CartItem
+        if (class_exists('\App\Models\CartItem')) {
+            $cartModelHeader = new \App\Models\CartItem(); 
+            $cartCount = $cartModelHeader->countCartItems($_SESSION['user_id']);
+        }
+    } catch (\Exception $e) {
+        $cartCount = 0; 
+    }
+} else {
+    // Nếu chưa đăng nhập: Đếm từ Session
+    $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -50,10 +70,15 @@
                     <div class="vr text-secondary opacity-25" style="height: 25px;"></div>
 
                     <div class="d-flex align-items-center gap-3">
+                        
                         <a href="/MY_WEB/public/cart" class="position-relative btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center text-success cart-icon-hover" style="width: 42px; height: 42px;">
                             <i class="fas fa-shopping-cart"></i>
-                            <?php $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0; ?>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light"><?= $cartCount ?></span>
+                            
+                            <?php if ($cartCount > 0): ?>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 0.7rem;">
+                                    <?= $cartCount ?>
+                                </span>
+                            <?php endif; ?>
                         </a>
 
                         <div class="dropdown">
