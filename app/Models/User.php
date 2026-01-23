@@ -38,4 +38,16 @@ class User extends Model {
         
         return $this->db->fetch($sql, $params);
     }
+
+    public function updateProfile($id, $name, $phone, $avatarPath = null) {
+        if ($avatarPath) {
+            // đổi ảnh
+            $sql = "UPDATE {$this->table} SET name = ?, phone = ?, avatar_url = ? WHERE id = ?";
+            return $this->db->query($sql, [$name, $phone, $avatarPath, $id]);
+        } else {
+            // Nếu không đổi ảnh
+            $sql = "UPDATE {$this->table} SET name = ?, phone = ? WHERE id = ?";
+            return $this->db->query($sql, [$name, $phone, $id]);
+        }
+    }
 }
