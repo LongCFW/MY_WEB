@@ -134,15 +134,52 @@ class CheckoutController extends Controller {
             unset($_SESSION['cart']);
             
             // Redirect về Profile tab Orders kèm query param để hiện Toast
-            header("Location: /MY_WEB/public/account?tab=orders&order_success=1");
+            header("Location: /MY_WEB/public/checkout/success?order_id=$orderId");
             exit;
         }
     }
 
     // 3. Trang thông báo thành công
     public function success() {
+        // Kiểm tra đăng nhập
+        if (!isset($_SESSION['user_logged_in'])) {
+            header('Location: /MY_WEB/public/');
+            exit();
+        }
+
         $orderId = $_GET['order_id'] ?? 0;
-        // Có thể gọi model lấy thông tin order để hiện lời cảm ơn
-        $this->view('client/checkout/success', ['order_id' => $orderId]);
+        
+        $orderModel = $this->model('Order');
+        $order = $orderModel->getOrderDetail($orderId);
+
+        // Bảo mật: Chỉ cho phép xem đơn hàng của chính mình
+        if (!$order || $order['user_id'] != $_SESSION['user_id']) {
+            // Redirect về trang chủ hoặc hiện lỗi nếu cố tình xem đơn người khác
+            header('Location: /MY_WEB/public/');
+            exit();
+        }
+
+        // Lấy danh sách sản phẩm
+        $items = $orderModel->getOrderItems($orderId);
+        
+        // Xử lý logic hiển thị ảnh/tên từ Snapshot JSON (nếu có)
+        foreach ($items as &$item) {
+            $snapshot = json_decode($item['product_snapshot'] ?? '', true);
+            $item['display_name'] = $snapshot['name'] ?? $item['product_name']; // Ưu tiên snapshot
+            
+            // Xử lý ảnh
+            $img = $snapshot['image'] ?? $item['live_image_url'];
+            $item['display_image'] = !empty($img) ? "/MY_WEB/public/" . $img : "https://placehold.co/60";
+        }
+
+        // Tính ngày dự kiến giao hàng (Ví dụ: +3 ngày kể từ ngày đặt)
+        $placedDate = strtotime($order['created_at']);
+        $expectedDate = date('d/m/Y', strtotime('+3 days', $placedDate));
+
+        $this->view('client/checkout/success', [
+            'order' => $order,
+            'items' => $items,
+            'expectedDate' => $expectedDate
+        ]);
     }
 }
