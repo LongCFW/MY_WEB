@@ -29,6 +29,7 @@ class ProductController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // 1. Lấy dữ liệu từ Form
             $name = $_POST['name'];
+            $brand = $_POST['brand'] ?? '';
             $category_id = $_POST['category_id'];
             $desc = $_POST['description'];
             $price = $_POST['price']; // Giá
@@ -42,9 +43,10 @@ class ProductController extends Controller {
             $productData = [
                 'name' => $name,
                 'slug' => $slug . '-' . time(), // Thêm time để tránh trùng slug
+                'brand' => $brand,
                 'category_id' => $category_id,
                 'description' => $desc,
-                'short_description' => substr($desc, 0, 150), // Lấy tạm mô tả ngắn
+                'short_description' => mb_substr($desc, 0, 150, 'UTF-8'), 
                 'is_active' => 1,
                 'sku' => 'P' . time() // SKU tạm cho product cha
             ];
@@ -125,6 +127,7 @@ class ProductController extends Controller {
         $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
+            $brand = $_POST['brand'] ?? '';
             $category_id = $_POST['category_id'];
             $desc = $_POST['description'];
             $price = $_POST['price'];
@@ -134,9 +137,10 @@ class ProductController extends Controller {
             $productModel = $this->model('Product');
             $productData = [
                 'name' => $name,
+                'brand' => $brand,
                 'category_id' => $category_id,
                 'description' => $desc,
-                'short_description' => substr($desc, 0, 150)
+                'short_description' => mb_substr($desc, 0, 150, 'UTF-8')
             ];
             $productModel->update($id, $productData);
 

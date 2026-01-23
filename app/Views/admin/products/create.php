@@ -21,6 +21,11 @@
                                 <label>Tên sản phẩm <span class="text-danger">*</span></label>
                                 <input type="text" name="name" class="form-control" required>
                             </div>
+
+                            <div class="form-group">
+                                <label>Thương hiệu (Brand)</label>
+                                <input type="text" name="brand" class="form-control" placeholder="VD: Vinamilk, TH True Milk...">
+                            </div>
                             
                             <div class="form-group">
                                 <label>Mô tả chi tiết</label>

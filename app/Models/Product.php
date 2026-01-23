@@ -121,13 +121,11 @@ class Product extends Model {
 
     // Lấy thương hiệu (Mock hoặc lấy thật)
     public function getDistinctBrands() {
-        // Tạm thời trả về dữ liệu mẫu để test giao diện
-        return [
-            ['brand' => 'Vinamilk'],
-            ['brand' => 'TH True Milk'],
-            ['brand' => 'Organic Life'],
-            ['brand' => 'Eco Farm']
-        ];
+        $sql = "SELECT DISTINCT brand FROM {$this->table} 
+                WHERE brand IS NOT NULL AND brand != '' AND is_active = 1 
+                ORDER BY brand ASC";
+        
+        return $this->db->fetchAll($sql);
     }
 
     public function getProductDetail($id) {
