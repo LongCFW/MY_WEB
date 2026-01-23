@@ -359,3 +359,30 @@
     color: #4caf50; /* Màu xanh lá cho icon check */
     font-size: 1.2rem;
 }
+
+/* Hiệu ứng nút Wishlist (Trái tim) */
+.btn-wishlist {
+    opacity: 0.8;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+.btn-wishlist:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    background-color: #fff;
+    color: #dc3545; /* Màu đỏ bootstrap */
+}
+
+/* Nút Add Cart ở dưới cùng */
+.btn-add-cart-hover {
+    transition: transform 0.2s;
+}
+.btn-add-cart-hover:hover {
+    transform: scale(1.1) rotate(90deg); /* Xoay nhẹ dấu cộng */
+    background-color: #157347; /* Darker green */
+}
+
+/* Hiệu ứng Overlay (Nút xem nhanh/chi tiết) */
+.group-hover:hover .card-actions-overlay {
+    opacity: 1 !important;
+    background-color: rgba(0, 0, 0, 0.1); /* Làm tối nền ảnh một chút */
+}

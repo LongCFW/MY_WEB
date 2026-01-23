@@ -78,7 +78,7 @@
                         <a href="/MY_WEB/public/account?page=address" class="<?= ($current_page == 'address') ? 'active' : '' ?>">
                             <i class="fas fa-map-marker-alt"></i> Sổ địa chỉ
                         </a>
-                        <a href="#" class="<?= ($current_page == 'wishlist') ? 'active' : '' ?>">
+                        <a href="/MY_WEB/public/account?page=wishlist" class="<?= ($current_page == 'wishlist') ? 'active' : '' ?>">
                             <i class="fas fa-heart"></i> Sản phẩm yêu thích
                         </a>
                         <a href="#" class="<?= ($current_page == 'voucher') ? 'active' : '' ?>">
@@ -106,11 +106,12 @@
                         case 'orders':
                             require_once 'parts/orders.php';
                             break;
-                        // --- THÊM ĐOẠN NÀY ---
                         case 'address':
                             require_once 'parts/address.php';
                             break;
-                        // ---------------------
+                        case 'wishlist':
+                            require_once 'parts/wishlist.php';
+                            break;
                         default:
                             echo "<div class='text-center py-5 text-muted'>Chức năng đang phát triển...</div>";
                             break;

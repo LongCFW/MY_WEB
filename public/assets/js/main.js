@@ -81,3 +81,67 @@ function addToCartGlobal(productId, quantity = 1) {
         showToast('Có lỗi xảy ra, vui lòng thử lại!');
     });
 }
+
+
+/**
+ * Toggle Wishlist
+ * @param {HTMLElement} btnElement - Nút được bấm
+ * @param {Number|null} productId - ID sản phẩm (dùng ở trang Home/List)
+ * @param {Number|null} variantId - ID biến thể (dùng ở trang Wishlist/Detail)
+ * @param {Boolean} removeRow - Có xóa dòng khỏi giao diện không (Dùng cho trang Profile)
+ */
+function toggleWishlist(btnElement, productId = null, variantId = null, removeRow = false) {
+    const icon = btnElement.querySelector('i');
+    // Hiệu ứng nảy nhẹ khi click để tạo cảm giác tương tác
+    btnElement.style.transform = 'scale(0.8)';
+    setTimeout(() => btnElement.style.transform = 'scale(1)', 200);
+    
+    fetch('/MY_WEB/public/wishlist/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            product_id: productId,
+            variant_id: variantId 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // --- XỬ LÝ UI NGAY LẬP TỨC ---
+            if (data.action === 'added') {
+                // Nếu đã thêm: đổi sang tim đặc màu đỏ
+                icon.classList.remove('far');
+                icon.classList.add('fas', 'text-danger');
+            } else {
+                // Nếu đã xóa: đổi sang tim rỗng
+                icon.classList.remove('fas', 'text-danger');
+                icon.classList.add('far');
+            }
+
+            // Xử lý riêng cho trang Profile (xóa card)
+            if (removeRow && data.action === 'removed') {
+                 const targetId = variantId ? variantId : productId;
+                 const col = document.getElementById('wishlist-item-' + targetId);
+                 if(col) {
+                     col.style.opacity = '0'; // Hiệu ứng mờ dần
+                     setTimeout(() => col.remove(), 300); // Xóa sau khi mờ
+                 }
+            }
+
+            // --- HIỆN TOAST THÔNG BÁO ---            
+            if (typeof showToast === 'function') {
+                // data.message từ controller gửi về là "Đã thêm..." hoặc "Đã xóa..."
+                showToast(data.message, data.action === 'added' ? 'success' : 'info');
+            }
+        } else {
+            // Xử lý lỗi (ví dụ chưa đăng nhập)
+            if(data.message && data.message.includes('đăng nhập')) {
+                 // Có thể chuyển hướng login hoặc hiện toast lỗi
+                 window.location.href = '/MY_WEB/public/auth/login';
+            } else {
+                 alert(data.message);
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}

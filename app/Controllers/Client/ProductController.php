@@ -11,7 +11,7 @@ class ProductController extends Controller {
 
         // 1. Nhận tham số
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $limit = 8; // Số sản phẩm mỗi trang (Giống React itemsPerPage = 8)
+        $limit = 8; 
         $offset = ($page - 1) * $limit;
 
         $filters = [
@@ -22,7 +22,7 @@ class ProductController extends Controller {
             'brands'       => $_GET['brand'] ?? []     
         ];
 
-        // 2. Lấy dữ liệu
+        // 2. Lấy dữ liệu sản phẩm
         $products = $productModel->getFilteredProducts($filters, $limit, $offset);
         $totalProducts = $productModel->countFilteredProducts($filters);
         $totalPages = ceil($totalProducts / $limit);
@@ -30,12 +30,21 @@ class ProductController extends Controller {
         $categories = $categoryModel->all();
         $brands = $productModel->getDistinctBrands();
 
-        // 3. Truyền View
+        // --- 3. LOGIC WISHLIST ---
+        // Lấy danh sách ID sản phẩm user đã like để hiển thị trái tim đỏ
+        $wishlistModel = $this->model('Wishlist');
+        $likedIds = [];                           
+        if(isset($_SESSION['user_id'])) {         
+            $likedIds = $wishlistModel->getUserLikedProductIds($_SESSION['user_id']);
+        }
+
+        // 4. Truyền View
         $data = [
             'products' => $products,
             'categories' => $categories,
             'brands' => $brands,
             'filters' => $filters,
+            'likedIds' => $likedIds, 
             'pagination' => [
                 'current_page' => $page,
                 'total_pages' => $totalPages,
@@ -45,29 +54,38 @@ class ProductController extends Controller {
 
         $this->view('client/products/index', $data);
     }
+
     public function detail($id) {
         $productModel = $this->model('Product');
         
         // 1. Lấy chi tiết sản phẩm
         $product = $productModel->getProductDetail($id);
 
-        // Nếu không tìm thấy sản phẩm -> Redirect hoặc lỗi 404
         if (!$product) {
-            // Có thể redirect về trang danh sách hoặc hiện trang 404
             header('Location: /MY_WEB/public/product'); 
             exit;
         }
 
-        // 2. Lấy sản phẩm liên quan (Dựa vào category_id của sản phẩm vừa lấy)
+        // 2. Lấy sản phẩm liên quan
         $relatedProducts = [];
         if (!empty($product['category_id'])) {
             $relatedProducts = $productModel->getRelatedProducts($product['category_id'], $id);
         }
 
-        // 3. Truyền data xuống View
+        // --- 3. LOGIC WISHLIST  ---
+        // Để hiển thị tim đỏ cho sản phẩm chính và các sản phẩm liên quan
+        $wishlistModel = $this->model('Wishlist');
+        $likedIds = [];                           
+        if(isset($_SESSION['user_id'])) {         
+            $likedIds = $wishlistModel->getUserLikedProductIds($_SESSION['user_id']);
+        }
+        // -------------------------------
+
+        // 4. Truyền data xuống View
         $data = [
             'product' => $product,
-            'relatedProducts' => $relatedProducts
+            'relatedProducts' => $relatedProducts,
+            'likedIds' => $likedIds 
         ];
 
         $this->view('client/products/detail', $data);
