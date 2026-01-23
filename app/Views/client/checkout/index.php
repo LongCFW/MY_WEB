@@ -328,25 +328,54 @@
     }
 
     // Hàm submit form thêm mới (Giữ nguyên logic cũ)
-    function submitNewAddress() {
-        const form = document.getElementById('addNewAddrForm');
-        const formData = new FormData(form);
+   function submitNewAddress() {
+    // 1. Lấy form bằng ID chính xác (Khớp với id="addNewAddrForm" trong HTML)
+    const form = document.getElementById('addNewAddrForm');
 
-        fetch('/MY_WEB/public/ShippingAddress/store', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.status === 'success') {
-                alert('Đã thêm địa chỉ mới!');
-                location.reload();
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(err => console.error(err));
+    // Kiểm tra kỹ xem form có tồn tại không
+    if (!form) {
+        alert("Lỗi hệ thống: Không tìm thấy Form nhập liệu (ID: addNewAddrForm).");
+        console.error("Không tìm thấy element #addNewAddrForm");
+        return;
     }
+
+    // 2. Tạo FormData từ form đã tìm thấy
+    const formData = new FormData(form);
+
+    // 3. Gửi AJAX
+    fetch('/MY_WEB/public/ShippingAddress/store', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            // QUAN TRỌNG: Báo hiệu AJAX để Controller trả về JSON
+            'X-Requested-With': 'XMLHttpRequest' 
+        }
+    })
+    .then(response => {
+        // Kiểm tra xem server có trả về HTML lỗi không
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") === -1) {
+            return response.text().then(text => {
+                // Log lỗi ra console để debug nếu server bị Fatal Error
+                console.error("Server Response:", text);
+                throw new Error("Server trả về lỗi HTML. Xem Console để biết chi tiết.");
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message);
+            location.reload(); // Load lại trang để hiện địa chỉ mới
+        } else {
+            alert(data.message); // Hiện lỗi (ví dụ: thiếu thông tin)
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra: ' + error.message);
+    });
+}
 </script>
 
 <?php require_once '../app/Views/client/layouts/footer.php'; ?>

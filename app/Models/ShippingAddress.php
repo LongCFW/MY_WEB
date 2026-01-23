@@ -5,9 +5,16 @@ use App\Core\Model;
 class ShippingAddress extends Model {
     protected $table = 'shipping_addresses';
 
-    public function getByUserId($userId) {
-        $sql = "SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY is_default DESC, created_at DESC";
+    public function getByUserId($userId, $limit = 1000, $offset = 0) {
+        $sql = "SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY is_default DESC, created_at DESC LIMIT $limit OFFSET $offset";
         return $this->db->fetchAll($sql, [$userId]);
+    }
+
+    // Mới: Đếm tổng địa chỉ
+    public function countByUserId($userId) {
+        $sql = "SELECT count(*) as total FROM {$this->table} WHERE user_id = ?";
+        $result = $this->db->fetch($sql, [$userId]);
+        return $result['total'] ?? 0;
     }
 
     public function setAsDefault($id, $userId) {

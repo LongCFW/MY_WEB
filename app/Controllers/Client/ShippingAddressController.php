@@ -5,40 +5,52 @@ use App\Core\Controller;
 
 class ShippingAddressController extends Controller {
 
+    // Xử lý thêm mới
     public function store() {
-        if (!isset($_SESSION['user_logged_in'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Vui lòng đăng nhập']);
-            exit;
-        }
-
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            
+            // 1. Kiểm tra xem request này có phải là AJAX không?
+            $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+
+            // Check Login
+            if (!isset($_SESSION['user_logged_in'])) {
+                $msg = 'Vui lòng đăng nhập để thực hiện chức năng này.';
+                if ($isAjax) { echo json_encode(['status' => 'error', 'message' => $msg]); exit; }
+                header('Location: /MY_WEB/public/auth/login'); exit;
+            }
+
             $userId = $_SESSION['user_id'];
             
-            // --- LOGIC MỚI: Lấy Tên + SĐT từ Profile User ---
+            // 2. Lấy thông tin User
             $userModel = $this->model('User');
             $currentUser = $userModel->find($userId);
-            
+
             if (!$currentUser) {
-                echo json_encode(['status' => 'error', 'message' => 'Không tìm thấy thông tin tài khoản']);
-                exit;
+                $msg = 'Không tìm thấy thông tin tài khoản.';
+                if ($isAjax) { echo json_encode(['status' => 'error', 'message' => $msg]); exit; }
+                header('Location: /MY_WEB/public/account?page=address'); exit;
             }
 
-            // Lấy dữ liệu địa chỉ từ Form
-            $addressLine = $_POST['address_line'] ?? '';
+            // 3. Lấy dữ liệu từ Form (Hỗ trợ cả 'address' và 'address_line')
             $city = $_POST['city'] ?? '';
-            $province = $_POST['province'] ?? '';
-            $postalCode = $_POST['postal_code'] ?? '';
+            $addressDetail = $_POST['address_line'] ?? $_POST['address'] ?? ''; 
             
-            // Validate cơ bản
-            if (empty($addressLine) || empty($city)) {
-                echo json_encode(['status' => 'error', 'message' => 'Vui lòng nhập địa chỉ và thành phố']);
+            // Validate
+            if (empty($city) || empty($addressDetail)) {
+                $msg = 'Vui lòng nhập Tỉnh/Thành phố và Địa chỉ chi tiết!';
+                if ($isAjax) { 
+                    echo json_encode(['status' => 'error', 'message' => $msg]); 
+                    exit; 
+                }
+                echo "<script>alert('$msg'); window.history.back();</script>";
                 exit;
             }
 
-            // Logic mặc định (Nếu chưa có địa chỉ nào -> Auto default)
+            // 4. Xử lý Logic Mặc định
             $model = $this->model('ShippingAddress');
             $isDefault = isset($_POST['is_default']) ? 1 : 0;
-            
+
+            // Nếu chưa có địa chỉ nào -> Auto default
             if (!$model->hasAddress($userId)) {
                 $isDefault = 1;
             }
@@ -47,74 +59,81 @@ class ShippingAddressController extends Controller {
                 $model->resetDefault($userId);
             }
 
+            // 5. Chuẩn bị dữ liệu
+            $fullName = $currentUser['fullname'] ?? $currentUser['name'] ?? 'Unknown';
+            $phone = $currentUser['phone'] ?? '';
+
             $data = [
                 'user_id' => $userId,
-                // --- AUTO FILL TỪ USER PROFILE ---
-                'full_name' => $currentUser['name'], 
-                'phone' => $currentUser['phone'],
-                // ---------------------------------
-                'address_line' => $addressLine,
+                'full_name' => $fullName,
+                'phone' => $phone,
+                'address_line' => $addressDetail, // Đảm bảo khớp tên cột trong DB
                 'city' => $city,
-                'province' => $province,
-                'postal_code' => $postalCode,
+                'province' => '', 
+                'postal_code' => '',
                 'country' => 'Vietnam',
                 'is_default' => $isDefault,
                 'created_at' => date('Y-m-d H:i:s')
             ];
 
-            $model->create($data);
+            // 6. Lưu vào DB
+            if (method_exists($model, 'create')) {
+                $model->create($data);
+            } else {
+                $sql = "INSERT INTO shipping_addresses (user_id, full_name, phone, address_line, city, is_default, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                $model->db->query($sql, [$userId, $fullName, $phone, $addressDetail, $city, $isDefault, date('Y-m-d H:i:s')]);
+            }
 
-            echo json_encode(['status' => 'success', 'message' => 'Thêm địa chỉ thành công!']);
+            // 7. PHẢN HỒI (QUAN TRỌNG ĐỂ FIX LỖI)
+            if ($isAjax) {
+                // Nếu là Checkout gọi -> Trả về JSON success
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'success', 'message' => 'Thêm địa chỉ thành công!']);
+                exit;
+            }
+
+            // Nếu là trang Account gọi -> Redirect lại trang cũ
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/MY_WEB/public/account?page=address'));
             exit;
         }
     }
-
     public function setDefault($id) {
-        // Kiểm tra AJAX request hay Request thường
-        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
-
-        if (!isset($_SESSION['user_logged_in'])) {
-            if ($isAjax) { echo json_encode(['status' => 'error', 'message' => 'Vui lòng đăng nhập']); exit; }
-            header('Location: /MY_WEB/public/auth/login'); exit;
-        }
+        if (!isset($_SESSION['user_logged_in'])) exit;
         
         $userId = $_SESSION['user_id'];
         $model = $this->model('ShippingAddress');
         
-        // Check quyền sở hữu
+        // Kiểm tra quyền sở hữu và update
         $addr = $model->find($id);
         if ($addr && $addr['user_id'] == $userId) {
             $model->setAsDefault($id, $userId);
-            
-            if ($isAjax) {
-                echo json_encode(['status' => 'success', 'message' => 'Đã thay đổi địa chỉ mặc định thành công!']);
-                exit;
-            }
-        } else {
-            if ($isAjax) {
-                echo json_encode(['status' => 'error', 'message' => 'Địa chỉ không tồn tại']);
-                exit;
-            }
         }
-        
-        // Fallback cho request thường
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
-        exit;
+
+        // Kiểm tra nếu là Ajax thì trả JSON
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            echo json_encode(['status' => 'success']);
+            exit;
+        }
+
+        // Nếu request thường -> Redirect về address
+        header('Location: /MY_WEB/public/account?page=address');
     }
 
     public function delete($id) {
         if (!isset($_SESSION['user_logged_in'])) exit;
+        
         $userId = $_SESSION['user_id'];
         $model = $this->model('ShippingAddress');
         
         $address = $model->find($id);
         if ($address && $address['user_id'] == $userId) {
             if ($address['is_default'] == 1) {
-                echo "<script>alert('Không thể xóa địa chỉ mặc định!'); window.history.back();</script>";
-                return;
+                 echo "<script>alert('Không thể xóa địa chỉ mặc định!'); window.location.href='/MY_WEB/public/account?page=address';</script>";
+                 exit;
             }
             $model->delete($id);
         }
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        
+        header('Location: /MY_WEB/public/account?page=address');
     }
 }

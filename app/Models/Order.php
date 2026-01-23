@@ -6,9 +6,17 @@ class Order extends Model {
     protected $table = 'orders';
 
     // Lấy danh sách đơn hàng của User (Cho trang Profile)
-    public function getOrdersByUserId($userId) {
-        $sql = "SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY created_at DESC";
+    // Cập nhật: Thêm $limit và $offset (Mặc định 1000 để không ảnh hưởng code cũ nếu gọi thiếu)
+    public function getOrdersByUserId($userId, $limit = 1000, $offset = 0) {
+        $sql = "SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY created_at DESC LIMIT $limit OFFSET $offset";
         return $this->db->fetchAll($sql, [$userId]);
+    }
+
+    //  Đếm tổng đơn hàng của user
+    public function countOrdersByUserId($userId) {
+        $sql = "SELECT count(*) as total FROM {$this->table} WHERE user_id = ?";
+        $result = $this->db->fetch($sql, [$userId]);
+        return $result['total'] ?? 0;
     }
 
     public function countOrders() {

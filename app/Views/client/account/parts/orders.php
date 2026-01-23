@@ -1,3 +1,4 @@
+<?php use App\Helpers\PaginationHelper; ?>
 <h4 class="fw-bold text-primary mb-4 border-bottom pb-3">
     <i class="fas fa-box-open me-2"></i> Lịch sử đơn hàng
 </h4>
@@ -58,3 +59,6 @@
         </table>
     </div>
 <?php endif; ?>
+<div class="py-3">
+    <?php echo PaginationHelper::render($pageNum, $totalPages, 'p'); ?>
+</div>
