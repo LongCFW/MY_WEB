@@ -36,6 +36,11 @@ class AccountController extends Controller {
             $data['orders'] = $orderModel->getOrdersByUserId($userId);
         }
 
+        if ($currentPage == 'address') {
+            $addrModel = $this->model('ShippingAddress');
+            $data['addresses'] = $addrModel->getByUserId($userId);
+        }
+
         $this->view('client/account/profile', $data);
     }
 }
