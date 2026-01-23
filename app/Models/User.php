@@ -50,4 +50,16 @@ class User extends Model {
             return $this->db->query($sql, [$name, $phone, $id]);
         }
     }
+
+    // Tìm user theo Email VÀ Phone (Dùng cho quên mật khẩu)
+    public function findByEmailAndPhone($email, $phone) {
+        $sql = "SELECT * FROM {$this->table} WHERE email = ? AND phone = ?";
+        return $this->db->fetch($sql, [$email, $phone]);
+    }
+
+    // Cập nhật mật khẩu mới
+    public function updatePassword($id, $newPasswordHash) {
+        $sql = "UPDATE {$this->table} SET password_hash = ? WHERE id = ?";
+        return $this->db->query($sql, [$newPasswordHash, $id]);
+    }
 }
