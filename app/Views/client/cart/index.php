@@ -8,6 +8,7 @@
         object-fit: cover;
         border-radius: 8px;
     }
+
     .qty-input {
         width: 50px;
         text-align: center;
@@ -15,6 +16,7 @@
         background: transparent;
         font-weight: bold;
     }
+
     .qty-btn {
         width: 30px;
         height: 30px;
@@ -27,14 +29,44 @@
         cursor: pointer;
         transition: all 0.2s;
     }
+
     .qty-btn:hover {
         background: var(--eco-primary);
         color: white;
         border-color: var(--eco-primary);
     }
+
     .cart-summary {
         position: sticky;
         top: 100px;
+    }
+
+    .cart-scroll-container {
+        /* Chiều cao khoảng 3.5 item (mỗi item ~100px) */
+        max-height: 420px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* Tùy chỉnh thanh cuộn cho Webkit (Chrome, Safari, Edge) */
+    .cart-scroll-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .cart-scroll-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .cart-scroll-container::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+        transition: background 0.2s;
+    }
+
+    .cart-scroll-container::-webkit-scrollbar-thumb:hover {
+        background: #999;
+        /* Đậm hơn khi hover */
     }
 </style>
 
@@ -57,52 +89,57 @@
                                 <input class="form-check-input me-2" type="checkbox" id="checkAll" style="width: 20px; height: 20px; cursor: pointer;">
                                 <label class="form-check-label fw-bold cursor-pointer pt-1" for="checkAll">Chọn tất cả (<?= count($cart) ?> sản phẩm)</label>
                             </div>
+                            <button id="btn-delete-selected" class="btn btn-sm btn-outline-danger rounded-pill fw-bold d-none" onclick="deleteSelectedItems()">
+                                <i class="fas fa-trash-alt me-1"></i> Xóa đã chọn
+                            </button>
                         </div>
-                        
+
                         <div class="card-body p-0">
-                            <?php foreach ($cart as $id => $item): ?>
-                                <div class="cart-item p-3 border-bottom" id="item-<?= $id ?>">
-                                    <div class="d-flex align-items-center">
-                                        <div class="me-3">
-                                            <input class="form-check-input item-checkbox" type="checkbox" 
-                                                   value="<?= $id ?>" 
-                                                   data-price="<?= $item['price'] ?>" 
-                                                   style="width: 20px; height: 20px; cursor: pointer;">
-                                        </div>
-
-                                        <a href="/MY_WEB/public/product/detail/<?= $id ?>" class="me-3">
-                                            <?php $img = !empty($item['image']) ? "/MY_WEB/public/" . $item['image'] : "https://placehold.co/100"; ?>
-                                            <img src="<?= $img ?>" class="cart-item-img border">
-                                        </a>
-
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between mb-1">
-                                                <h6 class="fw-bold mb-0">
-                                                    <a href="/MY_WEB/public/product/detail/<?= $id ?>" class="text-dark text-decoration-none"><?= $item['name'] ?></a>
-                                                </h6>
-                                                <a href="/MY_WEB/public/cart/remove/<?= $id ?>" class="text-danger small text-decoration-none" onclick="return confirm('Xóa sản phẩm này?')">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </a>
+                            <div class="cart-scroll-container custom-scrollbar">
+                                <?php foreach ($cart as $id => $item): ?>
+                                    <div class="cart-item p-3 border-bottom" id="item-<?= $id ?>">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3">
+                                                <input class="form-check-input item-checkbox" type="checkbox"
+                                                    value="<?= $id ?>"
+                                                    data-price="<?= $item['price'] ?>"
+                                                    style="width: 20px; height: 20px; cursor: pointer;">
                                             </div>
-                                            
-                                            <div class="d-flex justify-content-between align-items-end mt-2">
-                                                <div class="d-flex align-items-center bg-light rounded-pill px-2 py-1 border">
-                                                    <button class="qty-btn small" onclick="updateCartQty(<?= $id ?>, -1)"><i class="fas fa-minus small"></i></button>
-                                                    <input type="number" id="qty-<?= $id ?>" class="qty-input" value="<?= $item['quantity'] ?>" readonly>
-                                                    <button class="qty-btn small" onclick="updateCartQty(<?= $id ?>, 1)"><i class="fas fa-plus small"></i></button>
+
+                                            <a href="/MY_WEB/public/product/detail/<?= $id ?>" class="me-3">
+                                                <?php $img = !empty($item['image']) ? "/MY_WEB/public/" . $item['image'] : "https://placehold.co/100"; ?>
+                                                <img src="<?= $img ?>" class="cart-item-img border">
+                                            </a>
+
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <h6 class="fw-bold mb-0">
+                                                        <a href="/MY_WEB/public/product/detail/<?= $id ?>" class="text-dark text-decoration-none"><?= $item['name'] ?></a>
+                                                    </h6>
+                                                    <a href="/MY_WEB/public/cart/remove/<?= $id ?>" class="text-danger small text-decoration-none" onclick="return confirm('Xóa sản phẩm này?')">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </a>
                                                 </div>
 
-                                                <div class="text-end">
-                                                    <div class="small text-muted text-decoration-line-through"></div>
-                                                    <span class="fw-bold text-success" id="total-price-<?= $id ?>" data-unit-price="<?= $item['price'] ?>">
-                                                        <?= number_format($item['price'] * $item['quantity']) ?> đ
-                                                    </span>
+                                                <div class="d-flex justify-content-between align-items-end mt-2">
+                                                    <div class="d-flex align-items-center bg-light rounded-pill px-2 py-1 border">
+                                                        <button class="qty-btn small" onclick="updateCartQty(<?= $id ?>, -1)"><i class="fas fa-minus small"></i></button>
+                                                        <input type="number" id="qty-<?= $id ?>" class="qty-input" value="<?= $item['quantity'] ?>" readonly>
+                                                        <button class="qty-btn small" onclick="updateCartQty(<?= $id ?>, 1)"><i class="fas fa-plus small"></i></button>
+                                                    </div>
+
+                                                    <div class="text-end">
+                                                        <div class="small text-muted text-decoration-line-through"></div>
+                                                        <span class="fw-bold text-success" id="total-price-<?= $id ?>" data-unit-price="<?= $item['price'] ?>">
+                                                            <?= number_format($item['price'] * $item['quantity']) ?> đ
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -111,12 +148,12 @@
                     <div class="card border-0 shadow-sm rounded-4 cart-summary">
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-3">Thanh toán</h5>
-                            
+
                             <div class="d-flex justify-content-between mb-2 text-muted">
                                 <span>Đã chọn:</span>
                                 <span id="selected-count">0 sản phẩm</span>
                             </div>
-                            
+
                             <div class="d-flex justify-content-between align-items-center mb-4 pt-3 border-top">
                                 <span class="fw-bold fs-5">Tổng cộng:</span>
                                 <span class="fw-bold fs-4 text-danger" id="grand-total">0 đ</span>
@@ -140,6 +177,7 @@
     const checkboxes = document.querySelectorAll('.item-checkbox');
     const grandTotalEl = document.getElementById('grand-total');
     const selectedCountEl = document.getElementById('selected-count');
+    const btnDeleteSelected = document.getElementById('btn-delete-selected');
 
     function calculateTotal() {
         let total = 0;
@@ -150,10 +188,10 @@
                 const id = cb.value;
                 const qtyInput = document.getElementById(`qty-${id}`);
                 const price = parseInt(cb.dataset.price);
-                
+
                 // Phòng trường hợp input qty chưa load xong
                 const qty = qtyInput ? parseInt(qtyInput.value) : 0;
-                
+
                 total += price * qty;
                 count++;
             }
@@ -161,10 +199,17 @@
 
         grandTotalEl.innerText = total.toLocaleString('vi-VN') + ' đ';
         selectedCountEl.innerText = count + ' sản phẩm';
+
+        // --- LOGIC ẨN/HIỆN NÚT XÓA ---
+        if (count > 0) {
+            btnDeleteSelected.classList.remove('d-none');
+        } else {
+            btnDeleteSelected.classList.add('d-none');
+        }
     }
 
     // A. Khi bấm "Chọn tất cả"
-    if(checkAll) {
+    if (checkAll) {
         checkAll.addEventListener('change', function() {
             const isChecked = this.checked;
             checkboxes.forEach(cb => {
@@ -180,7 +225,7 @@
             // Logic: Nếu bỏ tick 1 cái -> Bỏ tick "Chọn tất cả"
             if (!this.checked) {
                 checkAll.checked = false;
-            } 
+            }
             // Logic: Nếu tick đủ tất cả -> Tick "Chọn tất cả"
             else {
                 const allChecked = document.querySelectorAll('.item-checkbox:checked').length === checkboxes.length;
@@ -199,22 +244,55 @@
         if (newQty < 1) return;
 
         fetch('/MY_WEB/public/cart/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: id, quantity: newQty })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                input.value = data.new_quantity;
-                const itemTotalEl = document.getElementById(`total-price-${id}`);
-                itemTotalEl.innerText = data.item_total.toLocaleString('vi-VN') + ' đ';
-                calculateTotal(); // Tính lại tổng sau khi đổi số lượng
-            } else {
-                showToast(data.message); // Dùng showToast thay alert cho đẹp
-            }
-        })
-        .catch(error => console.error('Error:', error));
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: id,
+                    quantity: newQty
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    input.value = data.new_quantity;
+                    const itemTotalEl = document.getElementById(`total-price-${id}`);
+                    itemTotalEl.innerText = data.item_total.toLocaleString('vi-VN') + ' đ';
+                    calculateTotal(); // Tính lại tổng sau khi đổi số lượng
+                } else {
+                    showToast(data.message); // Dùng showToast thay alert cho đẹp
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // --- XÓA CÁC MỤC ĐÃ CHỌN ---
+    function deleteSelectedItems() {
+        const selectedIds = [];
+        checkboxes.forEach(cb => {
+            if (cb.checked) selectedIds.push(cb.value);
+        });
+
+        if (selectedIds.length === 0) return;
+
+        if (confirm(`Bạn có chắc muốn xóa ${selectedIds.length} sản phẩm đã chọn khỏi giỏ hàng?`)) {
+            fetch('/MY_WEB/public/cart/removeMulti', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Reload để cập nhật lại giỏ hàng sạch sẽ
+                    location.reload();
+                } else {
+                    alert('Có lỗi xảy ra!');
+                }
+            })
+            .catch(err => console.error(err));
+        }
     }
 
     function proceedToCheckout() {
