@@ -11,6 +11,7 @@ class Product extends Model {
         // Fix lỗi ONLY_FULL_GROUP_BY bằng cách dùng MIN()
         $sql = "SELECT p.*, c.name as category_name, 
                        MIN(v.price_cents) as price_cents, 
+                       SUM(v.stock) as total_stock,
                        MIN(i.image_url) as image_url
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
