@@ -213,4 +213,11 @@ class Product extends Model {
         $sql = "DELETE FROM {$this->table} WHERE id = ?";
         return $this->db->query($sql, [$id]);
     }
+
+    // Hàm đếm tổng số sản phẩm
+    public function countAll() {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        $result = $this->db->fetch($sql);
+        return $result['total'] ?? 0;
+    }
 }

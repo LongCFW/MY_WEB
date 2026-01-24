@@ -81,4 +81,20 @@ class Order extends Model {
         $sql = "UPDATE {$this->table} SET status = ?, updated_at = NOW() WHERE id = ?";
         return $this->db->query($sql, [$status, $id]);
     }
+
+    // Tính tổng doanh thu của các đơn hàng "Thành công"
+    public function getRealRevenue() {
+        // Chỉ tính tổng tiền của các đơn có status là 'completed'
+        // Nếu bạn muốn tính cả đơn 'shipping' thì sửa thành: WHERE status IN ('completed', 'shipping')
+        $sql = "SELECT SUM(total_cents) as total FROM {$this->table} WHERE status = 'completed'";
+        $result = $this->db->fetch($sql);
+        return $result['total'] ?? 0;
+    }
+
+    // Đếm tổng số đơn hàng
+    public function countAllOrders() {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        $result = $this->db->fetch($sql);
+        return $result['total'] ?? 0;
+    }
 }

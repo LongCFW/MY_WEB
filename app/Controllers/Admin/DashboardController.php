@@ -1,23 +1,31 @@
 <?php
 namespace App\Controllers\Admin;
+
 use App\Core\Controller;
 
 class DashboardController extends Controller {
+    
     public function index() {
-        if (!isset($_SESSION['admin_logged_in'])) header('Location: /MY_WEB/public/admin/auth/login');
+        // Kiểm tra đăng nhập
+        if (!isset($_SESSION['admin_logged_in'])) {
+            header('Location: /MY_WEB/public/admin/auth/login');
+            exit();
+        }
 
-        // Gọi các Model để lấy số liệu thống kê
+        // Load các Models
         $orderModel = $this->model('Order');
-        $productModel = $this->model('Product'); // Bạn dùng hàm countAll có sẵn hoặc all() rồi đếm
+        $productModel = $this->model('Product');
         $userModel = $this->model('User');
 
-        // Vì Model gốc chưa có hàm countAll(), ta có thể dùng query trực tiếp hoặc thêm vào Model gốc
-        // Ở đây thêm hàm count() vào Core/Model hoặc dùng query raw cho nhanh
+        // Lấy dữ liệu thống kê
+        $revenue = $orderModel->getRealRevenue(); 
+        
         $stats = [
-            'total_orders' => $orderModel->countOrders(),
-            'revenue' => $orderModel->getTotalRevenue(),
-            'total_products' => count($productModel->all()), // Cách nhanh, tối ưu thì viết query COUNT
-            'recent_orders' => $orderModel->getRecentOrders()
+            'revenue' => $revenue, 
+            'total_orders' => $orderModel->countAllOrders(),        
+            'total_products' => $productModel->countAll(),             
+            'total_users' => $userModel->countCustomers(),
+            'recent_orders' => $orderModel->getRecentOrders(5)
         ];
 
         $this->view('admin/dashboard/index', ['stats' => $stats]);

@@ -62,4 +62,11 @@ class User extends Model {
         $sql = "UPDATE {$this->table} SET password_hash = ? WHERE id = ?";
         return $this->db->query($sql, [$newPasswordHash, $id]);
     }
+
+    // Đếm số lượng khách hàng 
+    public function countCustomers() {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE role_id = 4";
+        $result = $this->db->fetch($sql);
+        return $result['total'] ?? 0;
+    }
 }
