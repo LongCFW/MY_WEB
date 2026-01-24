@@ -1,72 +1,58 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Thêm Sản phẩm</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-</head>
-<body>
-    <?php require_once '../app/Views/layouts/admin_sidebar.php'; ?>
+<?php require_once '../app/Views/layouts/admin_sidebar.php'; ?>
 
-    <div class="container-fluid">
-        <div class="card shadow-sm">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0">Thêm sản phẩm mới</h5>
-            </div>
-            <div class="card-body">
-                <form action="/MY_WEB/public/admin/product/store" method="POST" enctype="multipart/form-data">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="form-group">
-                                <label>Tên sản phẩm <span class="text-danger">*</span></label>
-                                <input type="text" name="name" class="form-control" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Thương hiệu (Brand)</label>
-                                <input type="text" name="brand" class="form-control" placeholder="VD: Vinamilk, TH True Milk...">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Mô tả chi tiết</label>
-                                <textarea name="description" class="form-control" rows="5"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Danh mục <span class="text-danger">*</span></label>
-                                <select name="category_id" class="form-control">
-                                    <?php foreach ($categories as $cate): ?>
-                                        <option value="<?= $cate['id'] ?>"><?= $cate['name'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Giá bán (VNĐ) <span class="text-danger">*</span></label>
-                                <input type="number" name="price" class="form-control" required min="0">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Số lượng kho <span class="text-danger">*</span></label>
-                                <input type="number" name="stock" class="form-control" value="100" required min="0">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Hình ảnh đại diện</label>
-                                <input type="file" name="image" class="form-control-file border p-1">
-                            </div>
+<div class="card shadow-sm border-0 rounded-lg">
+    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+        <h4 class="mb-0 font-weight-bold text-success"><i class="fas fa-plus-circle mr-2"></i> Thêm sản phẩm mới</h4>
+    </div>
+    <div class="card-body p-4">
+        <form action="/MY_WEB/public/admin/product/store" method="POST" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Tên sản phẩm <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold">Thương hiệu</label>
+                            <input type="text" name="brand" class="form-control" placeholder="VD: Vinamilk...">
                         </div>
                     </div>
-                    <hr>
-                    <button type="submit" class="btn btn-success px-4">Lưu sản phẩm</button>
-                    <a href="/MY_WEB/public/admin/product" class="btn btn-secondary">Hủy bỏ</a>
-                </form>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Mô tả chi tiết</label>
+                        <textarea name="description" class="form-control" rows="5"></textarea>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Danh mục <span class="text-danger">*</span></label>
+                        <select name="category_id" class="form-control">
+                            <?php foreach ($categories as $cate): ?>
+                                <option value="<?= $cate['id'] ?>"><?= $cate['name'] ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                        <input type="number" name="price" class="form-control" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Tồn kho <span class="text-danger">*</span></label>
+                        <input type="number" name="stock" class="form-control" value="100" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Hình ảnh</label>
+                        <input type="file" name="image" class="form-control-file border p-2 rounded w-100">
+                    </div>
+                </div>
             </div>
-        </div>
+            <hr>
+            <div class="d-flex justify-content-end">
+                <a href="/MY_WEB/public/admin/product" class="btn btn-light mr-2 rounded-pill px-4">Hủy bỏ</a>
+                <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm font-weight-bold">Lưu sản phẩm</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <?php require_once '../app/Views/layouts/admin_footer.php'; ?>
-</body>
-</html>
+<?php require_once '../app/Views/layouts/admin_footer.php'; ?>

@@ -1,62 +1,75 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-</head>
-<body>
-    <?php require_once '../app/Views/layouts/admin_sidebar.php'; ?>
+<?php require_once '../app/Views/layouts/admin_sidebar.php'; ?>
 
-    <h2 class="mb-4">Tổng quan hệ thống</h2>
-    
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-header">Doanh thu</div>
-                <div class="card-body">
-                    <h3 class="card-title"><?= number_format($stats['revenue']) ?> đ</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-header">Tổng đơn hàng</div>
-                <div class="card-body">
-                    <h3 class="card-title"><?= $stats['total_orders'] ?></h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card text-white bg-warning mb-3">
-                <div class="card-header">Sản phẩm</div>
-                <div class="card-body">
-                    <h3 class="card-title"><?= $stats['total_products'] ?></h3>
-                </div>
+<h3 class="mb-4 text-dark font-weight-bold">Tổng quan hệ thống</h3>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card card-box bg-success text-white h-100">
+            <div class="card-body position-relative">
+                <h5 class="text-uppercase font-weight-normal mb-3">Doanh thu</h5>
+                <h2 class="font-weight-bold mb-0"><?= number_format($stats['revenue']) ?> đ</h2>
+                <i class="fas fa-money-bill-wave stat-icon"></i>
             </div>
         </div>
     </div>
+    <div class="col-md-4">
+        <div class="card card-box bg-primary text-white h-100">
+            <div class="card-body position-relative">
+                <h5 class="text-uppercase font-weight-normal mb-3">Tổng đơn hàng</h5>
+                <h2 class="font-weight-bold mb-0"><?= $stats['total_orders'] ?></h2>
+                <i class="fas fa-shopping-bag stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-box bg-warning text-white h-100">
+            <div class="card-body position-relative">
+                <h5 class="text-uppercase font-weight-normal mb-3">Sản phẩm</h5>
+                <h2 class="font-weight-bold mb-0"><?= $stats['total_products'] ?></h2>
+                <i class="fas fa-box stat-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <h4 class="mt-4">Đơn hàng mới nhất</h4>
-    <table class="table table-bordered bg-white">
-        <thead>
-            <tr>
-                <th>Mã đơn</th>
-                <th>Khách hàng</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($stats['recent_orders'] as $order): ?>
-            <tr>
-                <td><?= $order['order_number'] ?></td>
-                <td><?= $order['user_name'] ?></td>
-                <td><?= number_format($order['total_cents']) ?> đ</td>
-                <td><span class="badge badge-info"><?= $order['status'] ?></span></td>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="mb-0 font-weight-bold text-secondary"><i class="fas fa-clock mr-2"></i> Đơn hàng mới nhất</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($stats['recent_orders'] as $order): ?>
+                    <tr>
+                        <td class="font-weight-bold">#<?= $order['order_number'] ?></td>
+                        <td><?= $order['user_name'] ?></td>
+                        <td class="text-danger font-weight-bold"><?= number_format($order['total_cents']) ?> đ</td>
+                        <td>
+                            <?php 
+                                $badges = ['pending'=>'secondary', 'processing'=>'primary', 'completed'=>'success', 'cancelled'=>'danger'];
+                                $badgeClass = $badges[$order['status']] ?? 'light';
+                            ?>
+                            <span class="badge badge-<?= $badgeClass ?> px-2 py-1"><?= ucfirst($order['status']) ?></span>
+                        </td>
+                        <td>
+                            <a href="/MY_WEB/public/admin/order/detail/<?= $order['id'] ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3">Chi tiết</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-    <?php require_once '../app/Views/layouts/admin_footer.php'; ?>
+<?php require_once '../app/Views/layouts/admin_footer.php'; ?>
