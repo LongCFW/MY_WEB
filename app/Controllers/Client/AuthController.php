@@ -72,7 +72,7 @@ class AuthController extends Controller {
                 'email' => $email,
                 'password_hash' => password_hash($password, PASSWORD_DEFAULT),
                 'phone' => $phone,
-                'role_id' => 2, // Mặc định là Customer
+                'role_id' => 4, 
                 'status' => 1
             ];
 

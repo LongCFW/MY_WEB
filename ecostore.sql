@@ -62,6 +62,7 @@ CREATE TABLE products (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     sku VARCHAR(100) UNIQUE,
     name VARCHAR(300) NOT NULL,
+    brand VARCHAR(300) NOT NULL,
     slug VARCHAR(300) UNIQUE,
     description TEXT,
     short_description TEXT,
