@@ -18,7 +18,7 @@
             <thead>
                 <tr>
                     <th style="width: 50px;">ID</th>
-                    <th>Tên danh mục</th>
+                    <th style="width: 80px;">Hình ảnh</th> <th>Tên danh mục</th>
                     <th>Slug</th>
                     <th style="width: 150px;">Hành động</th>
                 </tr>
@@ -27,6 +27,13 @@
                 <?php foreach ($categories as $cate): ?>
                 <tr>
                     <td><?= $cate['id'] ?></td>
+                    <td class="text-center">
+                        <?php if (!empty($cate['image_url'])): ?>
+                            <img src="/MY_WEB/public/<?= $cate['image_url'] ?>" alt="Img" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                        <?php else: ?>
+                            <span class="text-muted small">No Img</span>
+                        <?php endif; ?>
+                    </td>
                     <td><strong><?= $cate['name'] ?></strong></td>
                     <td><?= $cate['slug'] ?></td>
                     <td>

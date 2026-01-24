@@ -8,6 +8,7 @@ class HomeController extends Controller {
         // 1. Khởi tạo Models
         $productModel = $this->model('Product');
         $categoryModel = $this->model('Category');
+        $wishlistModel = $this->model('Wishlist');
         
         // 2. Lấy 8 sản phẩm mới nhất từ DB (Hiển thị ở Flash Sale)
         $products = $productModel->getFilteredProducts([], 8, 0);
@@ -15,37 +16,33 @@ class HomeController extends Controller {
         // 3. Lấy danh sách danh mục thật từ DB
         $categories = $categoryModel->all();
 
-        // 4. Xử lý dữ liệu hiển thị cho Danh mục 
-        $demoImages = [
-            'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=300&q=80',
-            'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=300&q=80',
-            'https://images.unsplash.com/photo-1608755717536-dd95d356333a?auto=format&fit=crop&w=300&q=80',
-            'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=300&q=80',
-            'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=300&q=80',
-            'https://images.unsplash.com/photo-1536591375315-196008b6eb71?auto=format&fit=crop&w=300&q=80',
-        ];
-
-        foreach ($categories as $index => &$cat) {
-            // A. Gán ảnh random
-            $cat['img'] = $demoImages[$index % count($demoImages)];
+        // 4. Xử lý dữ liệu hiển thị cho Danh mục (Lấy ảnh thật)
+        foreach ($categories as &$cat) {
+            // A. Xử lý hình ảnh
+            if (!empty($cat['image_url'])) {
+                // Nếu có ảnh trong DB -> Dùng ảnh thật
+                $cat['img'] = '/MY_WEB/public/' . $cat['image_url'];
+            } else {
+                // Nếu chưa có ảnh -> Dùng ảnh Placeholder mặc định
+                // Dùng hàm urlencode để tránh lỗi ký tự đặc biệt trong tên
+                $cat['img'] = 'https://placehold.co/300x300?text=' . urlencode($cat['name']);
+            }
             
-            // B. Đếm số lượng sản phẩm THẬT (GỌI HÀM MỚI TRONG MODEL)
-            // [FIX LỖI TẠI ĐÂY]
+            // B. Đếm số lượng sản phẩm THẬT (Gọi hàm trong Model Category)
             $count = $categoryModel->countActiveProducts($cat['id']);
-            
             $cat['count'] = $count . ' SP';
         }
 
+        // 5. Lấy danh sách sản phẩm user đã thích (để tô đỏ trái tim)
         $wishlistProductIds = [];
         if (isset($_SESSION['user_logged_in'])) {
-            $wishlistModel = $this->model('Wishlist');
             $wishlistProductIds = $wishlistModel->getUserWishlistProductIds($_SESSION['user_id']);
         }
 
         $data = [
             'products' => $products,
             'categories' => $categories,
-            'wishlistProductIds' => $wishlistProductIds // Truyền sang view
+            'wishlistProductIds' => $wishlistProductIds
         ];
 
         $this->view('client/home/index', $data);

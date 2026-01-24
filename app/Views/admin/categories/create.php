@@ -14,16 +14,21 @@
                 <h5 class="mb-0">Thêm danh mục mới</h5>
             </div>
             <div class="card-body">
-                <form action="/MY_WEB/public/admin/category/store" method="POST">
+                <form action="/MY_WEB/public/admin/category/store" method="POST" enctype="multipart/form-data">
                     <div class="form-group">
                         <label>Tên danh mục <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control" required placeholder="Ví dụ: Điện thoại, Thời trang...">
+                        <input type="text" name="name" class="form-control" required placeholder="Ví dụ: Điện thoại...">
                     </div>
                     <div class="form-group">
-                        <label>Slug (Đường dẫn tĩnh) <span class="text-danger">*</span></label>
+                        <label>Slug <span class="text-danger">*</span></label>
                         <input type="text" name="slug" class="form-control" required placeholder="dien-thoai">
-                        <small class="text-muted">Viết liền không dấu, dùng dấu gạch ngang (-).</small>
                     </div>
+                    
+                    <div class="form-group">
+                        <label>Hình ảnh danh mục</label>
+                        <input type="file" name="image" class="form-control-file border p-1">
+                    </div>
+
                     <div class="form-group">
                         <label>Mô tả</label>
                         <textarea name="description" class="form-control" rows="3"></textarea>
