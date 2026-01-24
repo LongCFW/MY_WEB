@@ -1,184 +1,107 @@
+# Ecostore – Website bán hàng trực tuyến
 
-# EcoStore  PHP MVC Web Application
-Dự án chuyển đổi (migration) nền tảng thương mại điện tử EcoStore từ ReactJS (SPA) sang PHP Thuần (Server-side Rendering) dựa trên mô hình MVC (Model-View-Controller) tự xây dựng.
+Ecostore là một website thương mại điện tử cho phép người dùng mua sắm sản phẩm trực tuyến,
+xem thông tin chi tiết sản phẩm, quản lý đơn hàng và thực hiện thanh toán.
+Hệ thống được xây dựng theo mô hình MVC thuần, tập trung vào tính rõ ràng, dễ hiểu và dễ mở rộng.
 
-Dự án tập trung vào các sản phẩm xanh, hữu cơ và thân thiện với môi trường, với giao diện hiện đại, hiệu ứng mượt mà và tối ưu hóa trải nghiệm người dùng.
+---
 
-Công Nghệ Sử Dụng (Tech Stack)
-Backend: PHP 8.x (Hướng đối tượng - OOP, PDO Database).
+## Công nghệ sử dụng
 
-Architecture: Custom MVC Pattern (Không dùng Framework có sẵn như Laravel/CI).
+- Môi trường phát triển: Laragon
+- Kiến trúc: MVC thuần (Pure MVC)
+- Backend: PHP
+- Frontend: HTML, CSS, JavaScript, Ajax
+- Database: MySQL
+- Authentication: Session, Ajax
+- Các công nghệ hỗ trợ khác: Bootstrap, jQuery
 
-Frontend:
+---
 
-HTML5/CSS3: Tận dụng lại CSS module từ React, chuyển đổi sang CSS thuần (global.css, product.css, home.css...).
+## Vai trò người dùng
 
-Framework: Bootstrap 5 (Grid system, Modal, Accordion, Offcanvas).
+- **Admin**: Quản lý toàn bộ hệ thống
+- **Manager**: Quản lý sản phẩm và đơn hàng
+- **Staff**: Xử lý và quản lý đơn hàng
+- **Customer**: Mua sắm sản phẩm và xem thông tin chi tiết
 
-Icons: FontAwesome 6.
+---
 
-JavaScript: Vanilla JS (Xử lý DOM, Modal QuickView, Auto-submit Filter).
+## Chức năng hệ thống
 
-Database: MySQL.
+### Khách hàng
 
-Environment: Laragon (Apache Server).
+- Đăng ký, đăng nhập
+- Quên mật khẩu, reset mật khẩu
+- Xem danh sách và chi tiết sản phẩm
+- Tìm kiếm và lọc sản phẩm
+- Thêm sản phẩm vào giỏ hàng
+- Đặt hàng và thanh toán
+- Xem lịch sử đơn hàng
+- CRUD thông tin cá nhân
+- CRUD địa chỉ giao hàng
+- Xem, thêm, sửa, xóa danh sách sản phẩm yêu thích
 
-Cấu Trúc Thư Mục (Project Structure)
-Dự án tuân thủ nghiêm ngặt mô hình MVC để tách biệt logic và giao diện.
+### Quản trị hệ thống
 
-MY_WEB/
-├── app/                        # Core logic của ứng dụng
-│   ├── Controllers/            # Nơi xử lý yêu cầu từ người dùng
-│   │   ├── Admin/              # Controllers cho trang quản trị (Dashboard, Product...)
-│   │   └── Client/             # Controllers cho người dùng (Home, Product, Cart, Auth...)
-│   ├── Models/                 # Tương tác với Database (Product, User, Category...)
-│   ├── Views/                  # Giao diện hiển thị (HTML/PHP)
-│   │   ├── admin/              # Views cho Admin
-│   │   └── client/             # Views cho Khách hàng
-│   │       ├── auth/           # Login, Register
-│   │       ├── home/           # Trang chủ
-│   │       ├── products/       # Danh sách, Chi tiết sản phẩm
-│   │       ├── cart/           # Giỏ hàng
-│   │       ├── checkout/       # Thanh toán
-│   │       ├── offers/         # Trang ưu đãi
-│   │       ├── about/          # Trang giới thiệu
-│   │       └── layouts/        # Header, Footer chung
-│   └── Core/                   # Lớp nền tảng (App, Controller, Database)
-├── public/                     # Thư mục public ra ngoài (Web Root)
-│   ├── assets/                 # CSS, JS, Images
-│   └── index.php               # Entry point (Điểm vào duy nhất của ứng dụng)
-├── config/                     # Cấu hình Database, Hằng số
-└── README.md                   # Tài liệu dự án
-Các Chức Năng Đã Hoàn Thiện
-Phía Người Dùng (Client Side)
-Trang Chủ (Home):
+- CRUD quản lý sản phẩm
+- CRUD quản lý danh mục
+- CRUD quản lý đơn hàng
+- CRUD quản lý người dùng
+- Phân quyền người dùng (Admin / Manager / Staff)
 
-[x] Hero Carousel Slider.
+---
 
-[x] Danh mục nổi bật (Categories).
+## Hướng dẫn cài đặt & chạy dự án
 
-[x] Flash Sale & Sản phẩm mới nhất.
+### Bước 1: Khởi chạy môi trường
 
-[x] Blog section.
+- Tải và giải nén source code
+- Mở Laragon và khởi chạy Apache & MySQL
 
-Sản Phẩm (Product List):
+### Bước 2: Truy cập website
 
-[x] Hiển thị danh sách sản phẩm dạng Grid.
+- Trang người dùng:
+[http://localhost/MY_WEB/public/]
+- Trang đăng nhập quản trị:
+[http://localhost/MY_WEB/public/admin/login]
+- Trang dashboard quản trị:
+[http://localhost/MY_WEB/public/admin]
 
-[x] Bộ lọc nâng cao (Sidebar): Lọc theo Danh mục, Khoảng giá (Checkbox logic OR), Thương hiệu.
+## Tài khoản demo
 
-[x] Sắp xếp: Giá tăng/giảm, Tên A-Z.
+- **Admin**
+- Email: [admin@ecostore.com]
+- Password: 123456
 
-[x] Phân trang (Pagination): Logic tính toán LIMIT/OFFSET chuẩn xác.
+- **Manager**
+- Email: [manager@ecostore.com]
+- Password: 123456
 
-[x] Quick View: Xem nhanh sản phẩm bằng Modal Bootstrap mà không cần load lại trang.
+- **Staff**
+- Email: [staff@ecostore.com]
+- Password: 123456
 
-[x] Hiệu ứng Hover card sản phẩm (Overlay nút bấm).
+- **Customer**
+- Email: [demo@gmail.com]
+- Password: 123456
 
-Chi Tiết Sản Phẩm (Product Detail):
+---
 
-[x] Gallery ảnh (Ảnh chính + Thumbnails).
+## Hướng phát triển trong tương lai
 
-[x] Thông tin giá, SKU, rating.
+- Áp dụng hệ thống voucher giảm giá
+- Quản lý kho voucher
+- Gửi thông báo và email cho người dùng
+- Tương tác thông báo trực tiếp với người dùng
+- Tích hợp thanh toán online (VNPay, Momo)
+- Gửi email xác nhận đơn hàng
+- Đánh giá và nhận xét sản phẩm
+- Thống kê doanh thu và báo cáo hệ thống
 
-[x] Chọn số lượng (Tăng/Giảm).
+---
 
-[x] Tab mô tả và thương hiệu.
+## Tác giả
 
-[x] Hiển thị sản phẩm tương tự (Related Products).
-
-Giỏ Hàng & Thanh Toán:
-
-[x] Giao diện giỏ hàng (Step Wizard).
-
-[x] Tính tổng tiền tạm tính.
-
-[x] Giao diện Checkout (Chọn địa chỉ, Phương thức thanh toán).
-
-Xác Thực (Auth):
-
-[x] Đăng ký / Đăng nhập (Giao diện Split Layout hiện đại).
-
-[x] Logic kiểm tra Session đăng nhập (user_logged_in).
-
-[x] Hiển thị Avatar/Tên người dùng trên Header khi đã login.
-
-[x] Đăng xuất.
-
-Các trang tĩnh:
-
-[x] Giới thiệu (About Us) - Storytelling layout.
-
-[x] Ưu đãi (Offers) - Danh sách Voucher.
-
-2. Phía Quản Trị (Admin Side)
-[x] Cấu trúc Router bảo vệ (ProtectedRoute logic in PHP).
-
-[x] Dashboard cơ bản.
-
-[x] Khắc phục lỗi xung đột method getAllProducts giữa Client và Admin.
-
-3. Kỹ Thuật & Fix Lỗi
-[x] Fix SQL Strict Mode: Xử lý lỗi ONLY_FULL_GROUP_BY bằng hàm MIN().
-
-[x] Fix 404 View: Chuẩn hóa đường dẫn thư mục client/auth/.
-
-[x] Fix Frontend Logic: Chuyển đổi logic React State sang jQuery/Vanilla JS (Auto-submit form, Modal handling).
-
-📝 Kế Hoạch Sắp Tới (To-Do List)
-Hoàn thiện Logic Giỏ hàng (Backend):
-
-Xử lý Session $_SESSION['cart'] thêm/xóa/sửa số lượng thực tế.
-
-Lưu đơn hàng vào Database khi bấm "Đặt hàng".
-
-Trang Cá Nhân (User Profile):
-
-Hoàn thiện hiển thị lịch sử đơn hàng (Lấy từ DB).
-
-Chức năng cập nhật thông tin cá nhân, đổi mật khẩu.
-
-Sổ địa chỉ (CRUD).
-
-Admin Dashboard:
-
-Xây dựng giao diện CRUD cho Sản phẩm (Thêm, Sửa, Xóa ảnh, Biến thể).
-
-Quản lý Đơn hàng (Duyệt đơn, Hủy đơn).
-
-Thống kê doanh thu.
-
-Tối ưu hóa:
-
-Refactor CSS để gọn nhẹ hơn.
-
-Validate dữ liệu kỹ càng hơn ở phía Server.
-
-🛠️ Hướng Dẫn Cài Đặt & Chạy (Localhost)
-Cài đặt môi trường:
-
-Tải và cài đặt Laragon (khuyến nghị) hoặc XAMPP.
-
-Khởi động Apache và MySQL.
-
-Cấu hình Code:
-
-Clone source code vào thư mục C:\laragon\www\MY_WEB.
-
-Kiểm tra file app/Core/Database.php để đảm bảo thông tin đăng nhập MySQL đúng (Host, DB Name, User, Pass).
-
-Cấu hình Database:
-
-Tạo database tên ecostore (hoặc tên tương ứng trong config).
-
-Import file SQL cấu trúc bảng (products, categories, users, product_variants, product_images...).
-
-Lưu ý: Đảm bảo bảng product_variants có cột stock hoặc quantity khớp với Model.
-
-Truy cập:
-
-Mở trình duyệt và vào đường dẫn:
-
-Trang chủ: http://localhost/MY_WEB/public/
-
-Admin: http://localhost/MY_WEB/public/admin/
+- **Họ tên**: Lê Nguyên Bảo Long (Brian Lê)
+- **Email**: [imlongmanhme@gmail.com]
