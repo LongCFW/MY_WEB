@@ -67,4 +67,28 @@ class Database {
     public function rowCount($sql, $params = []) {
         return $this->query($sql, $params)->rowCount();
     }
+
+    public function beginTransaction() {
+        return $this->connection->beginTransaction();
+    }
+
+    /**
+     * Xác nhận transaction (Lưu thay đổi)
+     */
+    public function commit() {
+        return $this->connection->commit();
+    }
+
+    /**
+     * Hoàn tác transaction (Nếu có lỗi)
+     */
+    public function rollBack() {
+        return $this->connection->rollBack();
+    }
+
+    public function fetchColumn($sql, $params = []) {
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
+    }
 }

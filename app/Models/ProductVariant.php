@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 use App\Core\Model;
+use PDOException; // catch lỗi DB
 
 class ProductVariant extends Model {
     protected $table = 'product_variants';
@@ -13,5 +14,56 @@ class ProductVariant extends Model {
         
         $data['product_id'] = $productId;
         return $this->db->query($sql, $data);
+    }
+
+    // [ADD] Lấy tồn kho hiện tại của 1 variant
+    public function getStock($variantId) {
+        $sql = "SELECT stock FROM {$this->table} WHERE id = ?";
+        $res = $this->db->fetch($sql, [$variantId]);
+        return $res ? (int)$res['stock'] : 0;
+    }
+
+    // [ADD] Trừ kho an toàn (Transaction + Lock)
+    public function deductStockForOrder($orderItems) {
+        try {
+            // 1. Bắt đầu Transaction
+            $this->db->beginTransaction();
+
+            foreach ($orderItems as $item) {
+                // Lấy variant_id. Trong cart_items là 'variant_id', trong mảng truyền vào cần đảm bảo có key này
+                $variantId = $item['variant_id']; 
+                $qtyNeeded = $item['quantity'];
+
+                // 2. Lock dòng này lại để đọc (FOR UPDATE) tránh Race Condition
+                $sqlCheck = "SELECT stock FROM {$this->table} WHERE id = ? FOR UPDATE";
+                $currentStock = $this->db->fetchColumn($sqlCheck, [$variantId]);
+
+                if ($currentStock === false) {
+                    $this->db->rollBack();
+                    return ['status' => false, 'message' => 'Sản phẩm không tồn tại hoặc đã bị xóa.'];
+                }
+
+                if ($currentStock < $qtyNeeded) {
+                    $this->db->rollBack();
+                    return [
+                        'status' => false, 
+                        'message' => "Sản phẩm " . ($item['name'] ?? 'trong giỏ') . " không đủ hàng. Chỉ còn: $currentStock"
+                    ];
+                }
+
+                // 3. Trừ kho
+                $newStock = $currentStock - $qtyNeeded;
+                $sqlUpdate = "UPDATE {$this->table} SET stock = ? WHERE id = ?";
+                $this->db->query($sqlUpdate, [$newStock, $variantId]);
+            }
+
+            // 4. Commit thay đổi
+            $this->db->commit();
+            return ['status' => true];
+
+        } catch (PDOException $e) {
+            $this->db->rollBack();
+            return ['status' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()];
+        }
     }
 }

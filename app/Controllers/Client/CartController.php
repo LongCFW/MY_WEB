@@ -18,20 +18,20 @@ class CartController extends Controller
             $cartSession = $_SESSION['cart'] ?? [];
             $cart = [];
             $productModel = $this->model('Product');
-            
+
             foreach ($cartSession as $pid => $item) {
                 $prod = $productModel->getProductDetail($item['id']);
-                $isActive = ($prod && isset($prod['is_active'])) ? $prod['is_active'] : 0; 
+                $isActive = ($prod && isset($prod['is_active'])) ? $prod['is_active'] : 0;
 
                 $cart[] = [
-                    'id' => $pid, 
+                    'id' => $pid,
                     'product_id' => $item['id'],
                     'name' => $item['name'],
                     'price' => $item['price'],
                     'image' => $item['image'],
                     'quantity' => $item['quantity'],
                     'is_active' => $isActive,
-                    'variant_id' => $pid 
+                    'variant_id' => $pid
                 ];
             }
         }
@@ -56,17 +56,30 @@ class CartController extends Controller
             $message = 'Đã thêm sản phẩm vào giỏ hàng';
             $status = 'success';
             $cartCount = 0;
+            // Khởi tạo Model Variant để check stock
+            $variantModel = $this->model('ProductVariant');
 
             if (isset($_SESSION['user_logged_in'])) {
                 $userId = $_SESSION['user_id'];
                 $cartModel = $this->model('CartItem');
 
-                // [FIX] Gọi hàm Model thay vì gọi trực tiếp DB
+                // Gọi hàm Model thay vì gọi trực tiếp DB
                 $variantId = $cartModel->getVariantIdByProduct($productId);
 
                 if ($variantId) {
-                    // [FIX] Gọi hàm tìm item
+
+                    // Check stock thực tế
+                    $currentStock = $variantModel->getStock($variantId);
+                    // Gọi hàm tìm item
                     $existingItem = $cartModel->findCartItem($userId, $variantId);
+                    $currentQtyInCart = $existingItem ? $existingItem['quantity'] : 0;
+
+                    if ($currentStock <= 0) {
+                        $this->returnJson(['status' => 'error', 'message' => 'Sản phẩm đã hết hàng!'], $contentType);
+                    }
+                    if (($currentQtyInCart + $qty) > $currentStock) {
+                        $this->returnJson(['status' => 'error', 'message' => "Không đủ hàng! Kho chỉ còn $currentStock sản phẩm."], $contentType);
+                    }
 
                     if ($existingItem) {
                         $newQty = $existingItem['quantity'] + $qty;
@@ -79,13 +92,23 @@ class CartController extends Controller
                     }
                 }
                 $cartCount = $cartModel->countCartItems($userId);
-
             } else {
-                // Logic Session (Giữ nguyên)
+                // Logic Session 
                 $productModel = $this->model('Product');
                 $product = $productModel->getProductDetail($productId);
 
                 if ($product) {
+
+                    $currentStock = $product['stock'];
+                    $currentQtyInCart = isset($_SESSION['cart'][$productId]) ? $_SESSION['cart'][$productId]['quantity'] : 0;
+                    
+                    if ($currentStock <= 0) {
+                        $this->returnJson(['status' => 'error', 'message' => 'Sản phẩm đã hết hàng!'], $contentType);
+                    }
+                    if (($currentQtyInCart + $qty) > $currentStock) {
+                        $this->returnJson(['status' => 'error', 'message' => "Không đủ hàng! Kho chỉ còn $currentStock sản phẩm."], $contentType);
+                    }
+
                     if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
                     if (isset($_SESSION['cart'][$productId])) {
                         $_SESSION['cart'][$productId]['quantity'] += $qty;
@@ -103,6 +126,7 @@ class CartController extends Controller
                 }
                 $cartCount = count($_SESSION['cart']);
             }
+            $this->returnJson(['status' => $status, 'message' => $message, 'cart_count' => $cartCount], $contentType);
 
             if ($contentType === "application/json") {
                 ob_clean();
@@ -110,7 +134,21 @@ class CartController extends Controller
                 exit;
             }
             header('Location: ' . $_SERVER['HTTP_REFERER']);
+
+
         }
+    }
+
+    // Helper function để return nhanh
+    private function returnJson($data, $contentType) {
+        if ($contentType === "application/json") {
+            ob_clean();
+            echo json_encode($data);
+            exit;
+        }
+        // Fallback cho form submit thường (nếu có)
+        echo "<script>alert('".$data['message']."'); window.history.back();</script>";
+        exit;
     }
 
     // 3. Cập nhật số lượng (ĐÃ FIX LỖI DB ACCESS)
@@ -125,14 +163,13 @@ class CartController extends Controller
 
             if (isset($_SESSION['user_logged_in'])) {
                 $cartModel = $this->model('CartItem');
-                
-                // [FIX] Gọi hàm update của Model
+
+                // Gọi hàm update của Model
                 $cartModel->updateQuantity($id, $qty);
-                
+
                 // [FIX] Gọi hàm lấy giá của Model
                 $res = $cartModel->getItemPrice($id);
                 if ($res) $itemTotal = $res['price_cents'] * $qty;
-
             } else {
                 if (isset($_SESSION['cart'][$id])) {
                     $_SESSION['cart'][$id]['quantity'] = $qty;

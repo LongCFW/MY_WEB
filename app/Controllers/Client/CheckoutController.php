@@ -80,7 +80,7 @@ class CheckoutController extends Controller {
                 return;
             }
             
-            // --- [FIX QUAN TRỌNG] LẤY LẠI GIỎ HÀNG TỪ DB ĐỂ TÍNH TIỀN ---
+            // LẤY LẠI GIỎ HÀNG TỪ DB ĐỂ TÍNH TIỀN 
             // Không tin tưởng dữ liệu session hay client gửi lên
             $cartModel = $this->model('CartItem');
             $allCartItems = $cartModel->getCartDetails($userId);
@@ -88,14 +88,22 @@ class CheckoutController extends Controller {
             // Nếu View checkout có gửi kèm danh sách ID đã chọn (input hidden) thì lọc lại lần nữa
             // Tuy nhiên để đơn giản, ta giả định thanh toán toàn bộ những gì có trong cart_items 
             // HOẶC tốt nhất là trong form checkout/index.php bạn nên có input hidden name="selected_ids[]"
-            // Ở đây tôi lấy tạm toàn bộ giỏ hàng DB để xử lý cho chạy được đã:
+            // Ở đây lấy tạm toàn bộ giỏ hàng DB để xử lý cho chạy được đã:
             $cartToCheckout = $allCartItems; 
-            
-            // Nếu bạn muốn chuẩn xác: hãy thêm <input type="hidden" name="checkout_items[]" value="..."> ở View index
-            // Nhưng logic hiện tại lấy toàn bộ DB cũng tạm ổn nếu user mua hết.
-            
+                    
             if (empty($cartToCheckout)) {
                 echo "<script>alert('Giỏ hàng trống!'); window.location.href='/MY_WEB/public/cart';</script>";
+                exit();
+            }
+
+            // BƯỚC QUAN TRỌNG: TRỪ KHO 
+            $variantModel = $this->model('ProductVariant');
+            // Gọi transaction trừ kho
+            $stockResult = $variantModel->deductStockForOrder($cartToCheckout);
+
+            if ($stockResult['status'] === false) {
+                // Nếu thất bại (hết hàng phút chót) -> Báo lỗi & về giỏ hàng
+                echo "<script>alert('" . $stockResult['message'] . "'); window.location.href='/MY_WEB/public/cart';</script>";
                 exit();
             }
 
@@ -108,11 +116,7 @@ class CheckoutController extends Controller {
             $shippingFee = 30000;
             $tax = 0;
             $totalCents = $subtotal + $shippingFee + $tax;
-
-            // ... (Phần Insert Order, OrderItem, History, Payment GIỮ NGUYÊN CODE CŨ CỦA BẠN) ...
-            // Copy đoạn logic insert từ code cũ của bạn vào đây
             
-            // Ví dụ vắn tắt:
             $orderModel = $this->model('Order');
             $orderData = [
                 'user_id' => $userId,
@@ -123,7 +127,7 @@ class CheckoutController extends Controller {
                 'tax_cents' => $tax,
                 'total_cents' => $totalCents,
                 'shipping_address_id' => $addressId,
-                'billing_address_id' => $addressId,
+                'billing_address_id' => $addressId,            
                 'payment_status' => 'unpaid',
                 'placed_at' => date('Y-m-d H:i:s'),
                 'created_at' => date('Y-m-d H:i:s')
@@ -150,7 +154,7 @@ class CheckoutController extends Controller {
             $historyModel = $this->model('OrderStatusHistory');
             $historyModel->addHistory($orderId, 'pending', $userId, 'Đơn hàng mới được tạo');
 
-            // --- [FIX QUAN TRỌNG] XÓA GIỎ HÀNG TRONG DB ---
+            // XÓA GIỎ HÀNG TRONG DB 
             // Vì CartController dùng DB, nên phải xóa trong DB, unset Session ko có tác dụng
             $cartModel->deleteMulti(array_column($cartToCheckout, 'id'));
             
