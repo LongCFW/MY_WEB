@@ -1,27 +1,5 @@
 <?php require_once '../app/Views/client/layouts/header.php'; ?>
 
-<div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content bg-dark bg-opacity-95 text-white">
-            <div class="modal-header border-0">
-                <button type="button" class="btn-close btn-close-white ms-auto transform-hover" data-bs-dismiss="modal" style="font-size: 1.5rem;"></button>
-            </div>
-            <div class="modal-body d-flex flex-column align-items-center justify-content-center">
-                <h2 class="fw-bold mb-4 animate-up">Bạn đang tìm gì hôm nay?</h2>
-                <form action="/MY_WEB/public/product/search" class="w-100" style="max-width: 600px;">
-                    <div class="input-group input-group-lg border-bottom border-light">
-                        <span class="input-group-text bg-transparent border-0 text-white"><i class="fas fa-search fs-3"></i></span>
-                        <input type="text" name="keyword" class="form-control bg-transparent border-0 text-white fs-2 shadow-none placeholder-white" placeholder="Nhập tên sản phẩm..." autofocus>
-                    </div>
-                </form>
-                <div class="mt-4 text-white-50">
-                    <small>Gợi ý: Rau cải, Mật ong, Sữa hạt...</small>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <section class="mb-5 position-relative">
     <div id="heroCarousel" class="carousel slide hero-section rounded-bottom-5 overflow-hidden shadow-lg" data-bs-ride="carousel">
         <div class="carousel-indicators">
@@ -63,13 +41,7 @@
                 </div>
             </div>
         </div>
-    </div>
-    
-    <button class="btn btn-white position-absolute top-0 end-0 m-4 rounded-circle shadow p-3 z-3 d-none d-lg-block btn-hover-scale" 
-            data-bs-toggle="modal" data-bs-target="#searchModal"
-            title="Tìm kiếm nhanh">
-        <i class="fas fa-search text-success fs-4"></i>
-    </button>
+    </div>    
 </section>
 
 <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">

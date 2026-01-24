@@ -5,13 +5,12 @@ $cartCount = 0;
 if (isset($_SESSION['user_logged_in'])) {
     // Nếu đã đăng nhập: Gọi Model CartItem để đếm từ Database
     try {
-        // [SỬA] Đổi Cart thành CartItem
         if (class_exists('\App\Models\CartItem')) {
-            $cartModelHeader = new \App\Models\CartItem(); 
+            $cartModelHeader = new \App\Models\CartItem();
             $cartCount = $cartModelHeader->countCartItems($_SESSION['user_id']);
         }
     } catch (\Exception $e) {
-        $cartCount = 0; 
+        $cartCount = 0;
     }
 } else {
     // Nếu chưa đăng nhập: Đếm từ Session
@@ -50,14 +49,16 @@ if (isset($_SESSION['user_logged_in'])) {
             </button>
 
             <div class="collapse navbar-collapse d-none d-lg-flex" id="basic-navbar-nav">
+                
                 <div class="mx-auto w-100 px-lg-5" style="max-width: 600px;">
-                    <form action="/MY_WEB/public/product/search" class="d-flex position-relative w-100">
-                        <input type="search" name="keyword" placeholder="Tìm kiếm sản phẩm xanh..."
-                            class="form-control rounded-pill border-0 bg-light py-2 ps-4 pe-5 shadow-sm">
-                        <button type="submit" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-success pe-3">
+                    <div class="position-relative w-100 cursor-pointer" data-bs-toggle="modal" data-bs-target="#searchModal">
+                        <input type="text" placeholder="Tìm kiếm sản phẩm xanh..."
+                            class="form-control rounded-pill border-0 bg-light py-2 ps-4 pe-5 shadow-sm"
+                            readonly style="cursor: pointer; background-color: #f8f9fa !important;">
+                        <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-success pe-3">
                             <i class="fas fa-search"></i>
                         </button>
-                    </form>
+                    </div>
                 </div>
 
                 <div class="d-flex align-items-center gap-4">
@@ -70,10 +71,10 @@ if (isset($_SESSION['user_logged_in'])) {
                     <div class="vr text-secondary opacity-25" style="height: 25px;"></div>
 
                     <div class="d-flex align-items-center gap-3">
-                        
+
                         <a href="/MY_WEB/public/cart" class="position-relative btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center text-success cart-icon-hover" style="width: 42px; height: 42px;">
                             <i class="fas fa-shopping-cart"></i>
-                            
+
                             <?php if ($cartCount > 0): ?>
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 0.7rem;">
                                     <?= $cartCount ?>
@@ -105,7 +106,10 @@ if (isset($_SESSION['user_logged_in'])) {
                                     <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account">
                                             <i class="fas fa-user-circle me-2 text-success"></i> Tài khoản
                                         </a></li>
-                                    <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/profile/orders"><i class="fas fa-box-open me-2 text-primary"></i> Đơn mua</a></li>
+                                        <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account?page=orders">
+                                             <i class="fa-solid fa-file-invoice-dollar me-2"></i>  Lịch sử đơn hàng
+                                        </a></li>
+                                    <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account?page=wishlist"><i class="fas fa-heart me-2 text-danger"></i> Yêu Thích</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
@@ -131,3 +135,25 @@ if (isset($_SESSION['user_logged_in'])) {
             </div>
         </div>
     </nav>
+
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content bg-dark bg-opacity-95 text-white">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close btn-close-white ms-auto transform-hover" data-bs-dismiss="modal" style="font-size: 1.5rem;"></button>
+                </div>
+                <div class="modal-body d-flex flex-column align-items-center justify-content-center">
+                    <h2 class="fw-bold mb-4 animate-up">Bạn đang tìm gì hôm nay?</h2>
+                    <form action="/MY_WEB/public/product/search" class="w-100" style="max-width: 600px;">
+                        <div class="input-group input-group-lg border-bottom border-light">
+                            <span class="input-group-text bg-transparent border-0 text-white"><i class="fas fa-search fs-3"></i></span>
+                            <input type="text" name="keyword" class="form-control bg-transparent border-0 text-white fs-2 shadow-none placeholder-white" placeholder="Nhập tên sản phẩm..." autofocus>
+                        </div>
+                    </form>
+                    <div class="mt-4 text-white-50">
+                        <small>Gợi ý: Rau cải, Mật ong, Sữa hạt...</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
