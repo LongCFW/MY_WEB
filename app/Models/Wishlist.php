@@ -69,4 +69,16 @@ class Wishlist extends Model {
         $result = $this->db->fetch($sql, [$productId]);
         return $result ? $result['id'] : null;
     }
+    public function getUserWishlistProductIds($userId) {
+        // Join sang bảng variants để lấy product_id cha
+        $sql = "SELECT DISTINCT pv.product_id 
+                FROM wishlists w
+                JOIN product_variants pv ON w.variant_id = pv.id
+                WHERE w.user_id = ?";
+        
+        $result = $this->db->fetchAll($sql, [$userId]);
+        
+        // Trả về mảng 1 chiều chứa các ID: ví dụ [1, 5, 10]
+        return array_column($result, 'product_id');
+    }
 }
