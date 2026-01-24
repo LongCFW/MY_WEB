@@ -2,7 +2,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="font-weight-bold text-dark">
-        <i class="fas fa-file-invoice mr-2 text-muted"></i>Đơn hàng #<?= $order['order_number'] ?>
+        Đơn hàng #<?= $order['order_number'] ?>
     </h3>
     <a href="/MY_WEB/public/admin/order" class="btn btn-light rounded-pill border px-4 shadow-sm">
         <i class="fas fa-arrow-left mr-1"></i> Quay lại
@@ -61,11 +61,11 @@
                 <form action="/MY_WEB/public/admin/order/update_status/<?= $order['id'] ?>" method="POST">
                     <div class="form-group">
                         <select name="status" class="form-control custom-select">
-                            <option value="pending" <?= $order['status'] == 'pending' ? 'selected' : '' ?>>🕒 Chờ xác nhận</option>
-                            <option value="processing" <?= $order['status'] == 'processing' ? 'selected' : '' ?>>⚙️ Đang xử lý</option>
-                            <option value="shipping" <?= $order['status'] == 'shipping' ? 'selected' : '' ?>>🚚 Đang giao hàng</option>
-                            <option value="completed" <?= $order['status'] == 'completed' ? 'selected' : '' ?>>✅ Hoàn thành</option>
-                            <option value="cancelled" <?= $order['status'] == 'cancelled' ? 'selected' : '' ?>>❌ Đã hủy</option>
+                            <option value="pending" <?= $order['status'] == 'pending' ? 'selected' : '' ?>>Chờ xác nhận</option>
+                            <option value="processing" <?= $order['status'] == 'processing' ? 'selected' : '' ?>>Đang xử lý</option>
+                            <option value="shipping" <?= $order['status'] == 'shipping' ? 'selected' : '' ?>>Đang giao hàng</option>
+                            <option value="completed" <?= $order['status'] == 'completed' ? 'selected' : '' ?>>Hoàn thành</option>
+                            <option value="cancelled" <?= $order['status'] == 'cancelled' ? 'selected' : '' ?>>Đã hủy</option>
                         </select>
                     </div>
                     <div class="form-group">
