@@ -123,17 +123,23 @@
 
     Start Apache và MySQL.
 
-    Bước 2: Cài đặt Database
+    Bước 2: Giải nén thư mục 
+    Di chuyển thư mục MY_WEB vào thư mục laragon/www để chạy dự án
+    Hoặc
+    Clone từ trên github [https://github.com/LongCFW/MY_WEB]
+    Lệnh để clone "git clone https://github.com/LongCFW/MY_WEB.git"
+
+    Bước 3: Cài đặt Database
     Truy cập [http://localhost/phpmyadmin]
 
     Tạo database mới tên: ecostore_db (hoặc tên tùy chỉnh trong app/Core/Database.php).
 
-    Import file database.sql (nằm trong thư mục root của dự án) vào database vừa tạo.
+    Import file ecostore.sql (nằm trong thư mục root của dự án) vào database vừa tạo.
 
-    Bước 3: Cấu hình
+    Bước 4: Cấu hình
     Mở file app/Core/Database.php và cập nhật thông tin kết nối nếu cần (DB_NAME, USERNAME, PASSWORD).
 
-    Bước 4: Truy cập
+    Bước 5: Truy cập
     Trang chủ: [http://localhost/MY_WEB/public/]
 
     Admin Dashboard: [http://localhost/MY_WEB/public/admin/login]
