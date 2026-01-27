@@ -1,0 +1,124 @@
+/* --- CHECKOUT PAGE STYLES --- */
+
+/* 1. Step Indicator (Thanh tiến trình 1-2-3) */
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    font-weight: 500;
+    color: #999;
+}
+.step-indicator .step {
+    display: flex;
+    align-items: center;
+    margin: 0 15px;
+}
+.step-indicator .step-num {
+    width: 30px;
+    height: 30px;
+    background: #eee;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    font-size: 14px;
+}
+.step-indicator .step.active {
+    color: var(--eco-primary);
+    font-weight: bold;
+}
+.step-indicator .step.active .step-num {
+    background: var(--eco-primary);
+    color: white;
+}
+.step-indicator .line {
+    width: 50px;
+    height: 2px;
+    background: #eee;
+    margin-top: 15px;
+}
+.step-indicator .step.completed .step-num {
+    background: #e8f5e9;
+    color: var(--eco-primary);
+}
+
+/* 2. Selection Card (Địa chỉ & Thanh toán) */
+.selection-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+    position: relative;
+}
+
+/* Ẩn radio mặc định */
+.selection-card input[type="radio"] {
+    display: none; 
+}
+
+/* Khi input được check, style card cha */
+.selection-card:has(input:checked) {
+    border: 2px solid var(--eco-primary);
+    background-color: #f0fdf4; /* Xanh rất nhạt */
+}
+
+/* Custom Radio Circle */
+.custom-radio-circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    display: inline-block;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.selection-card:has(input:checked) .custom-radio-circle {
+    border-color: var(--eco-primary);
+    background: var(--eco-primary);
+    box-shadow: inset 0 0 0 4px #fff; /* Tạo chấm trắng ở giữa */
+}
+
+/* Tags (Mặc định, Nhà riêng) */
+.address-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-left: 5px;
+}
+.tag-default { background: #2e7d32; color: white; }
+.tag-home { background: #eee; color: #555; border: 1px solid #ddd; }
+.tag-office { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+/* Sticky Order Summary */
+.checkout-summary-card {
+    position: sticky;
+    top: 100px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.checkout-summary-card.sticky-top {
+        z-index: 900 !important; 
+    }
+
+    .checkout-items {
+        /* Tạo khoảng thở bên trên và bên phải để Badge không bị cắt bởi thanh cuộn */
+        padding-top: 12px !important; 
+        padding-right: 12px !important;
+        /* Đảm bảo thanh cuộn nằm gọn gàng */
+        margin-right: -5px;
+    }
+
+    .checkout-items .position-relative .badge {
+        z-index: 2; /* Đảm bảo badge luôn nằm trên ảnh */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Thêm bóng đổ nhẹ cho đẹp */
+    }
