@@ -24,6 +24,13 @@ class AuthController extends Controller {
             $user = $userModel->findByEmail($email);
 
             if ($user && password_verify($password, $user['password_hash'])) {
+                
+                // Kiểm tra trạng thái tài khoản
+                if ($user['status'] == 0) {
+                    $this->view('auth/login', ['error' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.']);
+                    return;
+                }
+
                 // Kiểm tra xem có phải khách hàng không (hoặc admin cũng cho login kiểu user)
                 $_SESSION['user_logged_in'] = true;
                 $_SESSION['user_id'] = $user['id'];
@@ -92,6 +99,7 @@ class AuthController extends Controller {
         unset($_SESSION['user_name']);
         unset($_SESSION['user_email']);
         unset($_SESSION['user_avatar']);
+        session_destroy();
         header('Location: /MY_WEB/public/auth/login');
     }
 

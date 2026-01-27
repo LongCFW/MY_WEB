@@ -69,4 +69,10 @@ class User extends Model {
         $result = $this->db->fetch($sql);
         return $result['total'] ?? 0;
     }
+
+    public function getUserStatus($userId) {
+        $sql = "SELECT status FROM {$this->table} WHERE id = ?";
+        $result = $this->db->fetch($sql, [$userId]);
+        return $result ? $result['status'] : null;
+    }
 }
