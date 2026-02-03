@@ -1,4 +1,4 @@
-<?php require_once '../app/Views/client/layouts/header.php'; ?>
+<?php require_once '../app/Views/layouts/client/header.php'; ?>
 
 <style>
     /* CSS Fix riêng cho Profile */
@@ -236,4 +236,4 @@
     </script>
 <?php endif; ?>
 
-<?php require_once '../app/Views/client/layouts/footer.php'; ?>
+<?php require_once '../app/Views/layouts/client/footer.php'; ?>

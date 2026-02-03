@@ -1,4 +1,4 @@
-<?php require_once '../app/Views/client/layouts/header.php'; ?>
+<?php require_once '../app/Views/layouts/client/header.php'; ?>
 <link rel="stylesheet" href="/MY_WEB/public/assets/css/checkout.css">
 
 <?php 
@@ -378,4 +378,4 @@
 }
 </script>
 
-<?php require_once '../app/Views/client/layouts/footer.php'; ?>
+<?php require_once '../app/Views/layouts/client/footer.php'; ?>

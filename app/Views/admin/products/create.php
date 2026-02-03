@@ -1,4 +1,4 @@
-<?php require_once '../app/Views/layouts/admin_sidebar.php'; ?>
+<?php require_once '../app/Views/layouts/admin/sidebar.php'; ?>
 
 <div class="card shadow-sm border-0 rounded-lg">
     <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
@@ -55,4 +55,4 @@
     </div>
 </div>
 
-<?php require_once '../app/Views/layouts/admin_footer.php'; ?>
+<?php require_once '../app/Views/layouts/admin/footer.php'; ?>

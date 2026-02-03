@@ -1,4 +1,4 @@
-<?php require_once '../app/Views/client/layouts/header.php'; ?>
+<?php require_once '../app/Views/layouts/client/header.php'; ?>
 
 <style>
     /* CSS Riêng cho trang Cart */
@@ -274,4 +274,4 @@
     }
 </script>
 
-<?php require_once '../app/Views/client/layouts/footer.php'; ?>
+<?php require_once '../app/Views/layouts/client/footer.php'; ?>
