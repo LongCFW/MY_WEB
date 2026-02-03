@@ -67,7 +67,7 @@ class ProductController extends Controller {
 
             // === BƯỚC 3: XỬ LÝ UPLOAD ẢNH VÀ LƯU VÀO PRODUCT_IMAGES ===
             if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-                $targetDir = "../public/assets/uploads/";
+                $targetDir = "../public/assets/uploads/products/";
                 if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
 
                 $fileName = time() . "_" . basename($_FILES["image"]["name"]);
@@ -78,7 +78,7 @@ class ProductController extends Controller {
                     $imageModel = $this->model('ProductImage');
                     $imageData = [
                         'product_id' => $productId,
-                        'image_url' => "assets/uploads/" . $fileName,
+                        'image_url' => "assets/uploads/products/" . $fileName,
                         'position' => 1,
                         'alt_text' => $name
                     ];
@@ -153,13 +153,12 @@ class ProductController extends Controller {
 
             // 3. Update bảng IMAGES (Nếu có upload ảnh mới)
             if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-                $targetDir = "../public/assets/uploads/";
+                $targetDir = "../public/assets/uploads/products/";
                 $fileName = time() . "_" . basename($_FILES["image"]["name"]);
                 $targetFilePath = $targetDir . $fileName;
 
                 if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFilePath)) {
-                    $newImageUrl = "assets/uploads/" . $fileName;
-                    
+                    $newImageUrl = "assets/uploads/products/" . $fileName;                    
                     // Cập nhật đường dẫn mới vào DB
                     $imageModel = $this->model('ProductImage');
                     $imageModel->updateByProductId($id, $newImageUrl);
