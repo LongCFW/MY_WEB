@@ -1,4 +1,4 @@
-<?php require_once '../app/Views/layouts/admin_sidebar.php'; ?>
+<?php require_once '../app/Views/layouts/admin/sidebar.php'; ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="font-weight-bold text-dark">
@@ -100,4 +100,4 @@
     </div>
 </div>
 
-<?php require_once '../app/Views/layouts/admin_footer.php'; ?>
+<?php require_once '../app/Views/layouts/admin/footer.php'; ?>

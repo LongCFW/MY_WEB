@@ -1,4 +1,4 @@
-<?php require_once '../app/Views/layouts/admin_sidebar.php'; ?>
+<?php require_once '../app/Views/layouts/admin/sidebar.php'; ?>
 
 <div class="row justify-content-center">
     <div class="col-md-8">
@@ -45,4 +45,4 @@
     </div>
 </div>
 
-<?php require_once '../app/Views/layouts/admin_footer.php'; ?>
+<?php require_once '../app/Views/layouts/admin/footer.php'; ?>

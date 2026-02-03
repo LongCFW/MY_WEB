@@ -1,4 +1,4 @@
-<?php require_once '../app/Views/client/layouts/header.php'; ?>
+<?php require_once '../app/Views/layouts/client/header.php'; ?>
 
 <section class="mb-5 position-relative">
     <div id="heroCarousel" class="carousel slide hero-section rounded-bottom-5 overflow-hidden shadow-lg" data-bs-ride="carousel">
@@ -305,4 +305,4 @@
     };
 </script>
 
-<?php require_once '../app/Views/client/layouts/footer.php'; ?>
+<?php require_once '../app/Views/layouts/client/footer.php'; ?>

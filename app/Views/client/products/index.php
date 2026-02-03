@@ -1,4 +1,4 @@
-<?php require_once '../app/Views/client/layouts/header.php'; ?>
+<?php require_once '../app/Views/layouts/client/header.php'; ?>
 
 <div class="d-lg-none position-fixed bottom-0 start-50 translate-middle-x mb-4 z-3">
     <button class="btn btn-success rounded-pill shadow-lg px-4 py-2 fw-bold" onclick="toggleMobileFilter()">
@@ -294,4 +294,4 @@
     }
 </script>
 
-<?php require_once '../app/Views/client/layouts/footer.php'; ?>
+<?php require_once '../app/Views/layouts/client/footer.php'; ?>

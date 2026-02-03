@@ -1,7 +1,7 @@
 <?php
-namespace App\Helpers;
+namespace App\Utils;
 
-class PaginationHelper {
+class Pagination {
     
     /**
      * Render thanh phân trang Bootstrap 5

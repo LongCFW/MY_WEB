@@ -11,7 +11,7 @@ class AuthController extends Controller {
             header('Location: /MY_WEB/public/');
             exit();
         }
-        $this->view('auth/login');
+        $this->view('client/auth/login');
     }
 
     // 2. Xử lý Đăng nhập
@@ -27,7 +27,7 @@ class AuthController extends Controller {
                 
                 // Kiểm tra trạng thái tài khoản
                 if ($user['status'] == 0) {
-                    $this->view('auth/login', ['error' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.']);
+                    $this->view('client/auth/login', ['error' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.']);
                     return;
                 }
 
@@ -48,7 +48,7 @@ class AuthController extends Controller {
 
     // 3. Trang Đăng ký
     public function register() {
-        $this->view('auth/register');
+        $this->view('client/auth/register');
     }
 
     // 4. Xử lý Đăng ký
@@ -63,13 +63,13 @@ class AuthController extends Controller {
             
             // Check email tồn tại
             if ($userModel->findByEmail($email)) {
-                $this->view('auth/register', ['error' => 'Email đã tồn tại']);
+                $this->view('client/auth/register', ['error' => 'Email đã tồn tại']);
                 return;
             }
 
             // check sđt
             if ($userModel->checkPhoneExists($phone)) {
-                $this->view('auth/register', ['error' => 'Số điện thoại này đã được sử dụng!']);
+                $this->view('client/auth/register', ['error' => 'Số điện thoại này đã được sử dụng!']);
                 return;
             }
 
@@ -87,7 +87,7 @@ class AuthController extends Controller {
                 // Đăng ký thành công -> Chuyển sang login
                 echo "<script>alert('Đăng ký thành công! Vui lòng đăng nhập.'); window.location.href='/MY_WEB/public/auth/login';</script>";
             } else {
-                $this->view('auth/register', ['error' => 'Có lỗi xảy ra, vui lòng thử lại sau.']);
+                $this->view('client/auth/register', ['error' => 'Có lỗi xảy ra, vui lòng thử lại sau.']);
             }
         }
     }
@@ -107,7 +107,7 @@ class AuthController extends Controller {
 
     // 6. Trang Quên mật khẩu
     public function forgotPassword() {
-        $this->view('auth/forgot_password');
+        $this->view('client/auth/forgot_password');
     }
 
     // 7. Xử lý gửi yêu cầu reset (Kiểm tra Email & SĐT)
@@ -126,7 +126,7 @@ class AuthController extends Controller {
                 $_SESSION['reset_user_id'] = $user['id'];
                 header('Location: /MY_WEB/public/auth/resetPassword');
             } else {
-                $this->view('auth/forgot_password', ['error' => 'Thông tin Email và Số điện thoại không khớp với bất kỳ tài khoản nào.']);
+                $this->view('client/auth/forgot_password', ['error' => 'Thông tin Email và Số điện thoại không khớp với bất kỳ tài khoản nào.']);
             }
         }
     }
@@ -138,7 +138,7 @@ class AuthController extends Controller {
             header('Location: /MY_WEB/public/auth/login');
             exit;
         }
-        $this->view('auth/reset_password');
+        $this->view('client/auth/reset_password');
     }
 
     // 9. Xử lý cập nhật mật khẩu mới
@@ -153,7 +153,7 @@ class AuthController extends Controller {
             $confirmPassword = $_POST['confirm_password'];
 
             if ($password !== $confirmPassword) {
-                $this->view('auth/reset_password', ['error' => 'Mật khẩu xác nhận không khớp']);
+                $this->view('client/auth/reset_password', ['error' => 'Mật khẩu xác nhận không khớp']);
                 return;
             }
 
@@ -168,7 +168,7 @@ class AuthController extends Controller {
                 unset($_SESSION['reset_user_id']);
                 echo "<script>alert('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.'); window.location.href='/MY_WEB/public/auth/login';</script>";
             } else {
-                $this->view('auth/reset_password', ['error' => 'Có lỗi xảy ra, vui lòng thử lại.']);
+                $this->view('client/auth/reset_password', ['error' => 'Có lỗi xảy ra, vui lòng thử lại.']);
             }
         }
     }

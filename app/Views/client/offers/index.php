@@ -1,4 +1,4 @@
-<?php require_once '../app/Views/client/layouts/header.php'; ?>
+<?php require_once '../app/Views/layouts/client/header.php'; ?>
 
 <div class="bg-light min-vh-100 pb-5">
     <div class="bg-success py-5 mb-5 text-center text-white position-relative overflow-hidden" 
@@ -49,4 +49,4 @@
     </div>
 </div>
 
-<?php require_once '../app/Views/client/layouts/footer.php'; ?>
+<?php require_once '../app/Views/layouts/client/footer.php'; ?>
