@@ -1,4 +1,4 @@
-<?php use App\Helpers\PaginationHelper; ?>
+<?php use App\Utils\Pagination; ?>
 
 <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
     <h4 class="fw-bold text-danger m-0">
@@ -70,7 +70,7 @@
         <?php 
             // Gọi Helper để render HTML
             // 'p' là tên tham số trên URL (tránh đụng độ với page=wishlist)
-            echo PaginationHelper::render($pageNum, $totalPages, 'p'); 
+            echo Pagination::render($pageNum, $totalPages, 'p'); 
         ?>
     </div>
 

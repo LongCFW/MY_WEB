@@ -1,4 +1,4 @@
-<?php use App\Helpers\PaginationHelper; ?>
+<?php use App\Utils\Pagination; ?>
 
 <h4 class="fw-bold text-success mb-4 border-bottom pb-3">
     <i class="fas fa-map-marker-alt me-2"></i> Sổ địa chỉ nhận hàng
@@ -70,7 +70,7 @@
     <?php 
         // Biến $pageNum và $totalPages ĐƯỢC TRUYỀN TỪ AccountController
         if (isset($pageNum) && isset($totalPages)) {
-            echo PaginationHelper::render($pageNum, $totalPages, 'p'); 
+            echo Pagination::render($pageNum, $totalPages, 'p'); 
         }
     ?>
 </div>
