@@ -27,62 +27,70 @@ class ProductController extends Controller {
     public function store() {
         $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // 1. Lấy dữ liệu từ Form
             $name = $_POST['name'];
             $brand = $_POST['brand'] ?? '';
             $category_id = $_POST['category_id'];
             $desc = $_POST['description'];
-            $price = $_POST['price']; // Giá
-            $stock = $_POST['stock']; // Số lượng kho
             
-            // Tạo Slug tự động từ tên (Ví dụ: "Áo Thun" -> "ao-thun")
-            $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
+            // Lấy mảng variants từ form
+            $variants = $_POST['variants'] ?? []; 
 
-            // === BƯỚC 1: LƯU VÀO BẢNG PRODUCTS ===
+            // Kiểm tra nếu chưa có biến thể nào thì báo lỗi (hoặc tạo default)
+            if (empty($variants)) {
+                echo "<script>alert('Vui lòng thêm ít nhất 1 biến thể!'); window.history.back();</script>";
+                return;
+            }
+
+            $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
+            $skuMaster = 'P' . time(); // SKU chung
+
+            // 1. Lưu PRODUCTS (Cha)
             $productModel = $this->model('Product');
             $productData = [
+                'sku' => $skuMaster,
                 'name' => $name,
-                'slug' => $slug . '-' . time(), // Thêm time để tránh trùng slug
+                'slug' => $slug . '-' . time(),
                 'brand' => $brand,
                 'category_id' => $category_id,
                 'description' => $desc,
-                'short_description' => mb_substr($desc, 0, 150, 'UTF-8'), 
-                'is_active' => 1,
-                'sku' => 'P' . time() // SKU tạm cho product cha
-            ];
-            // Hàm create trả về ID vừa tạo
-            $productId = $productModel->create($productData); 
-
-            // === BƯỚC 2: LƯU VÀO BẢNG PRODUCT_VARIANTS (Mặc định 1 variant) ===
-            $variantModel = $this->model('ProductVariant');
-            $variantData = [
-                'product_id' => $productId,
-                'name' => 'Default',
-                'sku' => 'V' . time(),
-                'price_cents' => $price, // Lưu thẳng giá trị nhập vào
-                'stock' => $stock,
+                'short_description' => mb_substr(strip_tags($desc), 0, 150, 'UTF-8'),
                 'is_active' => 1
             ];
-            $variantModel->create($variantData);
+            $productId = $productModel->create($productData); 
 
-            // === BƯỚC 3: XỬ LÝ UPLOAD ẢNH VÀ LƯU VÀO PRODUCT_IMAGES ===
+            // 2. LƯU PRODUCT_VARIANTS (Vòng lặp)
+            $variantModel = $this->model('ProductVariant');
+            
+            foreach ($variants as $idx => $var) {
+                // Tạo SKU con: P123-1, P123-2
+                $varSku = $skuMaster . '-' . ($idx + 1);
+                
+                $variantData = [
+                    'product_id' => $productId,
+                    'sku' => $varSku,
+                    'name' => $var['name'],       // VD: Gói 500g
+                    'price_cents' => $var['price'],
+                    'stock' => $var['stock'],
+                    'is_active' => 1
+                ];
+                $variantModel->create($variantData);
+            }
+
+            // 3. XỬ LÝ ẢNH (Giữ nguyên logic cũ - ảnh đại diện)
             if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
                 $targetDir = "../public/assets/uploads/products/";
                 if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
-
                 $fileName = time() . "_" . basename($_FILES["image"]["name"]);
                 $targetFilePath = $targetDir . $fileName;
 
                 if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFilePath)) {
-                    // Insert vào DB
                     $imageModel = $this->model('ProductImage');
-                    $imageData = [
+                    $imageModel->create([
                         'product_id' => $productId,
                         'image_url' => "assets/uploads/products/" . $fileName,
                         'position' => 1,
                         'alt_text' => $name
-                    ];
-                    $imageModel->create($imageData);
+                    ]);
                 }
             }
 
@@ -112,17 +120,22 @@ class ProductController extends Controller {
             exit();
         }
 
-        // Lấy danh mục để hiển thị lại dropdown
+        // Gọi qua Model
+        $variantModel = $this->model('ProductVariant');
+        $variants = $variantModel->getVariantsByProductId($id);
+
         $categoryModel = $this->model('Category');
         $categories = $categoryModel->all();
 
         $this->view('admin/products/edit', [
             'product' => $product,
-            'categories' => $categories
+            'categories' => $categories,
+            'variants' => $variants
         ]);
     }
 
     // --- 6. XỬ LÝ CẬP NHẬT (Update 3 bảng) ---
+    // --- 6. XỬ LÝ CẬP NHẬT (SMART UPDATE - ĐÃ SỬA LỖI 1451) ---
     public function update($id) {
         $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -130,36 +143,89 @@ class ProductController extends Controller {
             $brand = $_POST['brand'] ?? '';
             $category_id = $_POST['category_id'];
             $desc = $_POST['description'];
-            $price = $_POST['price'];
-            $stock = $_POST['stock'];
-            
-            // 1. Update bảng PRODUCTS
+            // Lấy dữ liệu biến thể từ form (View edit.php đã gửi đúng ID rồi)
+            $variantsInput = $_POST['variants'] ?? []; 
+
+            // 1. Update bảng PRODUCTS (Cha) - Giữ nguyên
             $productModel = $this->model('Product');
             $productData = [
                 'name' => $name,
                 'brand' => $brand,
                 'category_id' => $category_id,
                 'description' => $desc,
-                'short_description' => mb_substr($desc, 0, 150, 'UTF-8')
+                'short_description' => mb_substr(strip_tags($desc), 0, 150, 'UTF-8')
             ];
             $productModel->update($id, $productData);
 
-            // 2. Update bảng VARIANTS
+            // 2. XỬ LÝ BIẾN THỂ (LOGIC MỚI AN TOÀN)
             $variantModel = $this->model('ProductVariant');
-            $variantModel->updateByProductId($id, [
-                'price_cents' => $price,
-                'stock' => $stock
-            ]);
+            $skuMaster = 'P' . time(); 
 
-            // 3. Update bảng IMAGES (Nếu có upload ảnh mới)
+            // A. Lấy danh sách ID biến thể ĐANG CÓ trong DB
+            $currentVariants = $variantModel->getVariantsByProductId($id);
+            $currentIds = array_column($currentVariants, 'id');
+
+            // B. Lấy danh sách ID ĐƯỢC GỬI LÊN từ Form
+            $submittedIds = [];
+            foreach ($variantsInput as $var) {
+                if (!empty($var['id'])) {
+                    $submittedIds[] = $var['id'];
+                }
+            }
+
+            // C. Tìm các ID cần XÓA (Có trong DB nhưng không có trong Form)
+            $idsToDelete = array_diff($currentIds, $submittedIds);
+
+            // --- THỰC HIỆN XÓA HOẶC ẨN ---
+            if (!empty($idsToDelete)) {
+                foreach ($idsToDelete as $delId) {
+                    try {
+                        // Cố gắng xóa cứng
+                        $variantModel->delete($delId); 
+                    } catch (\Exception $e) {
+                        // QUAN TRỌNG: Nếu lỗi (do dính giỏ hàng) -> Chỉ ẨN đi (Soft Delete)
+                        // Update stock = 0 và is_active = 0
+                        $variantModel->update($delId, [
+                            'is_active' => 0, 
+                            'stock' => 0
+                        ]);
+                    }
+                }
+            }
+
+            // --- THỰC HIỆN THÊM MỚI HOẶC CẬP NHẬT ---
+            foreach ($variantsInput as $idx => $var) {
+                if (!empty($var['id'])) {
+                    // === TRƯỜNG HỢP 1: CẬP NHẬT (Dòng cũ) ===
+                    $updateData = [
+                        'name' => $var['name'],
+                        'price_cents' => $var['price'],
+                        'stock' => $var['stock'],
+                        'is_active' => 1 // Kích hoạt lại nếu lỡ bị ẩn trước đó
+                    ];
+                    $variantModel->update($var['id'], $updateData);
+
+                } else {
+                    // === TRƯỜNG HỢP 2: THÊM MỚI (Dòng mới thêm) ===
+                    $newData = [
+                        'product_id' => $id,
+                        'sku' => $skuMaster . '-N' . ($idx + 1),
+                        'name' => $var['name'],
+                        'price_cents' => $var['price'],
+                        'stock' => $var['stock'],
+                        'is_active' => 1
+                    ];
+                    $variantModel->create($newData);
+                }
+            }
+
+            // 3. Update ảnh (Giữ nguyên)
             if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
                 $targetDir = "../public/assets/uploads/products/";
                 $fileName = time() . "_" . basename($_FILES["image"]["name"]);
                 $targetFilePath = $targetDir . $fileName;
-
                 if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFilePath)) {
-                    $newImageUrl = "assets/uploads/products/" . $fileName;                    
-                    // Cập nhật đường dẫn mới vào DB
+                    $newImageUrl = "assets/uploads/products/" . $fileName;
                     $imageModel = $this->model('ProductImage');
                     $imageModel->updateByProductId($id, $newImageUrl);
                 }

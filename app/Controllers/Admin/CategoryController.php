@@ -16,7 +16,10 @@ class CategoryController extends Controller {
     // 2. Hiện form thêm mới
     public function create() {
         $this->checkAuth();
-        $this->view('admin/categories/create');
+        $categoryModel = $this->model('Category');
+        // Lấy tất cả danh mục để làm danh mục cha (trừ chính nó sau này)
+        $categories = $categoryModel->all(); 
+        $this->view('admin/categories/create', ['categories' => $categories]);
     }
 
     // 3. Xử lý lưu dữ liệu (STORE)
@@ -26,7 +29,7 @@ class CategoryController extends Controller {
             $name = $_POST['name'];
             $slug = $_POST['slug']; 
             $desc = $_POST['description'];
-
+            $parent_id = !empty($_POST['parent_id']) ? $_POST['parent_id'] : NULL;
             // Xử lý upload ảnh
             $imageUrl = null;
             if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
@@ -37,6 +40,7 @@ class CategoryController extends Controller {
                 'name' => $name,
                 'slug' => $slug,
                 'description' => $desc,
+                'parent_id' => $parent_id,
                 'image_url' => $imageUrl // Lưu đường dẫn ảnh vào DB
             ];
 
@@ -65,13 +69,13 @@ class CategoryController extends Controller {
         $this->checkAuth();
         $categoryModel = $this->model('Category');
         $category = $categoryModel->find($id);
-
+        $categories = $categoryModel->all();
         if (!$category) {
             header('Location: /MY_WEB/public/admin/category');
             exit();
         }
 
-        $this->view('admin/categories/edit', ['category' => $category]);
+        $this->view('admin/categories/edit', ['category' => $category, 'categories' => $categories]);
     }
 
     // 6. Xử lý cập nhật (UPDATE)
@@ -81,11 +85,18 @@ class CategoryController extends Controller {
             $name = $_POST['name'];
             $slug = $_POST['slug'];
             $desc = $_POST['description'];
+            $parent_id = !empty($_POST['parent_id']) ? $_POST['parent_id'] : NULL;
+            
+            if ($parent_id == $id) {
+                echo "<script>alert('Không thể chọn danh mục này làm cha của chính nó!'); window.history.back();</script>";
+                exit;
+            }
 
             $data = [
                 'name' => $name,
                 'slug' => $slug,
-                'description' => $desc
+                'description' => $desc,
+                'parent_id' => $parent_id 
             ];
 
             // Kiểm tra nếu có upload ảnh mới

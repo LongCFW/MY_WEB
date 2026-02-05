@@ -9,4 +9,16 @@ class Category extends Model {
         $result = $this->db->fetch($sql, [$categoryId]);
         return $result['total'] ?? 0;
     }
+
+    public function getCategoryTreeIds($parentId) {
+    // Lấy ID của chính nó
+    $ids = [$parentId];
+    // Lấy ID của các con
+    $sql = "SELECT id FROM categories WHERE parent_id = ?";
+    $children = $this->db->fetchAll($sql, [$parentId]);
+    foreach ($children as $child) {
+        $ids[] = $child['id'];
+    }
+    return $ids; // Trả về mảng [3, 6, 7] (Cha + Các con)
+}
 }

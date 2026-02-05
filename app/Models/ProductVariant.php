@@ -66,4 +66,16 @@ class ProductVariant extends Model {
             return ['status' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()];
         }
     }
+
+    // Lấy tất cả biến thể theo ID sản phẩm (Dùng cho hàm Edit)
+    public function getVariantsByProductId($productId) {
+        $sql = "SELECT * FROM {$this->table} WHERE product_id = ?";
+        return $this->db->fetchAll($sql, [$productId]);
+    }
+
+    // Xóa tất cả biến thể theo ID sản phẩm (Dùng cho hàm Update)
+    public function deleteByProductId($productId) {
+        $sql = "DELETE FROM {$this->table} WHERE product_id = ?";
+        return $this->db->query($sql, [$productId]);
+    }
 }
