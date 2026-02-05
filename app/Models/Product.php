@@ -170,7 +170,8 @@ class Product extends Model {
     public function getRelatedProducts($categoryId, $excludeId, $limit = 4) {
         $sql = "SELECT p.*, c.name as category_name, 
                        MIN(v.price_cents) as price_cents, 
-                       MIN(i.image_url) as image_url
+                       MIN(i.image_url) as image_url,
+                       COALESCE(SUM(v.stock), 0) as total_stock
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN product_variants v ON p.id = v.product_id 

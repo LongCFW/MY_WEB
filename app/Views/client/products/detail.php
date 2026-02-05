@@ -135,24 +135,29 @@
                     <div>
                         <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
                             <div class="input-group border rounded-pill overflow-hidden" style="width: 140px;">
-                                <button type="button" class="btn btn-light border-0" onclick="updateQty(-1)">
+                                <button type="button" class="btn btn-light border-0" onclick="updateQty(-1)" <?= ($product['stock'] <= 0) ? 'disabled' : '' ?>>
                                     <i class="fas fa-minus text-secondary" style="font-size: 0.8rem;"></i>
                                 </button>
 
                                 <input type="number" id="qtyInput" class="form-control border-0 text-center bg-white fw-bold"
-                                    value="1" min="1" max="<?= $product['stock'] ?>">
+                                    value="1" min="1" max="<?= $product['stock'] ?>" <?= ($product['stock'] <= 0) ? 'disabled' : '' ?>>
 
-                                <button type="button" class="btn btn-light border-0" onclick="updateQty(1)">
+                                <button type="button" class="btn btn-light border-0" onclick="updateQty(1)" <?= ($product['stock'] <= 0) ? 'disabled' : '' ?>>
                                     <i class="fas fa-plus text-secondary" style="font-size: 0.8rem;"></i>
                                 </button>
                             </div>
 
-                            <button type="button"
-                                class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm flex-grow-1"
-                                <?= ($product['stock'] <= 0) ? 'disabled' : '' ?>
-                                onclick="addToCartGlobal(<?= $product['id'] ?>, document.getElementById('qtyInput').value)">
-                                <i class="fas fa-shopping-cart me-2"></i> <?= ($product['stock'] > 0) ? "Thêm vào giỏ" : "Hết hàng" ?>
-                            </button>
+                            <?php if($product['stock'] <= 0): ?>
+                                <button type="button" class="btn btn-secondary btn-lg rounded-pill px-5 fw-bold shadow-sm flex-grow-1" disabled style="cursor: not-allowed;">
+                                    <i class="fas fa-ban me-2"></i> Tạm hết hàng
+                                </button>
+                            <?php else: ?>
+                                <button type="button"
+                                    class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow-sm flex-grow-1"
+                                    onclick="addToCartGlobal(<?= $product['id'] ?>, document.getElementById('qtyInput').value)">
+                                    <i class="fas fa-shopping-cart me-2"></i> Thêm vào giỏ
+                                </button>
+                            <?php endif; ?>
 
                             <?php
                             // Logic kiểm tra: Biến $likedIds được truyền từ Controller xuống

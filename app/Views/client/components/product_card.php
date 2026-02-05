@@ -4,13 +4,27 @@
 $likedIds = $likedIds ?? [];
 $isLiked = in_array($p['id'], $likedIds);
 $imgUrl = !empty($p['image_url']) ? "/MY_WEB/public/" . $p['image_url'] : "https://placehold.co/300x300?text=No+Image";
+
+// Kiểm tra hết hàng | total_stock lấy từ hàm getFilteredProducts trong Model
+$totalStock = isset($p['total_stock']) ? (int)$p['total_stock'] : 0;
+$isOutOfStock = ($totalStock <= 0);
 ?>
 
 <div class="card h-100 product-card-wrapper border-0 shadow-sm rounded-4 overflow-hidden group-hover">
-    <div class="product-img-container position-relative bg-light" style="padding-top: 100%;"> <img src="<?= $imgUrl ?>" alt="<?= htmlspecialchars($p['name']) ?>" 
-             class="position-absolute top-0 start-0 w-100 h-100 object-fit-contain p-3 transition-transform">
+    <div class="product-img-container position-relative bg-light" style="padding-top: 100%;"> 
+        <img src="<?= $imgUrl ?>" alt="<?= htmlspecialchars($p['name']) ?>" 
+             class="position-absolute top-0 start-0 w-100 h-100 object-fit-contain p-3 transition-transform"
+             style="<?= $isOutOfStock ? 'filter: grayscale(100%); opacity: 0.8;' : '' ?>">
 
         <a href="/MY_WEB/public/product/detail/<?= $p['id'] ?>" class="stretched-link z-1"></a>
+
+        <?php if($isOutOfStock): ?>
+            <div class="position-absolute top-50 start-50 translate-middle z-3 w-100 text-center">
+                <span class="badge bg-dark bg-opacity-75 fs-6 py-2 px-3 text-uppercase shadow-sm">
+                    Hết hàng
+                </span>
+            </div>
+        <?php endif; ?>
 
         <button type="button" 
                 class="btn btn-light rounded-circle position-absolute top-0 end-0 m-3 shadow-sm p-0 d-flex align-items-center justify-content-center btn-wishlist z-3"
@@ -24,6 +38,8 @@ $imgUrl = !empty($p['image_url']) ? "/MY_WEB/public/" . $p['image_url'] : "https
             <a href="/MY_WEB/public/product/detail/<?= $p['id'] ?>" class="btn btn-light rounded-pill px-3 shadow-sm btn-sm fw-bold action-btn position-relative">
                 <i class="fas fa-eye me-1"></i> Chi tiết
             </a>
+            
+            <?php if(!$isOutOfStock): ?>
             <button type="button" class="btn btn-light rounded-pill px-3 shadow-sm btn-sm fw-bold btn-quick-view action-btn position-relative"
                 data-id="<?= $p['id'] ?>"
                 data-name="<?= htmlspecialchars($p['name']) ?>"
@@ -33,6 +49,7 @@ $imgUrl = !empty($p['image_url']) ? "/MY_WEB/public/" . $p['image_url'] : "https
                 data-desc="<?= htmlspecialchars($p['short_description'] ?? '') ?>">
                 <i class="fas fa-bolt me-1"></i> Xem nhanh
             </button>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -48,17 +65,26 @@ $imgUrl = !empty($p['image_url']) ? "/MY_WEB/public/" . $p['image_url'] : "https
         </h6>
 
         <div class="mt-auto d-flex justify-content-between align-items-center">
-            <div class="product-price text-success fw-bold fs-5">
+            <div class="product-price text-success fw-bold fs-5 <?= $isOutOfStock ? 'text-muted text-decoration-line-through' : '' ?>">
                 <?= number_format($p['price_cents']) ?> đ
             </div>
 
-            <button type="button"
-                class="btn btn-success rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm z-2 position-relative btn-add-cart-hover"
-                style="width: 40px; height: 40px;"
-                title="Thêm vào giỏ"
-                onclick="addToCartGlobal(<?= $p['id'] ?>, 1)">
-                <i class="fas fa-plus text-white"></i>
-            </button>
+            <?php if($isOutOfStock): ?>
+                <button type="button"
+                    class="btn btn-secondary rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm z-2 position-relative"
+                    style="width: 40px; height: 40px; cursor: not-allowed;"
+                    title="Đã hết hàng" disabled>
+                    <i class="fas fa-ban text-white"></i>
+                </button>
+            <?php else: ?>
+                <button type="button"
+                    class="btn btn-success rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm z-2 position-relative btn-add-cart-hover"
+                    style="width: 40px; height: 40px;"
+                    title="Thêm vào giỏ"
+                    onclick="addToCartGlobal(<?= $p['id'] ?>, 1)">
+                    <i class="fas fa-plus text-white"></i>
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 </div>
