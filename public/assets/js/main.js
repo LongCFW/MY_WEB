@@ -46,48 +46,39 @@ function addToCartGlobal(productId, quantity = 1) {
         })
     })
     .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            
-            // --- [FIX] CẬP NHẬT BADGE THÔNG MINH HƠN ---
-            
-            // 1. Tìm nút cha chứa icon giỏ hàng (trong header.php bạn đã có class 'cart-icon-hover')
-            const cartIconContainer = document.querySelector('.cart-icon-hover');
-            
-            if (cartIconContainer) {
-                // 2. Tìm thẻ badge bên trong
-                let badge = cartIconContainer.querySelector('.badge');
+    .then(data => {                
+        if (data.status === 'login_required') {            
+            window.location.href = '/MY_WEB/public/auth/login';
+            return;
+        }
 
+        if (data.status === 'success') {
+                        
+            const cartIconContainer = document.querySelector('.cart-icon-hover');
+            if (cartIconContainer) {
+                let badge = cartIconContainer.querySelector('.badge');
                 if (data.cart_count > 0) {
                     if (badge) {
-                        // Trường hợp A: Badge đã có -> Chỉ cập nhật số
                         badge.innerText = data.cart_count;
                         badge.style.display = 'inline-block';
                     } else {
-                        // Trường hợp B: Badge chưa có (lần đầu mua) -> Tạo mới thẻ SPAN
                         badge = document.createElement('span');
-                        // Copy y nguyên class từ header.php vào đây
                         badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light cart-badge';
                         badge.style.fontSize = '0.7rem';
                         badge.innerText = data.cart_count;
-                        
-                        // Chèn vào trong nút cha
                         cartIconContainer.appendChild(badge);
                     }
                 } else {
-                    // Nếu số lượng = 0 thì ẩn đi
                     if (badge) badge.style.display = 'none';
                 }
             }
 
-            // 3. Hiển thị Toast
             if(typeof showToast === 'function') {
                 showToast(data.message);
             } else {
                 alert(data.message);
             }
-
-            // 4. Đóng Modal Quick View (nếu có)
+            
             const qvModalEl = document.getElementById('quickViewModal');
             if (qvModalEl && qvModalEl.classList.contains('show')) {
                 if (typeof bootstrap !== 'undefined') {
@@ -107,7 +98,6 @@ function addToCartGlobal(productId, quantity = 1) {
         alert('Có lỗi xảy ra, vui lòng thử lại!');
     });
 }
-
 /**
  * Toggle Wishlist
  * @param {HTMLElement} btnElement - Nút được bấm
