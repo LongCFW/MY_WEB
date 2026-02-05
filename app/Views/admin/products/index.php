@@ -57,8 +57,12 @@
                             <?php endif; ?>
                         </td>
                         <td class="text-center align-middle">
-                            <a href="/MY_WEB/public/admin/product/edit/<?= $p['id'] ?>" class="btn btn-primary btn-sm action-btn shadow-sm" title="Sửa"><i class="fas fa-pen fa-xs"></i></a>
-                            <a href="/MY_WEB/public/admin/product/delete/<?= $p['id'] ?>" class="btn btn-danger btn-sm action-btn shadow-sm ml-1" onclick="return confirm('Xóa sản phẩm này?');" title="Xóa"><i class="fas fa-trash fa-xs"></i></a>
+                            <a href="/MY_WEB/public/admin/product/edit/<?= $p['id'] ?>" class="btn btn-primary btn-sm action-btn shadow-sm" title="Sửa">
+                                <i class="fas fa-pen fa-xs"></i>
+                            </a>
+                            <a href="/MY_WEB/public/admin/product/delete/<?= $p['id'] ?>" class="btn btn-danger btn-sm action-btn shadow-sm ml-1 btn-delete" title="Xóa"> 
+                                <i class="fas fa-trash fa-xs"></i>
+                            </a>
                         </td>
                     </tr>
                     <?php endforeach; else: ?>

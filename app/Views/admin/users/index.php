@@ -50,9 +50,7 @@
                                     <i class="fas fa-pen fa-xs"></i>
                                 </a>
                                 <?php if($u['id'] != $_SESSION['admin_id']): ?>
-                                    <a href="/MY_WEB/public/admin/user/delete/<?= $u['id'] ?>" 
-                                       class="btn btn-danger btn-sm action-btn shadow-sm ml-1"
-                                       onclick="return confirm('Xóa người dùng này sẽ xóa cả lịch sử liên quan. Bạn chắc chứ?')" title="Xóa">
+                                    <a href="/MY_WEB/public/admin/user/delete/<?= $u['id'] ?>" class="btn btn-danger btn-sm action-btn shadow-sm ml-1 btn-delete" title="Xóa"> 
                                         <i class="fas fa-trash fa-xs"></i>
                                     </a>
                                 <?php endif; ?>

@@ -37,9 +37,7 @@
                             <a href="/MY_WEB/public/admin/category/edit/<?= $cate['id'] ?>" class="btn btn-warning btn-sm action-btn text-white shadow-sm">
                                 <i class="fas fa-pen"></i>
                             </a>
-                            <a href="/MY_WEB/public/admin/category/delete/<?= $cate['id'] ?>" 
-                               onclick="return confirm('Xóa danh mục này?')" 
-                               class="btn btn-danger btn-sm action-btn shadow-sm ml-1">
+                            <a href="/MY_WEB/public/admin/category/delete/<?= $cate['id'] ?>" class="btn btn-danger btn-sm action-btn shadow-sm ml-1 btn-delete"> 
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>

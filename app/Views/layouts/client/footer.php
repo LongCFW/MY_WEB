@@ -91,7 +91,7 @@
         display: inline-block;
     }
     .footer-link:hover {
-        color: #198754; /* Màu xanh Eco */
+        color: #198754; 
         transform: translateX(5px);
     }
     .social-btn {
@@ -113,8 +113,10 @@
     }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/MY_WEB/public/assets/js/ui-helper.js"></script>
 <script src="/MY_WEB/public/assets/js/main.js"></script>
 
 <div class="custom-toast-container"></div>
