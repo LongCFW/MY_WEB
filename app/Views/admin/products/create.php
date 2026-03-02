@@ -12,18 +12,27 @@
                         <label class="font-weight-bold">Tên sản phẩm <span class="text-danger">*</span></label>
                         <input type="text" name="name" class="form-control" required placeholder="Ví dụ: Thịt bò Úc...">
                     </div>
-                    
+
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label class="font-weight-bold">Thương hiệu</label>
                             <input type="text" name="brand" class="form-control" placeholder="VD: Vinamilk...">
                         </div>
-                        <div class="form-group col-md-6">
-                            <label class="font-weight-bold">Danh mục <span class="text-danger">*</span></label>
-                            <select name="category_id" class="form-control" required>
+                        <div class="form-group col-md-3">
+                            <label class="font-weight-bold">Danh mục cha</label>
+                            <select id="parentCategory" class="form-control" onchange="loadChildCategories()">
+                                <option value="">-- Chọn danh mục --</option>
                                 <?php foreach ($categories as $cate): ?>
-                                    <option value="<?= $cate['id'] ?>"><?= $cate['name'] ?></option>
+                                    <?php if (empty($cate['parent_id'])): ?>
+                                        <option value="<?= $cate['id'] ?>"><?= htmlspecialchars($cate['name']) ?></option>
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label class="font-weight-bold">Danh mục con <span class="text-danger">*</span></label>
+                            <select name="category_id" id="childCategory" class="form-control" required>
+                                <option value="">-- Vui lòng chọn mục cha --</option>
                             </select>
                         </div>
                     </div>
@@ -73,7 +82,7 @@
                             </div>
                         </div>
                     </div>
-                    </div>
+                </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
@@ -134,6 +143,33 @@
             }
             reader.readAsDataURL(input.files[0]);
         }
+    }
+
+    // Data danh mục từ PHP
+    const allCategories = <?= json_encode($categories) ?>;
+
+    function loadChildCategories() {
+        const parentId = document.getElementById('parentCategory').value;
+        const childSelect = document.getElementById('childCategory');
+
+        // Reset dropdown con
+        childSelect.innerHTML = '<option value="">-- Chọn danh mục con --</option>';
+
+        if (!parentId) return;
+
+        // Lọc ra các danh mục con thuộc danh mục cha đã chọn
+        const children = allCategories.filter(c => c.parent_id == parentId);
+
+        if (children.length === 0) {
+            // Nếu mục cha không có mục con nào, cho phép chọn chính mục cha
+            childSelect.innerHTML = `<option value="${parentId}" selected>-- Thuộc nhóm cha --</option>`;
+            return;
+        }
+
+        // Đổ dữ liệu mục con
+        children.forEach(c => {
+            childSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
     }
 </script>
 

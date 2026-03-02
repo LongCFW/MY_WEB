@@ -8,14 +8,17 @@ class Product extends Model {
 
     // --- 1. HÀM DÀNH CHO ADMIN (KHÔI PHỤC LẠI) ---
     public function getAllProducts() {
-        // Fix lỗi ONLY_FULL_GROUP_BY bằng cách dùng MIN()
+        // Lấy thêm Giá Min/Max, Số lượng biến thể, Tên các biến thể
         $sql = "SELECT p.*, c.name as category_name, 
-                       MIN(v.price_cents) as price_cents, 
+                       MIN(v.price_cents) as min_price, 
+                       MAX(v.price_cents) as max_price,
                        SUM(v.stock) as total_stock,
-                       MIN(i.image_url) as image_url
+                       MIN(i.image_url) as image_url,
+                       COUNT(v.id) as variant_count,
+                       GROUP_CONCAT(v.name SEPARATOR ', ') as variant_names
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
-                LEFT JOIN product_variants v ON p.id = v.product_id 
+                LEFT JOIN product_variants v ON p.id = v.product_id AND v.is_active = 1
                 LEFT JOIN product_images i ON p.id = i.product_id
                 GROUP BY p.id 
                 ORDER BY p.id DESC";

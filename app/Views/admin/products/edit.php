@@ -23,17 +23,45 @@ $variants = $variants ?? [];
                             <label class="font-weight-bold">Thương hiệu</label>
                             <input type="text" name="brand" class="form-control" value="<?= htmlspecialchars($product['brand'] ?? '') ?>">
                         </div>
-                        <div class="form-group col-md-6">
-                            <label class="font-weight-bold">Danh mục <span class="text-danger">*</span></label>
-                            <select name="category_id" class="form-control">
+                        
+                        <?php
+                        // Xác định ID cha và con hiện tại của sản phẩm
+                        $currentCategoryId = $product['category_id'] ?? null;
+                        $currentParentId = '';
+
+                        if (!empty($categories)) {
+                            foreach ($categories as $c) {
+                                if ($c['id'] == $currentCategoryId) {
+                                    if (!empty($c['parent_id'])) {
+                                        $currentParentId = $c['parent_id']; // SP đang ở danh mục con
+                                    } else {
+                                        $currentParentId = $c['id']; // SP đang ở danh mục cha (ko có con)
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        ?>
+                        <div class="form-group col-md-3">
+                            <label class="font-weight-bold">Danh mục cha</label>
+                            <select id="parentCategory" class="form-control" onchange="loadChildCategories()">
+                                <option value="">-- Chọn danh mục --</option>
                                 <?php foreach ($categories as $cate): ?>
-                                    <option value="<?= $cate['id'] ?>" <?= ($cate['id'] == $product['category_id']) ? 'selected' : '' ?>>
-                                        <?= $cate['name'] ?>
-                                    </option>
+                                    <?php if (empty($cate['parent_id'])): ?>
+                                        <option value="<?= $cate['id'] ?>" <?= ($cate['id'] == $currentParentId) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($cate['name']) ?>
+                                        </option>
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                    </div>
+                        <div class="form-group col-md-3">
+                            <label class="font-weight-bold">Danh mục con <span class="text-danger">*</span></label>
+                            <select name="category_id" id="childCategory" class="form-control" required>
+                                <option value="">-- Vui lòng chọn mục cha --</option>
+                            </select>
+                        </div>
+                        </div>
 
                     <div class="form-group">
                         <label class="font-weight-bold">Mô tả chi tiết</label>
@@ -156,6 +184,38 @@ $variants = $variants ?? [];
             reader.readAsDataURL(input.files[0]);
         }
     }
+
+    // --- LOGIC XỬ LÝ DANH MỤC CHA CON ---
+    const allCategories = <?= json_encode($categories) ?>;
+    const currentCategoryId = <?= $product['category_id'] ?? 'null' ?>;
+
+    function loadChildCategories(selectedChildId = null) {
+        const parentId = document.getElementById('parentCategory').value;
+        const childSelect = document.getElementById('childCategory');
+        
+        childSelect.innerHTML = '<option value="">-- Chọn danh mục con --</option>';
+
+        if (!parentId) return;
+
+        const children = allCategories.filter(c => c.parent_id == parentId);
+
+        if (children.length === 0) {
+            // Nếu không có danh mục con, set ID cha làm giá trị gửi đi
+            const isSelected = (parentId == selectedChildId) ? 'selected' : '';
+            childSelect.innerHTML = `<option value="${parentId}" ${isSelected}>-- Thuộc nhóm cha --</option>`;
+            return;
+        }
+
+        children.forEach(c => {
+            const isSelected = (c.id == selectedChildId) ? 'selected' : '';
+            childSelect.innerHTML += `<option value="${c.id}" ${isSelected}>${c.name}</option>`;
+        });
+    }
+
+    // Chạy hàm khi load trang để tự động điền đúng Danh mục con
+    document.addEventListener('DOMContentLoaded', function() {
+        loadChildCategories(currentCategoryId);
+    });
 </script>
 
 <?php require_once '../app/Views/layouts/admin/footer.php'; ?>
