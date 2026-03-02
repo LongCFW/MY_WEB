@@ -40,26 +40,28 @@
 
                         <div class="filter-group border-bottom">
                             <div class="filter-header d-flex justify-content-between align-items-center p-3">
-                                <h6 class="fw-bold m-0 text-dark">Danh Mục</h6>
+                                <h6 class="fw-bold m-0 text-dark">Loại (Trọng lượng)</h6>
                                 <i class="fas fa-chevron-down arrow-icon text-muted"></i>
                             </div>
                             <div class="filter-body">
                                 <div class="p-3 pt-0">
-                                    <?php foreach ($categories as $cat): ?>
+                                    <?php foreach ($types as $t): ?>
                                         <?php
-                                        // ID duy nhất cho label và input
-                                        $inputId = 'cat_' . $cat['id'];
-                                        $isChecked = in_array($cat['id'], $filters['category_ids']) ? 'checked' : '';
+                                        // Bỏ qua nếu tên biến thể rỗng hoặc là 'Default'
+                                        if (empty($t['type']) || strtolower($t['type']) == 'default') continue;
+                                        
+                                        $inputId = 'type_' . md5($t['type']);
+                                        $isChecked = in_array($t['type'], $filters['types']) ? 'checked' : '';
                                         ?>
                                         <div class="custom-check-item">
                                             <input type="checkbox"
                                                 class="filter-checkbox submit-on-change"
-                                                name="category[]"
-                                                value="<?= $cat['id'] ?>"
+                                                name="type[]"
+                                                value="<?= $t['type'] ?>"
                                                 id="<?= $inputId ?>"
                                                 <?= $isChecked ?>>
                                             <label class="custom-check-label" for="<?= $inputId ?>">
-                                                <?= $cat['name'] ?>
+                                                <?= $t['type'] ?>
                                             </label>
                                         </div>
                                     <?php endforeach; ?>

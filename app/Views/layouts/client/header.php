@@ -16,6 +16,30 @@ if (isset($_SESSION['user_logged_in'])) {
     // Nếu chưa đăng nhập: Đếm từ Session
     $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
 }
+
+// --- [LOGIC LẤY CÂY DANH MỤC CHO HEADER] ---
+$catTree = [];
+try {
+    if (class_exists('\App\Models\Category')) {
+        $categoryModelHeader = new \App\Models\Category();
+        $categoriesHeader = $categoryModelHeader->all();
+        
+        // Chuyển mảng phẳng thành cây (Cha -> Con)
+        foreach ($categoriesHeader as $c) {
+            if (empty($c['parent_id'])) {
+                $catTree[$c['id']] = $c;
+                $catTree[$c['id']]['children'] = [];
+            }
+        }
+        foreach ($categoriesHeader as $c) {
+            if (!empty($c['parent_id']) && isset($catTree[$c['parent_id']])) {
+                $catTree[$c['parent_id']]['children'][] = $c;
+            }
+        }
+    }
+} catch (\Exception $e) {
+    // Bỏ qua nếu lỗi
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -32,13 +56,42 @@ if (isset($_SESSION['user_logged_in'])) {
     <link rel="stylesheet" href="/MY_WEB/public/assets/css/product.css">
     <link rel="stylesheet" href="/MY_WEB/public/assets/css/auth-profile.css">
     <link rel="stylesheet" href="/MY_WEB/public/assets/css/cart-checkout.css">
+
+    <style>
+        /* CSS cho Menu Danh Mục (Dropdown Bách Hóa Xanh) */
+        .category-menu-wrapper { position: relative; display: inline-block; }
+        .category-dropdown-menu {
+            display: none; position: absolute; top: 100%; left: 0; 
+            background: #fff; min-width: 250px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            border-radius: 12px; z-index: 1000; padding: 10px 0; border: 1px solid #eee;
+            margin-top: 10px;
+        }
+        .category-menu-wrapper:hover .category-dropdown-menu { display: block; animation: fadeIn 0.2s ease-in-out; }
+        
+        .cat-parent { position: relative; padding: 12px 20px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+        .cat-parent:hover { background: #f1f8f5; color: #2e7d32; }
+        .cat-parent a { color: inherit; text-decoration: none; display: block; width: 100%;}
+        
+        /* Submenu con */
+        .cat-submenu {
+            display: none; position: absolute; top: -1px; left: 100%;
+            background: #fff; min-width: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 12px; min-height: 100%; padding: 10px 0; border: 1px solid #eee;
+        }
+        .cat-parent:hover .cat-submenu { display: block; animation: fadeInLeft 0.2s ease-in-out;}
+        .cat-submenu a { padding: 10px 20px; display: block; text-decoration: none; color: #555; transition: all 0.2s;}
+        .cat-submenu a:hover { background: #f1f8f5; color: #2e7d32; font-weight: bold; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInLeft { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
 </head>
 
 <body>
 
     <nav class="navbar navbar-expand-lg sticky-top py-3 bg-white shadow-sm" style="z-index: 1020;">
         <div class="container">
-            <a class="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2 me-lg-5" href="/MY_WEB/public/">
+            <a class="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2 me-lg-4" href="/MY_WEB/public/">
                 <div class="bg-success bg-opacity-10 p-2 rounded-circle d-flex align-items-center justify-content-center">
                     <i class="fas fa-leaf text-success"></i>
                 </div>
@@ -51,7 +104,35 @@ if (isset($_SESSION['user_logged_in'])) {
 
             <div class="collapse navbar-collapse d-none d-lg-flex" id="basic-navbar-nav">
                 
-                <div class="mx-auto w-100 px-lg-5" style="max-width: 600px;">
+                <div class="category-menu-wrapper me-2">
+                    <button class="btn btn-success fw-bold rounded-pill px-4 shadow-sm py-2">
+                        <i class="fas fa-bars me-2"></i> Danh Mục
+                    </button>
+                    <div class="category-dropdown-menu">
+                        <?php if(!empty($catTree)): ?>
+                            <?php foreach ($catTree as $parent): ?>
+                                <div class="cat-parent">
+                                    <a href="/MY_WEB/public/product?category=<?= $parent['id'] ?>">
+                                        <?= htmlspecialchars($parent['name']) ?>
+                                    </a>
+                                    <?php if (!empty($parent['children'])): ?>
+                                        <i class="fas fa-chevron-right small text-muted"></i>
+                                        <div class="cat-submenu">
+                                            <?php foreach ($parent['children'] as $child): ?>
+                                                <a href="/MY_WEB/public/product?category=<?= $child['id'] ?>">
+                                                    <?= htmlspecialchars($child['name']) ?>
+                                                </a>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="p-3 text-muted small text-center">Đang cập nhật danh mục...</div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="mx-auto w-100 px-lg-3" style="max-width: 500px;">
                     <div class="position-relative w-100 cursor-pointer" data-bs-toggle="modal" data-bs-target="#searchModal">
                         <input type="text" placeholder="Tìm kiếm sản phẩm xanh..."
                             class="form-control rounded-pill border-0 bg-light py-2 ps-4 pe-5 shadow-sm"
@@ -62,7 +143,7 @@ if (isset($_SESSION['user_logged_in'])) {
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-4">
+                <div class="d-flex align-items-center gap-4 ms-auto">
                     <div class="d-flex gap-3 fw-medium">
                         <a href="/MY_WEB/public/" class="text-dark text-decoration-none hover-green pb-1">Trang chủ</a>
                         <a href="/MY_WEB/public/product" class="text-dark text-decoration-none hover-green pb-1">Sản phẩm</a>

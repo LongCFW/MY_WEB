@@ -118,6 +118,13 @@ class Product extends Model {
             $params = array_merge($params, $filters['brands']);
         }
 
+        // Loại / Trọng lượng (từ bảng product_variants)
+        if (!empty($filters['types'])) {
+            $placeholders = implode(',', array_fill(0, count($filters['types']), '?'));
+            $sql .= " AND v.name IN ($placeholders)";
+            $params = array_merge($params, $filters['types']);
+        }
+
         return $sql;
     }
 
@@ -221,5 +228,13 @@ class Product extends Model {
         $sql = "SELECT COUNT(*) as total FROM {$this->table}";
         $result = $this->db->fetch($sql);
         return $result['total'] ?? 0;
+    }
+
+    // Lấy danh sách Loại (quy cách/trọng lượng)
+    public function getDistinctTypes() {
+        $sql = "SELECT DISTINCT name as type FROM product_variants 
+                WHERE name IS NOT NULL AND name != '' AND is_active = 1 
+                ORDER BY type ASC";
+        return $this->db->fetchAll($sql);
     }
 }

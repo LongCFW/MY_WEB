@@ -14,12 +14,19 @@ class ProductController extends Controller {
         $limit = 8; 
         $offset = ($page - 1) * $limit;
 
+        // Xử lý an toàn cho category (vì header menu gửi string ?category=1, còn checkbox gửi mảng ?category[]=1)
+        $category_input = $_GET['category'] ?? [];
+        if (!is_array($category_input) && $category_input !== '') {
+            $category_input = [$category_input];
+        }
+
         $filters = [
             'keyword'      => $_GET['keyword'] ?? '',
             'sort'         => $_GET['sort'] ?? 'default',
-            'category_ids' => $_GET['category'] ?? [], 
+            'category_ids' => $category_input, 
             'price_ranges' => $_GET['price'] ?? [],    
-            'brands'       => $_GET['brand'] ?? []     
+            'brands'       => $_GET['brand'] ?? [],
+            'types'        => $_GET['type'] ?? [] // MỚI: Lọc theo loại/trọng lượng
         ];
 
         // 2. Lấy dữ liệu sản phẩm
@@ -29,12 +36,12 @@ class ProductController extends Controller {
 
         $categories = $categoryModel->all();
         $brands = $productModel->getDistinctBrands();
+        $types = $productModel->getDistinctTypes(); // Lấy danh sách số gam
 
         // --- 3. LOGIC WISHLIST ---
-        // Lấy danh sách ID sản phẩm user đã like để hiển thị trái tim đỏ
         $wishlistModel = $this->model('Wishlist');
-        $likedIds = [];                           
-        if(isset($_SESSION['user_id'])) {         
+        $likedIds = [];                          
+        if(isset($_SESSION['user_id'])) {        
             $likedIds = $wishlistModel->getUserLikedProductIds($_SESSION['user_id']);
         }
 
@@ -43,6 +50,7 @@ class ProductController extends Controller {
             'products' => $products,
             'categories' => $categories,
             'brands' => $brands,
+            'types' => $types, // Truyền types ra View
             'filters' => $filters,
             'likedIds' => $likedIds, 
             'pagination' => [
