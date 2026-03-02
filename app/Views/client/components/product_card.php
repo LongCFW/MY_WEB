@@ -1,6 +1,5 @@
 <?php
 // Logic kiểm tra trạng thái Like
-// Đảm bảo biến $likedIds luôn tồn tại (tránh lỗi undefined)
 $likedIds = $likedIds ?? [];
 $isLiked = in_array($p['id'], $likedIds);
 $imgUrl = !empty($p['image_url']) ? "/MY_WEB/public/" . $p['image_url'] : "https://placehold.co/300x300?text=No+Image";
@@ -8,6 +7,10 @@ $imgUrl = !empty($p['image_url']) ? "/MY_WEB/public/" . $p['image_url'] : "https
 // Kiểm tra hết hàng | total_stock lấy từ hàm getFilteredProducts trong Model
 $totalStock = isset($p['total_stock']) ? (int)$p['total_stock'] : 0;
 $isOutOfStock = ($totalStock <= 0);
+
+// --- LOGIC KIỂM TRA NHIỀU BIẾN THỂ (KHOẢNG GIÁ) ---
+$minPrice = $p['price_cents'] ?? 0;
+$hasMultiplePrices = isset($p['max_price']) && ($p['max_price'] > $minPrice); 
 ?>
 
 <div class="card h-100 product-card-wrapper border-0 shadow-sm rounded-4 overflow-hidden group-hover">
@@ -30,20 +33,20 @@ $isOutOfStock = ($totalStock <= 0);
                 class="btn btn-light rounded-circle position-absolute top-0 end-0 m-3 shadow-sm p-0 d-flex align-items-center justify-content-center btn-wishlist z-3"
                 style="width: 35px; height: 35px; transition: all 0.3s ease; position: relative; z-index: 10;"
                 onclick="toggleWishlist(this, <?= $p['id'] ?>)"
-                title="Thêm vào yêu thích">
+                title="<?= $isLiked ? 'Bỏ yêu thích' : 'Thêm vào yêu thích' ?>">
             <i class="<?= $isLiked ? 'fas text-danger' : 'far' ?> fa-heart fs-6"></i>
         </button>
 
         <div class="card-actions-overlay position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center gap-2 z-2 opacity-0 transition-opacity">
-            <a href="/MY_WEB/public/product/detail/<?= $p['id'] ?>" class="btn btn-light rounded-pill px-3 shadow-sm btn-sm fw-bold action-btn position-relative">
+            <a href="/MY_WEB/public/product/detail/<?= $p['id'] ?>" class="btn btn-light rounded-pill px-3 shadow-sm btn-sm fw-bold action-btn position-relative z-3">
                 <i class="fas fa-eye me-1"></i> Chi tiết
             </a>
             
             <?php if(!$isOutOfStock): ?>
-            <button type="button" class="btn btn-light rounded-pill px-3 shadow-sm btn-sm fw-bold btn-quick-view action-btn position-relative"
+            <button type="button" class="btn btn-light rounded-pill px-3 shadow-sm btn-sm fw-bold btn-quick-view action-btn position-relative z-3"
                 data-id="<?= $p['id'] ?>"
                 data-name="<?= htmlspecialchars($p['name']) ?>"
-                data-price="<?= $p['price_cents'] ?>"
+                data-price="<?= $minPrice ?>"
                 data-image="<?= $imgUrl ?>"
                 data-cat="<?= htmlspecialchars($p['category_name'] ?? '') ?>"
                 data-desc="<?= htmlspecialchars($p['short_description'] ?? '') ?>">
@@ -66,7 +69,11 @@ $isOutOfStock = ($totalStock <= 0);
 
         <div class="mt-auto d-flex justify-content-between align-items-center">
             <div class="product-price text-success fw-bold fs-5 <?= $isOutOfStock ? 'text-muted text-decoration-line-through' : '' ?>">
-                <?= number_format($p['price_cents']) ?> đ
+                <?php if ($hasMultiplePrices && !$isOutOfStock): ?>
+                    <span class="fs-6 text-muted fw-normal me-1">Từ</span><?= number_format($minPrice) ?> đ
+                <?php else: ?>
+                    <?= number_format($minPrice) ?> đ
+                <?php endif; ?>
             </div>
 
             <?php if($isOutOfStock): ?>

@@ -40,7 +40,7 @@
 
                         <div class="filter-group border-bottom">
                             <div class="filter-header d-flex justify-content-between align-items-center p-3">
-                                <h6 class="fw-bold m-0 text-dark">Loại (Trọng lượng)</h6>
+                                <h6 class="fw-bold m-0 text-dark">Loại</h6>
                                 <i class="fas fa-chevron-down arrow-icon text-muted"></i>
                             </div>
                             <div class="filter-body">

@@ -55,7 +55,15 @@
                         </td>
 
                         <td class="align-middle">
-                            <span class="badge badge-light border text-dark"><?= htmlspecialchars($p['category_name'] ?? 'N/A') ?></span>
+                            <?php if (!empty($p['parent_category_name'])): ?>
+                                <span class="badge badge-light border text-secondary mb-1 d-block" style="width: fit-content;">
+                                    <?= htmlspecialchars($p['parent_category_name']) ?>
+                                </span>
+                                <i class="fas fa-level-up-alt fa-rotate-90 text-muted mx-1"></i>
+                            <?php endif; ?>
+                            <span class="badge badge-info border text-white">
+                                <?= htmlspecialchars($p['category_name'] ?? 'Chưa phân loại') ?>
+                            </span>
                         </td>
 
                         <td class="align-middle text-right text-success font-weight-bold">

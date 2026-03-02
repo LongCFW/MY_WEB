@@ -8,8 +8,7 @@ class Product extends Model {
 
     // --- 1. HÀM DÀNH CHO ADMIN (KHÔI PHỤC LẠI) ---
     public function getAllProducts() {
-        // Lấy thêm Giá Min/Max, Số lượng biến thể, Tên các biến thể
-        $sql = "SELECT p.*, c.name as category_name, 
+        $sql = "SELECT p.*, c.name as category_name, parent_c.name as parent_category_name,
                        MIN(v.price_cents) as min_price, 
                        MAX(v.price_cents) as max_price,
                        SUM(v.stock) as total_stock,
@@ -18,6 +17,7 @@ class Product extends Model {
                        GROUP_CONCAT(v.name SEPARATOR ', ') as variant_names
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
+                LEFT JOIN categories parent_c ON c.parent_id = parent_c.id 
                 LEFT JOIN product_variants v ON p.id = v.product_id AND v.is_active = 1
                 LEFT JOIN product_images i ON p.id = i.product_id
                 GROUP BY p.id 
@@ -29,13 +29,15 @@ class Product extends Model {
     // --- HÀM DÀNH CHO CLIENT (FILTER + PAGINATION) ---
     public function getFilteredProducts($filters = [], $limit = 12, $offset = 0) {
         // Xây dựng câu truy vấn cơ bản
+        // [CẬP NHẬT]: Thêm MAX(v.price_cents) as max_price để Client biết SP có nhiều mức giá
         $sql = "SELECT p.*, c.name as category_name, 
                        MIN(v.price_cents) as price_cents, 
+                       MAX(v.price_cents) as max_price,
                        MIN(i.image_url) as image_url,
                        COALESCE(SUM(v.stock), 0) as total_stock
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
-                LEFT JOIN product_variants v ON p.id = v.product_id 
+                LEFT JOIN product_variants v ON p.id = v.product_id AND v.is_active = 1
                 LEFT JOIN product_images i ON p.id = i.product_id
                 WHERE p.is_active = 1";
 
@@ -133,8 +135,9 @@ class Product extends Model {
 
     // Lấy thương hiệu (Mock hoặc lấy thật)
     public function getDistinctBrands() {
-        $sql = "SELECT DISTINCT brand FROM {$this->table} 
-                WHERE brand IS NOT NULL AND brand != '' AND is_active = 1 
+        $sql = "SELECT TRIM(brand) as brand FROM {$this->table} 
+                WHERE brand IS NOT NULL AND TRIM(brand) != '' AND is_active = 1 
+                GROUP BY TRIM(brand)
                 ORDER BY brand ASC";
         
         return $this->db->fetchAll($sql);
@@ -203,18 +206,15 @@ class Product extends Model {
         $variantIds = array_column($variants, 'id');
 
         if (!empty($variantIds)) {
-            // Chuyển mảng ID thành chuỗi để dùng trong câu lệnh IN (...)
-            // Ví dụ: 1,2,3
             $idsString = implode(',', array_map('intval', $variantIds));
 
-            // Bước 2: Xóa trong bảng WISHLISTS trước (Gỡ lỗi khóa ngoại 1451)
-            $this->db->query("DELETE FROM wishlists WHERE variant_id IN ($idsString)");
-
-            // Bước 3: Xóa trong bảng CART_ITEMS (Gỡ lỗi khóa ngoại giỏ hàng nếu có)
+            // DỌN SẠCH GIỎ HÀNG VÀ WISHLIST TRƯỚC KHI XÓA
             $this->db->query("DELETE FROM cart_items WHERE variant_id IN ($idsString)");
             
-            // Bước 4: Xóa các biến thể (PRODUCT_VARIANTS)
-            // (Lưu ý: Nếu bảng order_items có liên kết thì phải xóa ở đó nữa, nhưng thường order_items không xóa)
+            try {
+                $this->db->query("DELETE FROM wishlists WHERE variant_id IN ($idsString)");
+            } catch (\Exception $e) {}
+
             $this->db->query("DELETE FROM product_variants WHERE product_id = ?", [$id]);
         }
 

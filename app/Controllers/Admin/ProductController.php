@@ -98,13 +98,11 @@ class ProductController extends Controller {
         }
     }
 
-    // 4 Xóa (Lưu ý: Do có khóa ngoại Cascade hoặc phải xóa bảng con trước)
+    // 4 Xóa
     public function delete($id) {
         $this->checkAuth();
-        // Database của bạn có ON DELETE CASCADE ở bảng variant/image chưa?
-        // Nếu có rồi thì chỉ cần xóa bảng Product là tự bay hết.
-        // Nếu chưa thì phải xóa tay từng bảng. Giả sử đã có CASCADE như DDL bạn gửi.
         $model = $this->model('Product');
+        // Đã cập nhật logic xóa an toàn bên trong Model Product
         $model->delete($id);
         header('Location: /MY_WEB/public/admin/product');
     }
@@ -120,9 +118,9 @@ class ProductController extends Controller {
             exit();
         }
 
-        // Gọi qua Model
+        // Gọi qua Model (Nhớ chỉ lấy những biến thể is_active = 1 để hiện lên form sửa)
         $variantModel = $this->model('ProductVariant');
-        $variants = $variantModel->getVariantsByProductId($id);
+        $variants = $variantModel->getVariantsByProductId($id); 
 
         $categoryModel = $this->model('Category');
         $categories = $categoryModel->all();
@@ -134,8 +132,7 @@ class ProductController extends Controller {
         ]);
     }
 
-    // --- 6. XỬ LÝ CẬP NHẬT (Update 3 bảng) ---
-    // --- 6. XỬ LÝ CẬP NHẬT (SMART UPDATE - ĐÃ SỬA LỖI 1451) ---
+    // --- 6. XỬ LÝ CẬP NHẬT (SMART UPDATE & SOFT DELETE - ĐÃ SỬA LỖI 1451) ---
     public function update($id) {
         $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -157,7 +154,7 @@ class ProductController extends Controller {
             ];
             $productModel->update($id, $productData);
 
-            // 2. XỬ LÝ BIẾN THỂ (LOGIC MỚI AN TOÀN)
+            // 2. XỬ LÝ BIẾN THỂ (LOGIC MỚI AN TOÀN - FIX 1451)
             $variantModel = $this->model('ProductVariant');
             $skuMaster = 'P' . time(); 
 
@@ -176,20 +173,19 @@ class ProductController extends Controller {
             // C. Tìm các ID cần XÓA (Có trong DB nhưng không có trong Form)
             $idsToDelete = array_diff($currentIds, $submittedIds);
 
-            // --- THỰC HIỆN XÓA HOẶC ẨN ---
+            // --- THỰC HIỆN XÓA ẨN (SOFT DELETE AN TOÀN TUYỆT ĐỐI) ---
             if (!empty($idsToDelete)) {
                 foreach ($idsToDelete as $delId) {
-                    try {
-                        // Cố gắng xóa cứng
-                        $variantModel->delete($delId); 
-                    } catch (\Exception $e) {
-                        // QUAN TRỌNG: Nếu lỗi (do dính giỏ hàng) -> Chỉ ẨN đi (Soft Delete)
-                        // Update stock = 0 và is_active = 0
-                        $variantModel->update($delId, [
-                            'is_active' => 0, 
-                            'stock' => 0
-                        ]);
-                    }
+                    // FIX 1451: TUYỆT ĐỐI KHÔNG DÙNG LỆNH DELETE GÂY ĐỤNG KHÓA NGOẠI
+                    // Chỉ cập nhật trạng thái ngừng bán và tồn kho = 0.
+                    // Việc này KHÔNG vi phạm khóa ngoại của MySQL.
+                    $variantModel->update($delId, [
+                        'is_active' => 0, 
+                        'stock' => 0
+                    ]);
+                    
+                    // Xóa 2 dòng Try-Catch chứa lệnh Delete cart_items/wishlists ở bản trước 
+                    // vì chính lệnh Delete đó gây ra xung đột nếu DB của bạn set Restrict.
                 }
             }
 
@@ -201,7 +197,7 @@ class ProductController extends Controller {
                         'name' => $var['name'],
                         'price_cents' => $var['price'],
                         'stock' => $var['stock'],
-                        'is_active' => 1 // Kích hoạt lại nếu lỡ bị ẩn trước đó
+                        'is_active' => 1 // Phục hồi lại trạng thái nếu lỡ tay bấm xóa rồi thêm lại
                     ];
                     $variantModel->update($var['id'], $updateData);
 

@@ -14,19 +14,32 @@ class ProductController extends Controller {
         $limit = 8; 
         $offset = ($page - 1) * $limit;
 
-        // Xử lý an toàn cho category (vì header menu gửi string ?category=1, còn checkbox gửi mảng ?category[]=1)
+        // Nhận ID category từ URL
         $category_input = $_GET['category'] ?? [];
         if (!is_array($category_input) && $category_input !== '') {
             $category_input = [$category_input];
         }
 
+        // TÌM KIẾM DANH MỤC CHA
+        // Nếu User click vào danh mục Cha, ta sẽ gom luôn cả các danh mục Con của nó vào bộ lọc
+        $final_category_ids = [];
+        if (!empty($category_input)) {
+            foreach ($category_input as $cat_id) {
+                // Hàm này bạn đã viết sẵn ở Category Model: Trả về mảng chứa [ID_Cha, ID_Con1, ID_Con2...]
+                $treeIds = $categoryModel->getCategoryTreeIds($cat_id);
+                $final_category_ids = array_merge($final_category_ids, $treeIds);
+            }
+            // Loại bỏ các ID trùng lặp (nếu có)
+            $final_category_ids = array_unique($final_category_ids);
+        }
+
         $filters = [
             'keyword'      => $_GET['keyword'] ?? '',
             'sort'         => $_GET['sort'] ?? 'default',
-            'category_ids' => $category_input, 
+            'category_ids' => $final_category_ids, // Sử dụng mảng ID đã được gom
             'price_ranges' => $_GET['price'] ?? [],    
             'brands'       => $_GET['brand'] ?? [],
-            'types'        => $_GET['type'] ?? [] // MỚI: Lọc theo loại/trọng lượng
+            'types'        => $_GET['type'] ?? []
         ];
 
         // 2. Lấy dữ liệu sản phẩm

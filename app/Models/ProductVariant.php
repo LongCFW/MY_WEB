@@ -69,7 +69,7 @@ class ProductVariant extends Model {
 
     // Lấy tất cả biến thể theo ID sản phẩm (Dùng cho hàm Edit)
     public function getVariantsByProductId($productId) {
-        $sql = "SELECT * FROM {$this->table} WHERE product_id = ?";
+        $sql = "SELECT * FROM {$this->table} WHERE product_id = ? AND is_active = 1";
         return $this->db->fetchAll($sql, [$productId]);
     }
 
