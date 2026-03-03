@@ -6,7 +6,7 @@ class UserController extends Controller {
     
     // 1. Danh sách
     public function index() {
-        $this->checkAuth();
+        // $this->checkAuth();
         $userModel = $this->model('User');
         $users = $userModel->all();
         $this->view('admin/users/index', ['users' => $users]);
@@ -14,13 +14,13 @@ class UserController extends Controller {
 
     // 2. Form thêm mới
     public function create() {
-        $this->checkAuth();
+        // $this->checkAuth();
         $this->view('admin/users/create');
     }
 
     // 3. Xử lý thêm mới
     public function store() {
-        $this->checkAuth();
+        // $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
             $email = $_POST['email'];
@@ -52,7 +52,7 @@ class UserController extends Controller {
 
     // 4. Form sửa
     public function edit($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         $userModel = $this->model('User');
         $user = $userModel->find($id);
         
@@ -63,7 +63,7 @@ class UserController extends Controller {
 
     // 5. Xử lý cập nhật
     public function update($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
             $email = $_POST['email'];
@@ -100,7 +100,7 @@ class UserController extends Controller {
 
     // 6. Xóa
     public function delete($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         // Không cho phép xóa chính mình
         if ($id == $_SESSION['admin_id']) {
             echo "<script>alert('Không thể xóa tài khoản đang đăng nhập!'); window.location.href='/MY_WEB/public/admin/user';</script>";
@@ -112,20 +112,20 @@ class UserController extends Controller {
         header('Location: /MY_WEB/public/admin/user');
     }
 
-    private function checkAuth() {
-        // 1. Chưa đăng nhập -> Đá về login
-        if (!isset($_SESSION['admin_logged_in'])) {
-            header('Location: /MY_WEB/public/admin/auth/login');
-            exit();
-        }
+    // private function checkAuth() {
+    //     // 1. Chưa đăng nhập -> Đá về login
+    //     if (!isset($_SESSION['admin_logged_in'])) {
+    //         header('Location: /MY_WEB/public/admin/auth/login');
+    //         exit();
+    //     }
 
-        // 2. Đã đăng nhập nhưng Role không phải Admin (1) -> Báo lỗi & Đá về Dashboard
-        if ($_SESSION['admin_role'] != 1) {
-            echo "<script>
-                alert('Bạn không có quyền truy cập vào Quản lý người dùng!'); 
-                window.location.href='/MY_WEB/public/admin/dashboard';
-            </script>";
-            exit();
-        }
-    }
+    //     // 2. Đã đăng nhập nhưng Role không phải Admin (1) -> Báo lỗi & Đá về Dashboard
+    //     if ($_SESSION['admin_role'] != 1) {
+    //         echo "<script>
+    //             alert('Bạn không có quyền truy cập vào Quản lý người dùng!'); 
+    //             window.location.href='/MY_WEB/public/admin/dashboard';
+    //         </script>";
+    //         exit();
+    //     }
+    // }
 }

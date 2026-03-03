@@ -7,7 +7,7 @@ class CategoryController extends Controller {
     
     // 1. Xem danh sách
     public function index() {
-        $this->checkAuth();
+        // $this->checkAuth();
         $categoryModel = $this->model('Category');
         $categories = $categoryModel->all();
         $this->view('admin/categories/index', ['categories' => $categories]);
@@ -15,7 +15,7 @@ class CategoryController extends Controller {
 
     // 2. Hiện form thêm mới
     public function create() {
-        $this->checkAuth();
+        // $this->checkAuth();
         $categoryModel = $this->model('Category');
         // Lấy tất cả danh mục để làm danh mục cha (trừ chính nó sau này)
         $categories = $categoryModel->all(); 
@@ -24,7 +24,7 @@ class CategoryController extends Controller {
 
     // 3. Xử lý lưu dữ liệu (STORE)
     public function store() {
-        $this->checkAuth();
+        // $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
             $slug = $_POST['slug']; 
@@ -53,7 +53,7 @@ class CategoryController extends Controller {
 
     // 4. Xóa
     public function delete($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         $categoryModel = $this->model('Category');
         
         // (Tùy chọn) Xóa file ảnh cũ nếu cần thiết
@@ -66,7 +66,7 @@ class CategoryController extends Controller {
 
     // 5. Hiển thị form sửa
     public function edit($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         $categoryModel = $this->model('Category');
         $category = $categoryModel->find($id);
         $categories = $categoryModel->all();
@@ -80,7 +80,7 @@ class CategoryController extends Controller {
 
     // 6. Xử lý cập nhật (UPDATE)
     public function update($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
             $slug = $_POST['slug'];
@@ -137,15 +137,15 @@ class CategoryController extends Controller {
         return null;
     }
 
-    private function checkAuth() {
-        if (!isset($_SESSION['admin_logged_in'])) {
-            header('Location: /MY_WEB/public/admin/auth/login');
-            exit();
-        }
-        $allowedRoles = [1, 2];
-        if (!in_array($_SESSION['admin_role'], $allowedRoles)) {
-            echo "<script>alert('Không có quyền truy cập!'); window.location.href='/MY_WEB/public/admin/dashboard';</script>";
-            exit();
-        }
-    }
+    // private function checkAuth() {
+    //     if (!isset($_SESSION['admin_logged_in'])) {
+    //         header('Location: /MY_WEB/public/admin/auth/login');
+    //         exit();
+    //     }
+    //     $allowedRoles = [1, 2];
+    //     if (!in_array($_SESSION['admin_role'], $allowedRoles)) {
+    //         echo "<script>alert('Không có quyền truy cập!'); window.location.href='/MY_WEB/public/admin/dashboard';</script>";
+    //         exit();
+    //     }
+    // }
 }

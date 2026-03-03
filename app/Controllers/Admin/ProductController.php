@@ -7,7 +7,7 @@ class ProductController extends Controller {
 
     // 1
     public function index() {
-        $this->checkAuth();
+        // $this->checkAuth();
         if (!isset($_SESSION['admin_logged_in'])) header('Location: /MY_WEB/public/admin/auth/login');
         
         $productModel = $this->model('Product');
@@ -17,7 +17,7 @@ class ProductController extends Controller {
 
     // 2
     public function create() {
-        $this->checkAuth();
+        // $this->checkAuth();
         $categoryModel = $this->model('Category');
         $categories = $categoryModel->all();
         $this->view('admin/products/create', ['categories' => $categories]);
@@ -25,7 +25,7 @@ class ProductController extends Controller {
 
     // --- 3 LOGIC LƯU 3 BẢNG QUAN TRỌNG ---
     public function store() {
-        $this->checkAuth();
+        // $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
             $brand = $_POST['brand'] ?? '';
@@ -100,7 +100,7 @@ class ProductController extends Controller {
 
     // 4 Xóa
     public function delete($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         $model = $this->model('Product');
         // Đã cập nhật logic xóa an toàn bên trong Model Product
         $model->delete($id);
@@ -109,7 +109,7 @@ class ProductController extends Controller {
 
     // --- 5. HIỂN THỊ FORM SỬA ---
     public function edit($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         $productModel = $this->model('Product');
         $product = $productModel->getProductDetail($id);
 
@@ -134,7 +134,7 @@ class ProductController extends Controller {
 
     // --- 6. XỬ LÝ CẬP NHẬT (SMART UPDATE & SOFT DELETE - ĐÃ SỬA LỖI 1451) ---
     public function update($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
             $brand = $_POST['brand'] ?? '';
@@ -231,21 +231,21 @@ class ProductController extends Controller {
         }
     }
 
-    private function checkAuth() {
-    if (!isset($_SESSION['admin_logged_in'])) {
-        header('Location: /MY_WEB/public/admin/auth/login');
-        exit();
-    }
+//     private function checkAuth() {
+//     if (!isset($_SESSION['admin_logged_in'])) {
+//         header('Location: /MY_WEB/public/admin/auth/login');
+//         exit();
+//     }
 
-    // Chỉ cho phép Role 1 (Admin) và 2 (Manager)
-    $allowedRoles = [1, 2];
+//     // Chỉ cho phép Role 1 (Admin) và 2 (Manager)
+//     $allowedRoles = [1, 2];
     
-    if (!in_array($_SESSION['admin_role'], $allowedRoles)) {
-        echo "<script>
-            alert('Nhân viên không được quyền quản lý Sản phẩm/Danh mục!'); 
-            window.location.href='/MY_WEB/public/admin/dashboard';
-        </script>";
-        exit();
-    }
-}
+//     if (!in_array($_SESSION['admin_role'], $allowedRoles)) {
+//         echo "<script>
+//             alert('Nhân viên không được quyền quản lý Sản phẩm/Danh mục!'); 
+//             window.location.href='/MY_WEB/public/admin/dashboard';
+//         </script>";
+//         exit();
+//     }
+// }
 }

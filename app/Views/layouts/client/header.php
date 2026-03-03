@@ -185,6 +185,15 @@ try {
                                             <small class="text-muted"><?= $_SESSION['user_email'] ?></small>
                                         </div>
                                     </li>
+                                    <?php 
+                                    // Kiểm tra xem User đăng nhập có phải là Admin/Staff không (dựa vào session admin_role hoặc user_role)
+                                    $role = $_SESSION['admin_role'] ?? $_SESSION['user_role'] ?? null;
+                                    if ($role && in_array($role, [1, 2, 3])): 
+                                    ?>
+                                        <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-bold text-success" href="/MY_WEB/public/admin/dashboard">
+                                            <i class="fas fa-tachometer-alt me-2"></i> Vào Admin Dashboard
+                                        </a></li>
+                                    <?php endif; ?>
                                     <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account">
                                             <i class="fas fa-user-circle me-2 text-success"></i> Tài khoản
                                         </a></li>
