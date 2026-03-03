@@ -75,4 +75,68 @@ class User extends Model {
         $result = $this->db->fetch($sql, [$userId]);
         return $result ? $result['status'] : null;
     }
+
+    // Xác thực Email bằng Token
+    public function verifyEmailByToken($token) {
+        $sql = "UPDATE {$this->table} SET email_verified = 1, verification_token = NULL WHERE verification_token = ?";
+        return $this->db->query($sql, [$token]);
+    }
+
+    // (Bên trong class User, thêm 2 hàm này)
+
+    // Tạo user và trả về ID vừa tạo
+    public function createAndReturnId($data) {
+        if ($this->create($data)) {
+            return $this->db->lastInsertId(); // Yêu cầu Database.php có hàm này, nếu không thì lấy theo email
+        }
+        return false;
+    }
+
+    // Tìm user bằng ID
+    public function findById($id) {
+        $sql = "SELECT * FROM {$this->table} WHERE id = ?";
+        return $this->db->fetch($sql, [$id]);
+    }
+
+    // Lưu OTP Quên mật khẩu và thời gian hết hạn (15 phút)
+    public function saveResetToken($userId, $token, $expiry) {
+        $sql = "UPDATE {$this->table} SET reset_token = ?, reset_token_expire = ? WHERE id = ?";
+        return $this->db->query($sql, [$token, $expiry, $userId]);
+    }
+
+    // Kiểm tra OTP Quên mật khẩu (phải đúng mã và chưa hết hạn)
+    public function checkResetToken($userId, $token) {
+        $sql = "SELECT id FROM {$this->table} WHERE id = ? AND reset_token = ? AND reset_token_expire > NOW()";
+        return $this->db->fetch($sql, [$userId, $token]);
+    }
+
+    // Xóa OTP sau khi đã đổi mật khẩu thành công
+    public function clearResetToken($userId) {
+        $sql = "UPDATE {$this->table} SET reset_token = NULL, reset_token_expire = NULL WHERE id = ?";
+        return $this->db->query($sql, [$userId]);
+    }
+
+    // Cập nhật Google ID cho tài khoản đã tồn tại
+    public function updateGoogleId($id, $googleId, $avatarUrl = null) {
+        $sql = "UPDATE {$this->table} SET google_id = ?";
+        $params = [$googleId];
+
+        // Nếu Google có trả về ảnh đại diện mà user chưa có ảnh, thì cập nhật luôn
+        if ($avatarUrl) {
+            $sql .= ", avatar_url = ?";
+            $params[] = $avatarUrl;
+        }
+
+        $sql .= " WHERE id = ?";
+        $params[] = $id;
+
+        return $this->db->query($sql, $params);
+    }
+    
+    // Kiểm tra xem user có đơn hàng nào không
+    public function hasOrders($userId) {
+        $sql = "SELECT id FROM orders WHERE user_id = ? LIMIT 1";
+        $result = $this->db->fetch($sql, [$userId]);
+        return $result ? true : false;
+    }
 }

@@ -98,9 +98,8 @@ class UserController extends Controller {
         }
     }
 
-    // 6. Xóa
+    // 6. Xóa (Smart Delete - Chuẩn MVC)
     public function delete($id) {
-        // $this->checkAuth();
         // Không cho phép xóa chính mình
         if ($id == $_SESSION['admin_id']) {
             echo "<script>alert('Không thể xóa tài khoản đang đăng nhập!'); window.location.href='/MY_WEB/public/admin/user';</script>";
@@ -108,8 +107,25 @@ class UserController extends Controller {
         }
 
         $userModel = $this->model('User');
-        $userModel->delete($id);
-        header('Location: /MY_WEB/public/admin/user');
+
+        // Bước 1: Kiểm tra xem User này đã có đơn hàng nào chưa (Gọi qua Model)
+        $hasOrders = $userModel->hasOrders($id);
+
+        // Bước 2: Xử lý logic theo kết quả kiểm tra
+        if ($hasOrders) {
+            // TH1: Đã có đơn hàng -> CHẶN lại để bảo vệ DB và báo lỗi thân thiện
+            echo "<script>
+                    alert('Không thể xóa! Tài khoản này đã có lịch sử mua hàng để phục vụ thống kê. Vui lòng sử dụng tính năng Sửa để Khóa (Đổi trạng thái) tài khoản này.'); 
+                    window.location.href='/MY_WEB/public/admin/user';
+                  </script>";
+        } else {
+            // TH2: Chưa từng mua hàng (Tài khoản rác/test) -> Xóa thoải mái
+            $userModel->delete($id); // Giả sử model User của bạn đã được kế thừa hàm delete từ Core/Model
+            echo "<script>
+                    alert('Đã xóa tài khoản thành công!'); 
+                    window.location.href='/MY_WEB/public/admin/user';
+                  </script>";
+        }
     }
 
     // private function checkAuth() {
