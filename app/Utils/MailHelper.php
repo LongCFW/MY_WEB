@@ -11,12 +11,12 @@ class MailHelper {
         try {
             // Cấu hình Server (Nên dùng Gmail SMTP)
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; 
+            $mail->Host       = $_ENV['MAIL_HOST'];
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'imlongmanhme@gmail.com';
-            $mail->Password   = 'ghbvxyzenpguuumq';
+            $mail->Username   = $_ENV['MAIL_USERNAME'];
+            $mail->Password   = $_ENV['MAIL_PASSWORD'];
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port       = $_ENV['MAIL_PORT'];
             $mail->CharSet    = 'UTF-8';
 
             // Người gửi, Người nhận
