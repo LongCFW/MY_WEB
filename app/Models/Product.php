@@ -144,7 +144,6 @@ class Product extends Model {
     }
 
     public function getProductDetail($id) {
-        // Truy vấn lấy thông tin cơ bản + danh mục
         $sql = "SELECT p.*, c.name as category_name 
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
@@ -152,29 +151,28 @@ class Product extends Model {
         
         $product = $this->db->fetch($sql, [$id]);
 
-        if (!$product) {
-            return false;
-        }
+        if (!$product) return false;
 
-        // Lấy thêm danh sách ảnh (Gallery)
         $sqlImages = "SELECT image_url FROM product_images WHERE product_id = ?";
         $images = $this->db->fetchAll($sqlImages, [$id]);
-        $product['images'] = array_column($images, 'image_url'); // Chuyển về mảng 1 chiều url
+        $product['images'] = array_column($images, 'image_url');
 
-        // Lấy thông tin biến thể (Giá, SKU, Tồn kho) - Lấy cái đầu tiên làm mặc định hoặc list tất cả
-        // Giả sử ta lấy biến thể đầu tiên để hiển thị giá chính
-        $sqlVariant = "SELECT price_cents, sku, stock FROM product_variants WHERE product_id = ? LIMIT 1";
-        $variant = $this->db->fetch($sqlVariant, [$id]);
+        // [MỚI] Lấy TẤT CẢ biến thể đang hoạt động của sản phẩm này
+        $sqlVariants = "SELECT id, name, price_cents, sku, stock FROM product_variants WHERE product_id = ? AND is_active = 1";
+        $variants = $this->db->fetchAll($sqlVariants, [$id]);
+        $product['variants'] = $variants;
         
-        if ($variant) {
-            $product['price_cents'] = $variant['price_cents'];
-            $product['sku'] = $variant['sku'];
-            $product['stock'] = $variant['stock'];
+        // Gán mặc định là biến thể đầu tiên để load lần đầu
+        if (!empty($variants)) {
+            $product['price_cents'] = $variants[0]['price_cents'];
+            $product['sku'] = $variants[0]['sku'];
+            $product['stock'] = $variants[0]['stock'];
+            $product['default_variant_id'] = $variants[0]['id'];
         } else {
-            // Fallback nếu không có variant
              $product['price_cents'] = 0;
              $product['sku'] = 'N/A';
              $product['stock'] = 0;
+             $product['default_variant_id'] = 0;
         }
 
         return $product;

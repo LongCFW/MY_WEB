@@ -28,10 +28,21 @@ class CartItem extends Model {
 
     // --- CÁC HÀM MỚI ĐỂ FIX LỖI ---
 
-    // Tìm Variant ID từ Product ID
+    // Tìm Variant ID từ Product ID (Thông minh: Bỏ qua biến thể rác, ưu tiên lấy loại còn hàng)
     public function getVariantIdByProduct($productId) {
-        $sql = "SELECT id FROM product_variants WHERE product_id = ? LIMIT 1";
+        // Bước 1: Tìm biến thể ĐANG HOẠT ĐỘNG, CÒN HÀNG, ưu tiên giá rẻ nhất
+        $sql = "SELECT id FROM product_variants 
+                WHERE product_id = ? AND is_active = 1 AND stock > 0 
+                ORDER BY price_cents ASC LIMIT 1";
         $res = $this->db->fetch($sql, [$productId]);
+        
+        // Bước 2: Nếu tất cả đều hết hàng, thì lấy tạm 1 cái đang hoạt động để báo lỗi "Hết hàng"
+        if (!$res) {
+            $sqlFallback = "SELECT id FROM product_variants 
+                            WHERE product_id = ? AND is_active = 1 LIMIT 1";
+            $res = $this->db->fetch($sqlFallback, [$productId]);
+        }
+        
         return $res ? $res['id'] : null;
     }
 

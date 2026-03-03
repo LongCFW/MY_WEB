@@ -78,4 +78,10 @@ class ProductVariant extends Model {
         $sql = "DELETE FROM {$this->table} WHERE product_id = ?";
         return $this->db->query($sql, [$productId]);
     }
+
+    // Kiểm tra trạng thái và tồn kho của biến thể trước khi thanh toán
+    public function getVariantInfo($variantId) {
+        $sql = "SELECT is_active, stock FROM {$this->table} WHERE id = ?";
+        return $this->db->fetch($sql, [$variantId]);
+    }
 }

@@ -63,6 +63,7 @@ class CheckoutController extends Controller {
     }
 
     // 2. Xử lý Đặt hàng (POST)
+    // 2. Xử lý Đặt hàng (POST)
     public function process() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!isset($_SESSION['user_logged_in'])) {
@@ -81,13 +82,9 @@ class CheckoutController extends Controller {
             }
             
             // LẤY LẠI GIỎ HÀNG TỪ DB ĐỂ TÍNH TIỀN 
-            // Không tin tưởng dữ liệu session hay client gửi lên
             $cartModel = $this->model('CartItem');
             $allCartItems = $cartModel->getCartDetails($userId);
             
-            // Nếu View checkout có gửi kèm danh sách ID đã chọn (input hidden) thì lọc lại lần nữa
-            // Tuy nhiên để đơn giản, ta giả định thanh toán toàn bộ những gì có trong cart_items 
-            // HOẶC tốt nhất là trong form checkout/index.php bạn nên có input hidden name="selected_ids[]"
             // Ở đây lấy tạm toàn bộ giỏ hàng DB để xử lý cho chạy được đã:
             $cartToCheckout = $allCartItems; 
                     
@@ -96,13 +93,31 @@ class CheckoutController extends Controller {
                 exit();
             }
 
-            // BƯỚC QUAN TRỌNG: TRỪ KHO 
+            // --- [CHỐT CHẶN BẢO MẬT] KIỂM TRA TRẠNG THÁI BIẾN THỂ TRƯỚC KHI TRỪ KHO ---
+            // Tránh trường hợp khách giữ đồ trong giỏ từ lâu, nay admin đã xóa (is_active = 0)
             $variantModel = $this->model('ProductVariant');
+            foreach ($cartToCheckout as $item) {
+                // Sử dụng Model để gọi dữ liệu (Chuẩn MVC)
+                $variantInfo = $variantModel->getVariantInfo($item['variant_id']);
+
+                if (!$variantInfo || $variantInfo['is_active'] == 0) {
+                    echo "<script>alert('Sản phẩm \"{$item['name']}\" đã ngừng kinh doanh. Vui lòng xóa khỏi giỏ hàng.'); window.location.href='/MY_WEB/public/cart';</script>";
+                    exit();
+                }
+
+                if ($variantInfo['stock'] < $item['quantity']) {
+                    echo "<script>alert('Sản phẩm \"{$item['name']}\" chỉ còn {$variantInfo['stock']} kiện. Vui lòng cập nhật lại giỏ hàng.'); window.location.href='/MY_WEB/public/cart';</script>";
+                    exit();
+                }
+            }
+            // --- KẾT THÚC CHỐT CHẶN ---
+
+            // BƯỚC QUAN TRỌNG: TRỪ KHO 
             // Gọi transaction trừ kho
             $stockResult = $variantModel->deductStockForOrder($cartToCheckout);
 
             if ($stockResult['status'] === false) {
-                // Nếu thất bại (hết hàng phút chót) -> Báo lỗi & về giỏ hàng
+                // Nếu thất bại (hết hàng phút chót do có người mua trùng lúc) -> Báo lỗi & về giỏ hàng
                 echo "<script>alert('" . $stockResult['message'] . "'); window.location.href='/MY_WEB/public/cart';</script>";
                 exit();
             }

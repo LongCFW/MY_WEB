@@ -32,54 +32,46 @@ class CartController extends Controller
             // Lấy dữ liệu đầu vào
             if ($contentType === "application/json") {
                 $input = json_decode(file_get_contents('php://input'), true);
-                $productId = $input['product_id'];
-                $qty = (int)$input['quantity'];
             } else {
-                $productId = $_POST['product_id'];
-                $qty = (int)$_POST['quantity'];
+                $input = $_POST;
             }
 
-            // KIỂM TRA ĐĂNG NHẬP TRƯỚC TIÊN
+            $qty = (int)($input['quantity'] ?? 1);
+
+            // KIỂM TRA ĐĂNG NHẬP
             if (!isset($_SESSION['user_logged_in'])) {
-                // Nếu là request AJAX (fetch) -> Trả về JSON để JS xử lý chuyển trang
                 if ($contentType === "application/json") {
                     ob_clean();
-                    echo json_encode([
-                        'status' => 'login_required', 
-                        'message' => 'Vui lòng đăng nhập để mua hàng!'
-                    ]);
+                    echo json_encode(['status' => 'login_required', 'message' => 'Vui lòng đăng nhập để mua hàng!']);
                     exit;
                 } else {
-                    // Nếu là form submit thường -> Chuyển trang ngay lập tức
                     header('Location: /MY_WEB/public/auth/login');
                     exit;
                 }
             }
 
-            // LOGIC XỬ LÝ KHI ĐÃ ĐĂNG NHẬP
             $userId = $_SESSION['user_id'];
             $cartModel = $this->model('CartItem');
             $variantModel = $this->model('ProductVariant');
 
-            $message = 'Đã thêm sản phẩm vào giỏ hàng';
-            $status = 'success';
-
-            // Gọi hàm Model
-            $variantId = $cartModel->getVariantIdByProduct($productId);
+            // --- [LOGIC MỚI LÕI]: Xác định chính xác Variant ID ---
+            $variantId = $input['variant_id'] ?? null;
+            
+            // Nếu Client gửi product_id (thêm từ nút dấu + ngoài danh sách) -> tự lấy Variant đầu tiên
+            if (!$variantId && isset($input['product_id'])) {
+                $variantId = $cartModel->getVariantIdByProduct($input['product_id']);
+            }
 
             if ($variantId) {
                 // KIỂM TRA TỒN KHO
                 $currentStock = $variantModel->getStock($variantId);
-                
                 $existingItem = $cartModel->findCartItem($userId, $variantId);
                 $currentQtyInCart = $existingItem ? $existingItem['quantity'] : 0;
 
-                // Case 1: Hết hàng hoàn toàn
                 if ($currentStock <= 0) {
                     $this->returnJson(['status' => 'error', 'message' => 'Sản phẩm đã hết hàng!'], $contentType);
                 }
                 
-                // Case 2: Mua quá số lượng tồn
                 if (($currentQtyInCart + $qty) > $currentStock) {
                     $this->returnJson(['status' => 'error', 'message' => "Không đủ hàng! Kho chỉ còn $currentStock sản phẩm."], $contentType);
                 }
@@ -91,14 +83,14 @@ class CartController extends Controller
                     $message = 'Đã cập nhật số lượng trong giỏ hàng';
                 } else {
                     $cartModel->addItem($userId, $variantId, $qty);
+                    $message = 'Đã thêm sản phẩm vào giỏ hàng';
                 }
+            } else {
+                 $this->returnJson(['status' => 'error', 'message' => 'Sản phẩm không hợp lệ!'], $contentType);
             }
 
-            // Lấy số lượng mới để update badge
             $cartCount = $cartModel->countCartItems($userId);
-
-            // Trả về kết quả thành công
-            $this->returnJson(['status' => $status, 'message' => $message, 'cart_count' => $cartCount], $contentType);
+            $this->returnJson(['status' => 'success', 'message' => $message, 'cart_count' => $cartCount], $contentType);
         }
     }
 
