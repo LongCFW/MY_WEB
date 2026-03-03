@@ -282,6 +282,49 @@
     </div>
 </div>
 
+<div class="modal fade" id="qrModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header bg-success text-white rounded-top-4">
+                <h5 class="modal-title fw-bold"><i class="fas fa-qrcode me-2"></i>Thanh toán Chuyển khoản</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="window.location.href='/MY_WEB/public/cart'"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <h6 class="fw-bold mb-3 text-dark">Quét mã QR qua ứng dụng Ngân hàng</h6>
+                
+                <div class="qr-container bg-light p-3 rounded-3 d-inline-block mb-3 border">
+                    <img id="qrImage" src="" alt="VietQR" style="width: 250px; height: 250px; object-fit: contain;">
+                </div>
+                
+                <div class="payment-info text-start px-4 mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Số tiền:</span>
+                        <span class="fw-bold text-danger fs-5" id="qrAmount">0đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Nội dung CK:</span>
+                        <span class="fw-bold text-primary" id="qrOrderNumber">ORD-XXX</span>
+                    </div>
+                </div>
+
+                <div id="paymentLoader">
+                    <div class="spinner-border text-success mb-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-success fw-bold animate-pulse m-0">Đang chờ bạn thanh toán và xác nhận...</p>
+                    <small class="text-muted fst-italic">Vui lòng không đóng cửa sổ này</small>
+                </div>
+                
+                <div id="paymentSuccess" class="d-none">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    <h5 class="text-success fw-bold mt-2">Thanh toán thành công!</h5>
+                    <p class="text-muted small">Hệ thống đang chuyển hướng...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // Hàm xử lý chọn địa chỉ từ Modal (Giải quyết vấn đề 2)
     function confirmChangeAddress() {
@@ -376,6 +419,74 @@
         alert('Có lỗi xảy ra: ' + error.message);
     });
 }
+
+// XỬ LÝ SUBMIT ĐẶT HÀNG BẰNG AJAX
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Chặn tải lại trang
+        
+        const btn = this.querySelector('button[type="submit"]');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang xử lý...';
+        btn.disabled = true;
+
+        const formData = new FormData(this);
+
+        fetch('/MY_WEB/public/checkout/process', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            btn.innerHTML = 'Đặt Hàng Ngay';
+            btn.disabled = false;
+
+            if (data.status === 'error') {
+                alert(data.message);
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            } else if (data.status === 'success') {
+                if (data.action === 'redirect') {
+                    // Nếu là COD, chuyển thẳng qua trang thành công
+                    window.location.href = data.redirect;
+                } else if (data.action === 'show_qr') {
+                    // Nếu là Chuyển khoản, mở Modal QR
+                    document.getElementById('qrImage').src = data.qr_url;
+                    document.getElementById('qrAmount').innerText = data.amount;
+                    document.getElementById('qrOrderNumber').innerText = data.order_number;
+                    
+                    const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+                    qrModal.show();
+
+                    // BẮT ĐẦU AJAX POLLING (Hỏi server 3 giây/lần)
+                    let checkInterval = setInterval(() => {
+                        fetch('/MY_WEB/public/checkout/checkPaymentStatus/' + data.order_id)
+                        .then(res => res.json())
+                        .then(statusData => {
+                            if (statusData.status === 'paid') {
+                                clearInterval(checkInterval); // Ngừng hỏi
+                                
+                                // Đổi giao diện sang tick xanh
+                                document.getElementById('paymentLoader').classList.add('d-none');
+                                document.getElementById('paymentSuccess').classList.remove('d-none');
+                                
+                                // Đợi 2 giây rồi chuyển qua trang Success
+                                setTimeout(() => {
+                                    window.location.href = "/MY_WEB/public/checkout/success?order_id=" + data.order_id;
+                                }, 2000);
+                            }
+                        })
+                        .catch(err => console.error("Lỗi polling:", err));
+                    }, 3000); // 3000ms = 3 giây
+                }
+            }
+        })
+        .catch(error => {
+            btn.innerHTML = 'Đặt Hàng Ngay';
+            btn.disabled = false;
+            alert("Lỗi kết nối máy chủ!");
+            console.error(error);
+        });
+    });
 </script>
 
 <?php require_once '../app/Views/layouts/client/footer.php'; ?>

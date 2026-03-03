@@ -30,8 +30,17 @@
                             <td class="align-middle text-muted small">
                                 <?= date('d/m/Y H:i', strtotime($order['created_at'])) ?>
                             </td>
-                            <td class="align-middle text-right text-danger font-weight-bold">
-                                <?= number_format($order['total_cents']) ?> đ
+                            <td class="align-middle text-right font-weight-bold">
+                                <div class="text-danger"><?= number_format($order['total_cents']) ?> đ</div>
+                                <?php if($order['payment_method'] == 'banking'): ?>
+                                    <?php if($order['payment_status'] == 'paid'): ?>
+                                        <span class="badge badge-success mt-1">Đã CK</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-warning text-dark mt-1">Chờ CK</span>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <span class="badge badge-info mt-1">COD</span>
+                                <?php endif; ?>
                             </td>
                             <td class="align-middle text-center">
                                 <?php 
@@ -56,9 +65,15 @@
                                 </span>
                             </td>
                             <td class="align-middle text-center">
-                                <a href="/MY_WEB/public/admin/order/detail/<?= $order['id'] ?>" class="btn btn-sm btn-outline-primary shadow-sm rounded-pill font-weight-bold px-3">
+                                <a href="/MY_WEB/public/admin/order/detail/<?= $order['id'] ?>" class="btn btn-sm btn-outline-primary shadow-sm rounded-pill font-weight-bold px-2 mb-1">
                                     <i class="fas fa-search mr-1"></i> Chi tiết
                                 </a>
+                                
+                                <?php if($order['payment_method'] == 'banking' && $order['payment_status'] == 'unpaid'): ?>
+                                    <a href="/MY_WEB/public/admin/order/confirmPayment/<?= $order['id'] ?>" class="btn btn-sm btn-success shadow-sm rounded-pill font-weight-bold px-2" onclick="return confirm('Xác nhận đã nhận đủ tiền cho đơn hàng này?');">
+                                        <i class="fas fa-check-circle mr-1"></i> Đã nhận tiền
+                                    </a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>

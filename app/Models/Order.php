@@ -97,4 +97,17 @@ class Order extends Model {
         $result = $this->db->fetch($sql);
         return $result['total'] ?? 0;
     }
+    
+     // Lấy trạng thái thanh toán của đơn hàng
+    public function getPaymentStatus($orderId) {
+        $sql = "SELECT payment_status FROM {$this->table} WHERE id = ?";
+        $result = $this->db->fetch($sql, [$orderId]);
+        return $result ? $result['payment_status'] : null;
+    }
+    
+    // Cập nhật trạng thái thanh toán
+    public function updatePaymentStatus($id, $status) {
+        $sql = "UPDATE {$this->table} SET payment_status = ?, updated_at = NOW() WHERE id = ?";
+        return $this->db->query($sql, [$status, $id]);
+    }
 }

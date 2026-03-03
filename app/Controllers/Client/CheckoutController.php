@@ -61,13 +61,14 @@ class CheckoutController extends Controller {
             'total' => $total
         ]);
     }
-
-    // 2. Xử lý Đặt hàng (POST)
-    // 2. Xử lý Đặt hàng (POST)
+    
+    // 2. Xử lý Đặt hàng (POST) - Cập nhật cho AJAX và QR
     public function process() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            header('Content-Type: application/json'); // Luôn trả về JSON
+            
             if (!isset($_SESSION['user_logged_in'])) {
-                header('Location: /MY_WEB/public/auth/login');
+                echo json_encode(['status' => 'error', 'message' => 'Vui lòng đăng nhập', 'redirect' => '/MY_WEB/public/auth/login']);
                 exit();
             }
 
@@ -77,11 +78,10 @@ class CheckoutController extends Controller {
 
             // Validate Address
             if (!$addressId) {
-                echo "<script>alert('Vui lòng chọn địa chỉ giao hàng!'); window.history.back();</script>";
+                echo json_encode(['status' => 'error', 'message' => 'Vui lòng chọn địa chỉ giao hàng!']);
                 return;
             }
             
-            // LẤY LẠI GIỎ HÀNG TỪ DB ĐỂ TÍNH TIỀN 
             $cartModel = $this->model('CartItem');
             $allCartItems = $cartModel->getCartDetails($userId);
             
@@ -89,40 +89,34 @@ class CheckoutController extends Controller {
             $cartToCheckout = $allCartItems; 
                     
             if (empty($cartToCheckout)) {
-                echo "<script>alert('Giỏ hàng trống!'); window.location.href='/MY_WEB/public/cart';</script>";
+                echo json_encode(['status' => 'error', 'message' => 'Giỏ hàng trống!', 'redirect' => '/MY_WEB/public/cart']);
                 exit();
             }
 
-            // --- [CHỐT CHẶN BẢO MẬT] KIỂM TRA TRẠNG THÁI BIẾN THỂ TRƯỚC KHI TRỪ KHO ---
-            // Tránh trường hợp khách giữ đồ trong giỏ từ lâu, nay admin đã xóa (is_active = 0)
             $variantModel = $this->model('ProductVariant');
             foreach ($cartToCheckout as $item) {
-                // Sử dụng Model để gọi dữ liệu (Chuẩn MVC)
                 $variantInfo = $variantModel->getVariantInfo($item['variant_id']);
 
                 if (!$variantInfo || $variantInfo['is_active'] == 0) {
-                    echo "<script>alert('Sản phẩm \"{$item['name']}\" đã ngừng kinh doanh. Vui lòng xóa khỏi giỏ hàng.'); window.location.href='/MY_WEB/public/cart';</script>";
+                    echo json_encode(['status' => 'error', 'message' => 'Sản phẩm "' . $item['name'] . '" đã ngừng kinh doanh. Vui lòng cập nhật giỏ hàng.']);
                     exit();
                 }
 
                 if ($variantInfo['stock'] < $item['quantity']) {
-                    echo "<script>alert('Sản phẩm \"{$item['name']}\" chỉ còn {$variantInfo['stock']} kiện. Vui lòng cập nhật lại giỏ hàng.'); window.location.href='/MY_WEB/public/cart';</script>";
+                    echo json_encode(['status' => 'error', 'message' => 'Sản phẩm "' . $item['name'] . '" chỉ còn ' . $variantInfo['stock'] . ' kiện.']);
                     exit();
                 }
             }
-            // --- KẾT THÚC CHỐT CHẶN ---
 
-            // BƯỚC QUAN TRỌNG: TRỪ KHO 
-            // Gọi transaction trừ kho
+            // Trừ kho
             $stockResult = $variantModel->deductStockForOrder($cartToCheckout);
 
             if ($stockResult['status'] === false) {
-                // Nếu thất bại (hết hàng phút chót do có người mua trùng lúc) -> Báo lỗi & về giỏ hàng
-                echo "<script>alert('" . $stockResult['message'] . "'); window.location.href='/MY_WEB/public/cart';</script>";
-                exit();
+                 echo json_encode(['status' => 'error', 'message' => $stockResult['message']]);
+                 exit();
             }
 
-            // Tính toán tiền lại (Backend Calculation)
+            // Tính toán tiền
             $subtotal = 0;
             foreach ($cartToCheckout as $item) {
                 $subtotal += $item['price'] * $item['quantity'];
@@ -132,10 +126,12 @@ class CheckoutController extends Controller {
             $tax = 0;
             $totalCents = $subtotal + $shippingFee + $tax;
             
+            // Cập nhật mảng data: thêm payment_method
             $orderModel = $this->model('Order');
+            $orderNumber = 'ORD-' . strtoupper(uniqid());
             $orderData = [
                 'user_id' => $userId,
-                'order_number' => 'ORD-' . strtoupper(uniqid()),
+                'order_number' => $orderNumber,
                 'status' => 'pending',
                 'subtotal_cents' => $subtotal,
                 'shipping_fee_cents' => $shippingFee,
@@ -143,6 +139,7 @@ class CheckoutController extends Controller {
                 'total_cents' => $totalCents,
                 'shipping_address_id' => $addressId,
                 'billing_address_id' => $addressId,            
+                'payment_method' => $paymentMethod,
                 'payment_status' => 'unpaid',
                 'placed_at' => date('Y-m-d H:i:s'),
                 'created_at' => date('Y-m-d H:i:s')
@@ -157,7 +154,7 @@ class CheckoutController extends Controller {
                 ]);
                 $itemData = [
                     'order_id' => $orderId,
-                    'variant_id' => $item['variant_id'], // Có variant_id từ DB
+                    'variant_id' => $item['variant_id'],
                     'product_snapshot' => $snapshot, 
                     'quantity' => $item['quantity'],
                     'unit_price_cents' => $item['price'],
@@ -169,12 +166,54 @@ class CheckoutController extends Controller {
             $historyModel = $this->model('OrderStatusHistory');
             $historyModel->addHistory($orderId, 'pending', $userId, 'Đơn hàng mới được tạo');
 
-            // XÓA GIỎ HÀNG TRONG DB 
-            // Vì CartController dùng DB, nên phải xóa trong DB, unset Session ko có tác dụng
             $cartModel->deleteMulti(array_column($cartToCheckout, 'id'));
             
-            header("Location: /MY_WEB/public/checkout/success?order_id=$orderId");
+            // Xử lý luồng dựa trên phương thức thanh toán
+            if ($paymentMethod === 'banking') {
+                // Tạo link VietQR
+                // Format: https://img.vietqr.io/image/{BANK_ID}-{ACCOUNT_NO}-{TEMPLATE}.png?amount={AMOUNT}&addInfo={CONTENT}&accountName={ACCOUNT_NAME}
+                $bankId = 'mbbank'; // ID ngân hàng (vd: mbbank, vcb, vietinbank)
+                $accountNo = '3512345635'; // Số tài khoản
+                $accountName = 'LE NGUYEN BAO LONG'; // Tên tài khoản không dấu
+                $amount = $totalCents;
+                $addInfo = $orderNumber; // Nội dung chuyển khoản là mã đơn hàng
+
+                $qrUrl = "https://img.vietqr.io/image/{$bankId}-{$accountNo}-compact2.png?amount={$amount}&addInfo={$addInfo}&accountName=" . urlencode($accountName);
+
+                echo json_encode([
+                    'status' => 'success', 
+                    'action' => 'show_qr', 
+                    'order_id' => $orderId, 
+                    'qr_url' => $qrUrl,
+                    'amount' => number_format($totalCents) . 'đ',
+                    'order_number' => $orderNumber
+                ]);
+            } else {
+                // COD hoặc khác -> Chuyển hướng thẳng
+                echo json_encode([
+                    'status' => 'success', 
+                    'action' => 'redirect', 
+                    'redirect' => "/MY_WEB/public/checkout/success?order_id=$orderId"
+                ]);
+            }
             exit;
+        }
+    }
+
+    // API Kiểm tra trạng thái thanh toán (Dùng cho AJAX Polling)
+    public function checkPaymentStatus($orderId) {
+        if (!isset($_SESSION['user_logged_in'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+            return;
+        }
+        
+        $orderModel = $this->model('Order');
+        $paymentStatus = $orderModel->getPaymentStatus($orderId);
+        
+        if ($paymentStatus === 'paid') {
+            echo json_encode(['status' => 'paid']);
+        } else {
+            echo json_encode(['status' => 'unpaid']);
         }
     }
 

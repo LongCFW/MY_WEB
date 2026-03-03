@@ -103,4 +103,23 @@ class OrderController extends Controller {
 //         exit();
 //     }
 // }
+
+    // HÀM XÁC NHẬN ĐÃ NHẬN TIỀN VIETQR ---
+    public function confirmPayment($id) {
+        $this->checkAdmin();
+        
+        $orderModel = $this->model('Order');
+        // Đổi trạng thái thanh toán thành 'paid'
+        $orderModel->updatePaymentStatus($id, 'paid');
+        
+        // Đồng thời đổi trạng thái đơn hàng thành 'chờ xác nhận'
+        $orderModel->updateStatus($id, 'pending');
+
+        // Ghi log lịch sử
+        $historyModel = $this->model('OrderStatusHistory');
+        $adminId = $_SESSION['admin_id'] ?? $_SESSION['user_id'] ?? null; 
+        $historyModel->addHistory($id, 'processing', $adminId, 'Admin đã xác nhận nhận được tiền chuyển khoản VietQR.');
+
+        echo "<script>alert('Đã xác nhận nhận tiền thành công!'); window.history.back();</script>";
+    }
 }
