@@ -65,12 +65,10 @@ class CheckoutController extends Controller
         ]);
     }
 
-    // 2. Xử lý Đặt hàng (POST) - Cập nhật cho AJAX và QR
-    // 2. Xử lý Đặt hàng (POST)
     public function process()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            header('Content-Type: application/json'); // Luôn trả về JSON
+            header('Content-Type: application/json');
 
             if (!isset($_SESSION['user_logged_in'])) {
                 echo json_encode(['status' => 'error', 'message' => 'Vui lòng đăng nhập', 'redirect' => '/MY_WEB/public/auth/login']);
@@ -81,7 +79,6 @@ class CheckoutController extends Controller
             $addressId = $_POST['address_id'] ?? null;
             $paymentMethod = $_POST['payment_method'] ?? 'cod';
 
-            // Validate Address
             if (!$addressId) {
                 echo json_encode(['status' => 'error', 'message' => 'Vui lòng chọn địa chỉ giao hàng!']);
                 return;
@@ -89,8 +86,6 @@ class CheckoutController extends Controller
 
             $cartModel = $this->model('CartItem');
             $allCartItems = $cartModel->getCartDetails($userId);
-
-            // Ở đây lấy tạm toàn bộ giỏ hàng DB để xử lý cho chạy được đã:
             $cartToCheckout = $allCartItems;
 
             if (empty($cartToCheckout)) {
@@ -113,15 +108,12 @@ class CheckoutController extends Controller
                 }
             }
 
-            // Trừ kho
             $stockResult = $variantModel->deductStockForOrder($cartToCheckout);
-
             if ($stockResult['status'] === false) {
                 echo json_encode(['status' => 'error', 'message' => $stockResult['message']]);
                 exit();
             }
 
-            // Tính toán tiền
             $subtotal = 0;
             foreach ($cartToCheckout as $item) {
                 $subtotal += $item['price'] * $item['quantity'];
@@ -129,20 +121,20 @@ class CheckoutController extends Controller
 
             $shippingFee = 30000;
             $tax = 0;
-
-            // Xử lý mã giảm giá từ Session (đã set ở hàm applyCoupon)
             $discountAmount = 0;
             $appliedCouponId = null;
+            
             if (isset($_SESSION['applied_coupon'])) {
                 $discountAmount = $_SESSION['applied_coupon']['discount_amount'];
                 $appliedCouponId = $_SESSION['applied_coupon']['id'];
             }
 
             $totalCents = $subtotal + $shippingFee + $tax - $discountAmount;
-            if ($totalCents < 0) $totalCents = 0; // Tránh lỗi âm tiền
+            if ($totalCents < 0) $totalCents = 0;
 
             $orderModel = $this->model('Order');
             $orderNumber = 'ORD-' . strtoupper(uniqid());
+                        
             $orderData = [
                 'user_id' => $userId,
                 'order_number' => $orderNumber,
@@ -150,7 +142,7 @@ class CheckoutController extends Controller
                 'subtotal_cents' => $subtotal,
                 'shipping_fee_cents' => $shippingFee,
                 'tax_cents' => $tax,
-                'total_cents' => $totalCents, // Lưu tổng tiền đã trừ mã
+                'total_cents' => $totalCents,
                 'shipping_address_id' => $addressId,
                 'billing_address_id' => $addressId,
                 'payment_method' => $paymentMethod,
@@ -158,26 +150,36 @@ class CheckoutController extends Controller
                 'placed_at' => date('Y-m-d H:i:s'),
                 'created_at' => date('Y-m-d H:i:s')
             ];
+            
             $orderId = $orderModel->create($orderData);
-
+            
             $orderItemModel = $this->model('OrderItem');
+            $mailItems = []; 
+
             foreach ($cartToCheckout as $item) {
                 $snapshot = json_encode([
                     'name' => $item['name'],
                     'image' => $item['image'] ?? '',
                 ]);
+                $itemTotal = $item['price'] * $item['quantity'];
+                
                 $itemData = [
                     'order_id' => $orderId,
                     'variant_id' => $item['variant_id'],
                     'product_snapshot' => $snapshot,
                     'quantity' => $item['quantity'],
                     'unit_price_cents' => $item['price'],
-                    'total_price_cents' => $item['price'] * $item['quantity']
+                    'total_price_cents' => $itemTotal
                 ];
                 $orderItemModel->create($itemData);
+                
+                $mailItems[] = [
+                    'display_name' => $item['name'],
+                    'quantity' => $item['quantity'],
+                    'total_price_cents' => $itemTotal
+                ];
             }
 
-            // --- [MỚI] LƯU LỊCH SỬ COUPON ĐÃ DÙNG VÀO DATABASE ---
             if ($appliedCouponId) {
                 $orderCouponModel = $this->model('OrderCoupon');
                 $orderCouponModel->create([
@@ -186,28 +188,23 @@ class CheckoutController extends Controller
                     'applied_amount_cents' => $discountAmount
                 ]);
 
-                // Tăng số lượt sử dụng của mã đó lên 1
                 $couponModel = $this->model('Coupon');
                 $couponModel->incrementUsage($appliedCouponId);
-
-                // Xóa session để đơn sau không bị dính mã này nữa
                 unset($_SESSION['applied_coupon']);
             }
-            // -------------------------------------------------------
 
             $historyModel = $this->model('OrderStatusHistory');
             $historyModel->addHistory($orderId, 'pending', $userId, 'Đơn hàng mới được tạo');
 
             $cartModel->deleteMulti(array_column($cartToCheckout, 'id'));
 
-            // Xử lý luồng dựa trên phương thức thanh toán
+            // --- XỬ LÝ LUỒNG TRẢ VỀ & GỬI MAIL ---
             if ($paymentMethod === 'banking') {
-                // Tạo link VietQR
-                $bankId = 'mbbank'; // ID ngân hàng
-                $accountNo = '3512345635'; // Số tài khoản
-                $accountName = 'LE NGUYEN BAO LONG'; // Tên tài khoản không dấu
+                $bankId = 'mbbank';
+                $accountNo = '3512345635';
+                $accountName = 'LE NGUYEN BAO LONG';
                 $amount = $totalCents;
-                $addInfo = $orderNumber; // Nội dung chuyển khoản là mã đơn hàng
+                $addInfo = $orderNumber;
 
                 $qrUrl = "https://img.vietqr.io/image/{$bankId}-{$accountNo}-compact2.png?amount={$amount}&addInfo={$addInfo}&accountName=" . urlencode($accountName);
 
@@ -219,15 +216,28 @@ class CheckoutController extends Controller
                     'amount' => number_format($totalCents) . 'đ',
                     'order_number' => $orderNumber
                 ]);
+                exit; 
             } else {
-                // COD hoặc khác -> Chuyển hướng thẳng
+                // TRƯỜNG HỢP COD: GỬI MAIL VÀ REDIRECT
+                $userModel = $this->model('User');
+                $user = $userModel->findById($userId);
+                $userEmail = $user['email'] ?? null;
+                
+                if ($userEmail) {
+                    // Lấy đầy đủ thông tin đơn hàng (bao gồm cả địa chỉ đã JOIN) để truyền vào Mail
+                    $fullOrderDetails = $orderModel->getOrderDetail($orderId);
+                    if($fullOrderDetails) {
+                        \App\Core\MailHelper::sendOrderConfirmation($userEmail, $fullOrderDetails, $mailItems, false);
+                    }
+                }
+
                 echo json_encode([
                     'status' => 'success',
                     'action' => 'redirect',
                     'redirect' => "/MY_WEB/public/checkout/success?order_id=$orderId"
                 ]);
+                exit;
             }
-            exit;
         }
     }
 
@@ -334,7 +344,7 @@ class CheckoutController extends Controller
         }
 
         $couponModel = $this->model('Coupon');
-        
+
         // [ĐÃ SỬA CHUẨN MVC]: Gọi hàm qua Model thay vì dùng $db
         $coupon = $couponModel->getCouponByCode($code);
 
@@ -347,7 +357,7 @@ class CheckoutController extends Controller
         }
 
         // --- CÁC BƯỚC KIỂM TRA ĐIỀU KIỆN MÃ ---
-        
+
         // 1. Kiểm tra ngày tháng
         $now = time();
         if (strtotime($coupon['starts_at']) > $now) {
@@ -391,13 +401,13 @@ class CheckoutController extends Controller
         $_SESSION['applied_coupon'] = [
             'id' => $coupon['id'],
             'discount_amount' => $discount,
-            'code' => $coupon['code'] 
+            'code' => $coupon['code']
         ];
 
         // Trả kết quả thành công về cho JS hiển thị
         echo json_encode([
             'status' => 'success',
-            'message' => 'Áp dụng mã thành công!', 
+            'message' => 'Áp dụng mã thành công!',
             'discount_amount' => $discount,
             'discount_formatted' => number_format($discount, 0, ',', '.') . ' đ'
         ]);

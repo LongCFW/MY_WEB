@@ -101,12 +101,26 @@ class OrderController extends Controller {
         
         $orderModel = $this->model('Order');
         $orderModel->updatePaymentStatus($id, 'paid');
-        $orderModel->updateStatus($id, 'pending');
+        $orderModel->updateStatus($id, 'processing'); // Thường nhận tiền xong thì chuyển sang Đang xử lý luôn
 
         $historyModel = $this->model('OrderStatusHistory');
         $adminId = $_SESSION['admin_id'] ?? $_SESSION['user_id'] ?? null; 
         $historyModel->addHistory($id, 'processing', $adminId, 'Admin đã xác nhận nhận được tiền chuyển khoản VietQR.');
 
-        echo "<script>alert('Đã xác nhận nhận tiền thành công!'); window.history.back();</script>";
+        // GỬI EMAIL XÁC NHẬN CHO KHÁCH HÀNG
+        // 1. Lấy lại chi tiết đơn hàng và sản phẩm
+        $order = $orderModel->getOrderDetail($id);
+        $items = $orderModel->getOrderItems($id);
+        
+        // 2. Lấy email của user (Cần JOIN bảng users hoặc nếu order có lưu ship_email)
+        // Giả sử mảng $order có chứa key 'email' từ lúc bạn join với bảng users
+        $userEmail = $order['email'] ?? null; 
+
+        if ($userEmail) {
+            // Tham số cuối = true (Báo hiệu đây là mail xác nhận Banking)
+            \App\Core\MailHelper::sendOrderConfirmation($userEmail, $order, $items, true);
+        }
+
+        echo "<script>alert('Đã xác nhận nhận tiền và gửi Email thành công!'); window.history.back();</script>";
     }
 }
