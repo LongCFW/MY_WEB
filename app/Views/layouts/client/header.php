@@ -23,7 +23,7 @@ try {
     if (class_exists('\App\Models\Category')) {
         $categoryModelHeader = new \App\Models\Category();
         $categoriesHeader = $categoryModelHeader->all();
-        
+
         // Chuyển mảng phẳng thành cây (Cha -> Con)
         foreach ($categoriesHeader as $c) {
             if (empty($c['parent_id'])) {
@@ -39,6 +39,18 @@ try {
     }
 } catch (\Exception $e) {
     // Bỏ qua nếu lỗi
+}
+
+// --- [LOGIC ĐẾM THÔNG BÁO CHƯA ĐỌC] ---
+$unreadCount = 0;
+if (isset($_SESSION['user_logged_in'])) {
+    try {
+        if (class_exists('\App\Models\Notification')) {
+            $notifModelHeader = new \App\Models\Notification();
+            $unreadCount = $notifModelHeader->countUnread($_SESSION['user_id']);
+        }
+    } catch (\Exception $e) {
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -59,31 +71,111 @@ try {
 
     <style>
         /* CSS cho Menu Danh Mục (Dropdown Bách Hóa Xanh) */
-        .category-menu-wrapper { position: relative; display: inline-block; }
+        .category-menu-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
         .category-dropdown-menu {
-            display: none; position: absolute; top: 100%; left: 0; 
-            background: #fff; min-width: 250px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-            border-radius: 12px; z-index: 1000; padding: 10px 0; border: 1px solid #eee;
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            min-width: 250px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            z-index: 1000;
+            padding: 10px 0;
+            border: 1px solid #eee;
             margin-top: 10px;
         }
-        .category-menu-wrapper:hover .category-dropdown-menu { display: block; animation: fadeIn 0.2s ease-in-out; }
-        
-        .cat-parent { position: relative; padding: 12px 20px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
-        .cat-parent:hover { background: #f1f8f5; color: #2e7d32; }
-        .cat-parent a { color: inherit; text-decoration: none; display: block; width: 100%;}
-        
+
+        .category-menu-wrapper:hover .category-dropdown-menu {
+            display: block;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        .cat-parent {
+            position: relative;
+            padding: 12px 20px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .cat-parent:hover {
+            background: #f1f8f5;
+            color: #2e7d32;
+        }
+
+        .cat-parent a {
+            color: inherit;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+        }
+
         /* Submenu con */
         .cat-submenu {
-            display: none; position: absolute; top: -1px; left: 100%;
-            background: #fff; min-width: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-radius: 12px; min-height: 100%; padding: 10px 0; border: 1px solid #eee;
+            display: none;
+            position: absolute;
+            top: -1px;
+            left: 100%;
+            background: #fff;
+            min-width: 220px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            min-height: 100%;
+            padding: 10px 0;
+            border: 1px solid #eee;
         }
-        .cat-parent:hover .cat-submenu { display: block; animation: fadeInLeft 0.2s ease-in-out;}
-        .cat-submenu a { padding: 10px 20px; display: block; text-decoration: none; color: #555; transition: all 0.2s;}
-        .cat-submenu a:hover { background: #f1f8f5; color: #2e7d32; font-weight: bold; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeInLeft { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+        .cat-parent:hover .cat-submenu {
+            display: block;
+            animation: fadeInLeft 0.2s ease-in-out;
+        }
+
+        .cat-submenu a {
+            padding: 10px 20px;
+            display: block;
+            text-decoration: none;
+            color: #555;
+            transition: all 0.2s;
+        }
+
+        .cat-submenu a:hover {
+            background: #f1f8f5;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 
@@ -103,13 +195,13 @@ try {
             </button>
 
             <div class="collapse navbar-collapse d-none d-lg-flex" id="basic-navbar-nav">
-                
+
                 <div class="category-menu-wrapper me-2">
                     <button class="btn btn-success fw-bold rounded-pill px-4 shadow-sm py-2">
                         <i class="fas fa-bars me-2"></i> Danh Mục
                     </button>
                     <div class="category-dropdown-menu">
-                        <?php if(!empty($catTree)): ?>
+                        <?php if (!empty($catTree)): ?>
                             <?php foreach ($catTree as $parent): ?>
                                 <div class="cat-parent">
                                     <a href="/MY_WEB/public/product?category=<?= $parent['id'] ?>">
@@ -154,9 +246,19 @@ try {
 
                     <div class="d-flex align-items-center gap-3">
 
+                        <?php if (isset($_SESSION['user_logged_in'])): ?>
+                            <a href="/MY_WEB/public/account?page=notification" class="position-relative btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center text-success" style="width: 42px; height: 42px;">
+                                <i class="fas fa-bell"></i>
+                                <?php if ($unreadCount > 0): ?>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 0.65rem;">
+                                        <?= $unreadCount > 99 ? '99+' : $unreadCount ?>
+                                    </span>
+                                <?php endif; ?>
+                            </a>
+                        <?php endif; ?>
+
                         <a href="/MY_WEB/public/cart" class="position-relative btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center text-success cart-icon-hover" style="width: 42px; height: 42px;">
                             <i class="fas fa-shopping-cart"></i>
-
                             <?php if ($cartCount > 0): ?>
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 0.7rem;">
                                     <?= $cartCount ?>
@@ -185,20 +287,20 @@ try {
                                             <small class="text-muted"><?= $_SESSION['user_email'] ?></small>
                                         </div>
                                     </li>
-                                    <?php 
+                                    <?php
                                     // Kiểm tra xem User đăng nhập có phải là Admin/Staff không (dựa vào session admin_role hoặc user_role)
                                     $role = $_SESSION['admin_role'] ?? $_SESSION['user_role'] ?? null;
-                                    if ($role && in_array($role, [1, 2, 3])): 
+                                    if ($role && in_array($role, [1, 2, 3])):
                                     ?>
                                         <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-bold text-success" href="/MY_WEB/public/admin/dashboard">
-                                            <i class="fas fa-tachometer-alt me-2"></i> Vào Admin Dashboard
-                                        </a></li>
+                                                <i class="fas fa-tachometer-alt me-2"></i> Vào Admin Dashboard
+                                            </a></li>
                                     <?php endif; ?>
                                     <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account">
                                             <i class="fas fa-user-circle me-2 text-success"></i> Tài khoản
                                         </a></li>
-                                        <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account?page=orders">
-                                             <i class="fa-solid fa-file-invoice-dollar me-2"></i>  Lịch sử đơn hàng
+                                    <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account?page=orders">
+                                            <i class="fa-solid fa-file-invoice-dollar me-2"></i> Lịch sử đơn hàng
                                         </a></li>
                                     <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account?page=wishlist"><i class="fas fa-heart me-2 text-danger"></i> Yêu Thích</a></li>
                                     <li>

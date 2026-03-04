@@ -58,6 +58,19 @@ class CouponController extends Controller {
             }
 
             if ($couponModel->create($data)) {
+                
+                // --- [MỚI] BẮN THÔNG BÁO CHO TẤT CẢ KHÁCH HÀNG ---
+                $notificationModel = $this->model('Notification');
+                
+                $title = "🎁 Mã giảm giá mới: " . $data['code'];
+                $valText = ($data['type'] == 'percent') ? $data['value'] . '%' : number_format($data['value']) . 'đ';
+                $minOrder = number_format($data['min_order_cents']) . 'đ';
+                $message = "Shop vừa tung mã {$data['code']} giảm ngay {$valText} cho đơn từ {$minOrder}. Nhanh tay lưu mã kẻo lỡ!";
+                
+                // Type 'new_coupon' sẽ hiện icon Voucher màu vàng ở trang Client
+                $notificationModel->sendToAllCustomers('new_coupon', $title, $message, ['coupon_code' => $data['code']]);
+                // -------------------------------------------------
+
                 echo "<script>alert('Thêm mã giảm giá thành công!'); window.location.href='/MY_WEB/public/admin/coupon';</script>";
             } else {
                 echo "<script>alert('Có lỗi xảy ra!'); window.history.back();</script>";

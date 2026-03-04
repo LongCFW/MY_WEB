@@ -9,14 +9,12 @@ class OrderController extends Controller {
         $this->checkAdmin();
         $orderModel = $this->model('Order');
         
-        // --- BẮT CÁC THAM SỐ TỪ URL (URL PARAMS) ---
         $filters = [
             'search' => trim($_GET['search'] ?? ''),
             'status' => trim($_GET['status'] ?? ''),
             'payment_method' => trim($_GET['payment_method'] ?? '')
         ];
 
-        // Truyền mảng filter vào hàm để lấy dữ liệu
         $orders = $orderModel->getAllOrders($filters);
         
         $this->view('admin/orders/index', ['orders' => $orders]);
@@ -34,20 +32,14 @@ class OrderController extends Controller {
 
         $items = $orderModel->getOrderItems($id);
         
-        // --- FIX LỖI HIỂN THỊ: Parse JSON Snapshot ---
         foreach ($items as &$item) {
             $snapshot = json_decode($item['product_snapshot'] ?? '', true);
-            
-            // Ưu tiên lấy từ snapshot, nếu không có thì fallback sang dữ liệu live
             $item['display_name'] = $snapshot['name'] ?? $item['product_name'] ?? 'Sản phẩm không xác định';
-            
             $img = $snapshot['image'] ?? $item['live_image_url'] ?? '';
             $item['display_image'] = !empty($img) ? "/MY_WEB/public/" . $img : "https://placehold.co/50";
-            
             $item['display_sku'] = $item['product_sku'] ?? 'N/A';
         }
 
-        // Lấy lịch sử trạng thái
         $historyModel = $this->model('OrderStatusHistory');
         $history = $historyModel->getHistoryByOrderId($id);
 
@@ -68,13 +60,39 @@ class OrderController extends Controller {
             
             if (in_array($status, $validStatuses)) {
                 $orderModel = $this->model('Order');
+                
+                // Lấy thông tin đơn hàng trước để biết user_id và mã đơn
+                $order = $orderModel->getOrderDetail($id);
+
+                // Cập nhật DB
                 $orderModel->updateStatus($id, $status);
 
                 // Ghi log lịch sử
                 $historyModel = $this->model('OrderStatusHistory');
                 $adminId = $_SESSION['admin_id'] ?? $_SESSION['user_id'] ?? null; 
-                
                 $historyModel->addHistory($id, $status, $adminId, $note);
+
+                // --- [MỚI] BẮN THÔNG BÁO TRẠNG THÁI CHO CLIENT ---
+                if ($order && isset($order['user_id'])) {
+                    $notificationModel = $this->model('Notification');
+                    $orderNum = $order['order_number'];
+
+                    if ($status == 'completed') {
+                        $title = "Đơn hàng giao thành công!";
+                        $message = "Đơn hàng #{$orderNum} đã được giao đến bạn. Đừng quên để lại đánh giá cho sản phẩm nhé!";
+                        $notificationModel->send($order['user_id'], 'order_completed', $title, $message, ['order_id' => $id]);
+                        
+                    } elseif ($status == 'shipping') {
+                        $title = "Đơn hàng đang trên đường giao!";
+                        $message = "Đơn hàng #{$orderNum} đã được bàn giao cho đơn vị vận chuyển.";
+                        $notificationModel->send($order['user_id'], 'system', $title, $message, ['order_id' => $id]);
+                        
+                    } elseif ($status == 'cancelled') {
+                        $title = "Đơn hàng đã hủy";
+                        $message = "Đơn hàng #{$orderNum} đã bị hủy. Lý do: " . ($note ?: 'Không xác định');
+                        $notificationModel->send($order['user_id'], 'system', $title, $message, ['order_id' => $id]);
+                    }
+                }
             }
             
             header("Location: /MY_WEB/public/admin/order/detail/$id");
@@ -86,39 +104,39 @@ class OrderController extends Controller {
         if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
             return;
         }
-
         if (isset($_SESSION['user_logged_in']) && isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1) {
             return; 
         }
-
         header('Location: /MY_WEB/public/admin/auth/login');
         exit();
     }
 
-    // HÀM XÁC NHẬN ĐÃ NHẬN TIỀN VIETQR
     public function confirmPayment($id) {
         $this->checkAdmin();
         
         $orderModel = $this->model('Order');
         $orderModel->updatePaymentStatus($id, 'paid');
-        $orderModel->updateStatus($id, 'processing'); // Thường nhận tiền xong thì chuyển sang Đang xử lý luôn
+        $orderModel->updateStatus($id, 'processing');
 
         $historyModel = $this->model('OrderStatusHistory');
         $adminId = $_SESSION['admin_id'] ?? $_SESSION['user_id'] ?? null; 
         $historyModel->addHistory($id, 'processing', $adminId, 'Admin đã xác nhận nhận được tiền chuyển khoản VietQR.');
 
-        // GỬI EMAIL XÁC NHẬN CHO KHÁCH HÀNG
-        // 1. Lấy lại chi tiết đơn hàng và sản phẩm
         $order = $orderModel->getOrderDetail($id);
         $items = $orderModel->getOrderItems($id);
-        
-        // 2. Lấy email của user (Cần JOIN bảng users hoặc nếu order có lưu ship_email)
-        // Giả sử mảng $order có chứa key 'email' từ lúc bạn join với bảng users
         $userEmail = $order['email'] ?? null; 
 
+        // Gửi mail xác nhận
         if ($userEmail) {
-            // Tham số cuối = true (Báo hiệu đây là mail xác nhận Banking)
             \App\Core\MailHelper::sendOrderConfirmation($userEmail, $order, $items, true);
+        }
+
+        // --- [MỚI] BẮN THÔNG BÁO NHẬN TIỀN CHO USER ---
+        if ($order && isset($order['user_id'])) {
+            $notificationModel = $this->model('Notification');
+            $title = "Thanh toán thành công!";
+            $message = "Chúng tôi đã nhận được khoản thanh toán cho đơn hàng #{$order['order_number']}. Đơn hàng của bạn đang được xử lý.";
+            $notificationModel->send($order['user_id'], 'system', $title, $message, ['order_id' => $id]);
         }
 
         echo "<script>alert('Đã xác nhận nhận tiền và gửi Email thành công!'); window.history.back();</script>";

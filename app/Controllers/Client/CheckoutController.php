@@ -231,6 +231,12 @@ class CheckoutController extends Controller
                     }
                 }
 
+                // --- [MỚI] BẮN THÔNG BÁO TẠO ĐƠN THÀNH CÔNG (COD) ---
+                $notificationModel = $this->model('Notification');
+                $title = "Đặt hàng thành công!";
+                $message = "Đơn hàng #{$orderNumber} đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!";
+                $notificationModel->send($userId, 'system', $title, $message, ['order_id' => $orderId]);                
+
                 echo json_encode([
                     'status' => 'success',
                     'action' => 'redirect',

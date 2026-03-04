@@ -79,6 +79,16 @@ class AccountController extends Controller
             // Có thể thêm phân trang sau này nếu muốn
         }
 
+        // --- 5. THÔNG BÁO (NOTIFICATIONS) ---
+        if ($currentPage == 'notification') {
+            $notificationModel = $this->model('Notification');
+            
+            // Lấy danh sách thông báo phân trang
+            $data['notifications'] = $notificationModel->getUserNotifications($userId, $limit, $offset);
+            $totalItems = $notificationModel->countUserNotifications($userId);
+            $data['totalPages'] = ceil($totalItems / $limit);                    
+        }
+
         $this->view('client/account/profile', $data);
     }
 
@@ -163,6 +173,48 @@ class AccountController extends Controller
 
             // 5. Redirect về trang Info với thông báo thành công
             header('Location: /MY_WEB/public/account?page=info&status=success');
+            exit;
+        }
+    }
+
+    // Hàm xóa thông báo (Dùng cho fetch API ở View notifications.php)
+    public function deleteNotif($notifId) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_logged_in'])) {
+            $notificationModel = $this->model('Notification');
+            // Cần truyền user_id vào để đảm bảo khách không xóa trộm thông báo của người khác
+            $success = $notificationModel->deleteNotification($notifId, $_SESSION['user_id']);
+            echo json_encode(['success' => $success]);
+            exit;
+        }
+    }
+
+    // API Đánh dấu đã đọc TẤT CẢ thông báo
+    public function markAllNotifRead() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_logged_in'])) {
+            $notificationModel = $this->model('Notification');
+            $success = $notificationModel->markAllAsReadByUserId($_SESSION['user_id']);
+            echo json_encode(['success' => $success]);
+            exit;
+        }
+    }
+
+    // API Xóa TẤT CẢ thông báo
+    public function deleteAllNotifs() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_logged_in'])) {
+            $notificationModel = $this->model('Notification');
+            $success = $notificationModel->deleteAllByUserId($_SESSION['user_id']);
+            echo json_encode(['success' => $success]);
+            exit;
+        }
+    }
+
+    // --- [MỚI] API Đánh dấu 1 thông báo là đã đọc khi User click vào ---
+    public function readNotif($notifId) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_logged_in'])) {
+            $notificationModel = $this->model('Notification');
+            // Truyền array chứa 1 ID vào hàm markAsRead đã viết sẵn ở Model
+            $success = $notificationModel->markAsRead([$notifId]); 
+            echo json_encode(['success' => $success]);
             exit;
         }
     }
