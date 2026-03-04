@@ -139,4 +139,34 @@ class User extends Model {
         $result = $this->db->fetch($sql, [$userId]);
         return $result ? true : false;
     }
+
+    // HÀM LẤY DANH SÁCH USER CHO ADMIN (CÓ BỘ LỌC)
+    public function getAllUsers($filters = []) {
+        $sql = "SELECT * FROM {$this->table} WHERE 1=1";
+        $params = [];
+
+        // 1. Tìm kiếm theo Tên, Email hoặc Số điện thoại
+        if (!empty($filters['search'])) {
+            $sql .= " AND (name LIKE ? OR email LIKE ? OR phone LIKE ?)";
+            $params[] = "%" . $filters['search'] . "%";
+            $params[] = "%" . $filters['search'] . "%";
+            $params[] = "%" . $filters['search'] . "%";
+        }
+
+        // 2. Lọc theo Vai trò
+        if (!empty($filters['role_id'])) {
+            $sql .= " AND role_id = ?";
+            $params[] = $filters['role_id'];
+        }
+
+        // 3. Lọc theo Trạng thái
+        if (isset($filters['status']) && $filters['status'] !== '') {
+            $sql .= " AND status = ?";
+            $params[] = $filters['status'];
+        }
+
+        $sql .= " ORDER BY id DESC";
+
+        return $this->db->fetchAll($sql, $params);
+    }
 }

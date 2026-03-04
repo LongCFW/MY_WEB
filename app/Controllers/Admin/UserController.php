@@ -4,11 +4,21 @@ use App\Core\Controller;
 
 class UserController extends Controller {
     
-    // 1. Danh sách
+    // 1. Danh sách    
     public function index() {
         // $this->checkAuth();
         $userModel = $this->model('User');
-        $users = $userModel->all();
+        
+        // Bắt các tham số lọc từ URL Params
+        $filters = [
+            'search' => trim($_GET['search'] ?? ''),
+            'role_id' => $_GET['role_id'] ?? '',
+            'status' => $_GET['status'] ?? '' 
+        ];
+
+        // Gọi hàm getAllUsers thay vì all()
+        $users = $userModel->getAllUsers($filters);
+        
         $this->view('admin/users/index', ['users' => $users]);
     }
 

@@ -7,12 +7,27 @@ class ProductController extends Controller {
 
     // 1
     public function index() {
-        // $this->checkAuth();
         if (!isset($_SESSION['admin_logged_in'])) header('Location: /MY_WEB/public/admin/auth/login');
         
         $productModel = $this->model('Product');
-        $products = $productModel->getAllProducts();
-        $this->view('admin/products/index', ['products' => $products]);
+        $categoryModel = $this->model('Category');
+
+        // Bắt các tham số lọc từ URL Params
+        $filters = [
+            'search' => trim($_GET['search'] ?? ''),
+            'category_id' => $_GET['category_id'] ?? '',
+            'stock_status' => $_GET['stock_status'] ?? ''
+        ];
+
+        $products = $productModel->getAllProducts($filters);
+        
+        // Lấy danh sách danh mục để hiển thị ở thanh lọc
+        $categories = $categoryModel->all();
+
+        $this->view('admin/products/index', [
+            'products' => $products,
+            'categories' => $categories // Truyền thêm biến này ra view
+        ]);
     }
 
     // 2

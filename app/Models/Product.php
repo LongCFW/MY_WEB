@@ -6,12 +6,12 @@ use App\Core\Model;
 class Product extends Model {
     protected $table = 'products';
 
-    // --- 1. HÀM DÀNH CHO ADMIN (KHÔI PHỤC LẠI) ---
-    public function getAllProducts() {
+    // --- 1. HÀM DÀNH CHO ADMIN (KHÔI PHỤC LẠI + THÊM BỘ LỌC) ---
+    public function getAllProducts($filters = []) {
         $sql = "SELECT p.*, c.name as category_name, parent_c.name as parent_category_name,
                        MIN(v.price_cents) as min_price, 
                        MAX(v.price_cents) as max_price,
-                       SUM(v.stock) as total_stock,
+                       COALESCE(SUM(v.stock), 0) as total_stock,
                        MIN(i.image_url) as image_url,
                        COUNT(v.id) as variant_count,
                        GROUP_CONCAT(v.name SEPARATOR ', ') as variant_names
@@ -20,10 +20,45 @@ class Product extends Model {
                 LEFT JOIN categories parent_c ON c.parent_id = parent_c.id 
                 LEFT JOIN product_variants v ON p.id = v.product_id AND v.is_active = 1
                 LEFT JOIN product_images i ON p.id = i.product_id
-                GROUP BY p.id 
-                ORDER BY p.id DESC";
+                WHERE 1=1"; // Điều kiện gốc để dễ dàng nối các WHERE phía dưới
+
+        $params = [];
+
+        // --- BẮT ĐẦU XỬ LÝ LỌC ---
         
-        return $this->db->fetchAll($sql);
+        // 1. Tìm kiếm theo tên hoặc SKU
+        if (!empty($filters['search'])) {
+            $sql .= " AND (p.name LIKE ? OR p.sku LIKE ?)";
+            $params[] = "%" . $filters['search'] . "%";
+            $params[] = "%" . $filters['search'] . "%";
+        }
+
+        // 2. Lọc theo Danh mục
+        if (!empty($filters['category_id'])) {
+            // Lọc cả danh mục cha và các danh mục con của nó
+            $categoryModel = new \App\Models\Category();
+            $catIds = $categoryModel->getCategoryTreeIds($filters['category_id']);
+            $placeholders = implode(',', array_fill(0, count($catIds), '?'));
+            $sql .= " AND p.category_id IN ($placeholders)";
+            $params = array_merge($params, $catIds);
+        }
+
+        // --- KẾT THÚC LỌC ---
+
+        $sql .= " GROUP BY p.id";
+
+        // 3. Lọc theo Tình trạng Kho (Phải dùng HAVING vì total_stock là kết quả của hàm SUM)
+        if (!empty($filters['stock_status'])) {
+            if ($filters['stock_status'] == 'in_stock') {
+                $sql .= " HAVING total_stock > 0";
+            } elseif ($filters['stock_status'] == 'out_of_stock') {
+                $sql .= " HAVING total_stock <= 0";
+            }
+        }
+
+        $sql .= " ORDER BY p.id DESC";
+        
+        return $this->db->fetchAll($sql, $params);
     }
 
     // --- HÀM DÀNH CHO CLIENT (FILTER + PAGINATION) ---

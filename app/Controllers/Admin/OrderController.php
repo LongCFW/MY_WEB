@@ -5,16 +5,24 @@ use App\Core\Controller;
 class OrderController extends Controller {
     
     public function index() {
-        // $this->checkAuth();
         if (!isset($_SESSION['admin_logged_in'])) header('Location: /MY_WEB/public/admin/auth/login');
         $this->checkAdmin();
         $orderModel = $this->model('Order');
-        $orders = $orderModel->getAllOrders();
+        
+        // --- BẮT CÁC THAM SỐ TỪ URL (URL PARAMS) ---
+        $filters = [
+            'search' => trim($_GET['search'] ?? ''),
+            'status' => trim($_GET['status'] ?? ''),
+            'payment_method' => trim($_GET['payment_method'] ?? '')
+        ];
+
+        // Truyền mảng filter vào hàm để lấy dữ liệu
+        $orders = $orderModel->getAllOrders($filters);
+        
         $this->view('admin/orders/index', ['orders' => $orders]);
     }
 
     public function detail($id) {
-        // $this->checkAuth();
         $this->checkAdmin();
         $orderModel = $this->model('Order');
         
@@ -30,7 +38,7 @@ class OrderController extends Controller {
         foreach ($items as &$item) {
             $snapshot = json_decode($item['product_snapshot'] ?? '', true);
             
-            // Ưu tiên lấy từ snapshot, nếu không có thì fallback sang dữ liệu live (nếu query có join)
+            // Ưu tiên lấy từ snapshot, nếu không có thì fallback sang dữ liệu live
             $item['display_name'] = $snapshot['name'] ?? $item['product_name'] ?? 'Sản phẩm không xác định';
             
             $img = $snapshot['image'] ?? $item['live_image_url'] ?? '';
@@ -38,7 +46,6 @@ class OrderController extends Controller {
             
             $item['display_sku'] = $item['product_sku'] ?? 'N/A';
         }
-        // ----------------------------------------------
 
         // Lấy lịch sử trạng thái
         $historyModel = $this->model('OrderStatusHistory');
@@ -47,16 +54,15 @@ class OrderController extends Controller {
         $this->view('admin/orders/detail', [
             'order' => $order, 
             'items' => $items,
-            'history' => $history // Truyền history sang view
+            'history' => $history 
         ]);
     }
 
     public function update_status($id) {
-        // $this->checkAuth();
         $this->checkAdmin();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $status = $_POST['status'];
-            $note = $_POST['note'] ?? ''; // Lấy ghi chú
+            $note = $_POST['note'] ?? ''; 
             
             $validStatuses = ['pending', 'processing', 'shipping', 'completed', 'cancelled'];
             
@@ -64,10 +70,8 @@ class OrderController extends Controller {
                 $orderModel = $this->model('Order');
                 $orderModel->updateStatus($id, $status);
 
-                // --- FIX LỖI CẬP NHẬT: Ghi log lịch sử ---
+                // Ghi log lịch sử
                 $historyModel = $this->model('OrderStatusHistory');
-                
-                // Lấy ID admin từ session (đảm bảo session key đúng)
                 $adminId = $_SESSION['admin_id'] ?? $_SESSION['user_id'] ?? null; 
                 
                 $historyModel->addHistory($id, $status, $adminId, $note);
@@ -78,44 +82,27 @@ class OrderController extends Controller {
         }
     }
 
-    // Hàm phụ trợ check login (Sửa lỗi Undefined array key)
     private function checkAdmin() {
-        // Trường hợp 1: Đã đăng nhập bằng session Admin riêng (ưu tiên nhất)
         if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-            return; // Cho phép đi tiếp
+            return;
         }
 
-        // Trường hợp 2: Đã đăng nhập bằng User nhưng có Role là Admin (ID = 1)
-        // SỬA LỖI: Thêm isset($_SESSION['role_id']) để tránh lỗi khi key không tồn tại
         if (isset($_SESSION['user_logged_in']) && isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1) {
-            return; // Cho phép đi tiếp
+            return; 
         }
 
-        // Nếu không thỏa mãn cả 2 trường hợp trên -> Chuyển hướng về login
         header('Location: /MY_WEB/public/admin/auth/login');
         exit();
     }
 
-//     private function checkAuth() {
-//     // Chỉ cần kiểm tra đã đăng nhập là được (vì Staff cũng được vào)
-//     if (!isset($_SESSION['admin_logged_in'])) {
-//         header('Location: /MY_WEB/public/admin/auth/login');
-//         exit();
-//     }
-// }
-
-    // HÀM XÁC NHẬN ĐÃ NHẬN TIỀN VIETQR ---
+    // HÀM XÁC NHẬN ĐÃ NHẬN TIỀN VIETQR
     public function confirmPayment($id) {
         $this->checkAdmin();
         
         $orderModel = $this->model('Order');
-        // Đổi trạng thái thanh toán thành 'paid'
         $orderModel->updatePaymentStatus($id, 'paid');
-        
-        // Đồng thời đổi trạng thái đơn hàng thành 'chờ xác nhận'
         $orderModel->updateStatus($id, 'pending');
 
-        // Ghi log lịch sử
         $historyModel = $this->model('OrderStatusHistory');
         $adminId = $_SESSION['admin_id'] ?? $_SESSION['user_id'] ?? null; 
         $historyModel->addHistory($id, 'processing', $adminId, 'Admin đã xác nhận nhận được tiền chuyển khoản VietQR.');

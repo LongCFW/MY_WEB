@@ -7,6 +7,42 @@
     </a>
 </div>
 
+<div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-body p-3">
+        <form method="GET" action="/MY_WEB/public/admin/user" class="row align-items-center">
+            
+            <div class="col-md-5 mb-2 mb-md-0">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-light border-right-0"><i class="fas fa-search text-muted"></i></span>
+                    </div>
+                    <input type="text" name="search" class="form-control border-left-0" placeholder="Tên, Email hoặc Số điện thoại..." value="<?= $_GET['search'] ?? '' ?>">
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-2 mb-md-0">
+                <select name="role_id" class="form-control custom-select" onchange="this.form.submit()">
+                    <option value="">-- Tất cả vai trò --</option>
+                    <option value="1" <?= (($_GET['role_id'] ?? '') == '1') ? 'selected' : '' ?>>Quản trị viên (Admin)</option>
+                    <option value="4" <?= (($_GET['role_id'] ?? '') == '4') ? 'selected' : '' ?>>Khách hàng (User)</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 mb-2 mb-md-0">
+                <select name="status" class="form-control custom-select" onchange="this.form.submit()">
+                    <option value="">-- Trạng thái --</option>
+                    <option value="1" <?= (($_GET['status'] ?? '') == '1') ? 'selected' : '' ?>>Hoạt động (Active)</option>
+                    <option value="0" <?= (($_GET['status'] ?? '') == '0') ? 'selected' : '' ?>>Đã khóa (Blocked)</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex">
+                <button type="submit" class="btn btn-primary flex-grow-1 mr-2 font-weight-bold">Lọc</button>
+                <a href="/MY_WEB/public/admin/user" class="btn btn-outline-secondary" title="Xóa bộ lọc"><i class="fas fa-sync-alt"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="card shadow-sm border-0">
     <div class="card-body p-0">
         
@@ -50,7 +86,7 @@
                                     <i class="fas fa-pen fa-xs"></i>
                                 </a>
                                 <?php if($u['id'] != $_SESSION['admin_id']): ?>
-                                    <a href="/MY_WEB/public/admin/user/delete/<?= $u['id'] ?>" class="btn btn-danger btn-sm action-btn shadow-sm ml-1 btn-delete" title="Xóa"> 
+                                    <a href="/MY_WEB/public/admin/user/delete/<?= $u['id'] ?>" class="btn btn-danger btn-sm action-btn shadow-sm ml-1 btn-delete" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa?')"> 
                                         <i class="fas fa-trash fa-xs"></i>
                                     </a>
                                 <?php endif; ?>
@@ -59,7 +95,10 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">Chưa có người dùng nào.</td>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="fas fa-users fa-3x mb-3 text-light"></i><br>
+                                Không tìm thấy người dùng nào phù hợp với bộ lọc.
+                            </td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

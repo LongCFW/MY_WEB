@@ -39,12 +39,40 @@ class Order extends Model {
         return $this->db->fetchAll($sql);
     }
 
-    public function getAllOrders() {
+    public function getAllOrders($filters = []) {
+        // Query cơ bản (Dùng WHERE 1=1 để dễ dàng nối thêm các điều kiện AND ở dưới)
         $sql = "SELECT o.*, u.name as customer_name 
                 FROM orders o 
                 LEFT JOIN users u ON o.user_id = u.id 
-                ORDER BY o.created_at DESC";
-        return $this->db->fetchAll($sql);
+                WHERE 1=1";
+        
+        $params = [];
+
+        // 1. Lọc theo trạng thái đơn hàng
+        if (!empty($filters['status'])) {
+            $sql .= " AND o.status = ?";
+            $params[] = $filters['status'];
+        }
+
+        // 2. Lọc theo phương thức thanh toán
+        if (!empty($filters['payment_method'])) {
+            $sql .= " AND o.payment_method = ?";
+            $params[] = $filters['payment_method'];
+        }
+
+        // 3. Tìm kiếm theo Mã đơn hàng hoặc Tên khách hàng
+        if (!empty($filters['search'])) {
+            $sql .= " AND (o.order_number LIKE ? OR u.name LIKE ?)";
+            // Thêm dấu % vào 2 bên để tìm kiếm chuỗi chứa từ khóa
+            $params[] = "%" . $filters['search'] . "%"; 
+            $params[] = "%" . $filters['search'] . "%";
+        }
+
+        // Sắp xếp đơn mới nhất lên đầu
+        $sql .= " ORDER BY o.created_at DESC";
+
+        // Sử dụng hàm fetchAll từ class Database của bạn
+        return $this->db->fetchAll($sql, $params);
     }
 
     // Lấy chi tiết đơn hàng (Kèm thông tin User & Address)

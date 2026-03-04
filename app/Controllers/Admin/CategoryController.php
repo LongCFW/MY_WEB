@@ -5,11 +5,19 @@ use App\Core\Controller;
 
 class CategoryController extends Controller {
     
-    // 1. Xem danh sách
+    // 1. Xem danh sách    
     public function index() {
         // $this->checkAuth();
         $categoryModel = $this->model('Category');
-        $categories = $categoryModel->all();
+        
+        // Bắt tham số tìm kiếm từ URL
+        $filters = [
+            'search' => trim($_GET['search'] ?? '')
+        ];
+
+        // Gọi hàm lấy dữ liệu mới viết thay vì hàm all() cũ
+        $categories = $categoryModel->getAllCategories($filters);
+        
         $this->view('admin/categories/index', ['categories' => $categories]);
     }
 

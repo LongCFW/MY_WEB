@@ -7,6 +7,45 @@
     </a>
 </div>
 
+<div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-body p-3">
+        <form method="GET" action="/MY_WEB/public/admin/product" class="row align-items-center">
+            
+            <div class="col-md-4 mb-2 mb-md-0">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-light border-right-0"><i class="fas fa-search text-muted"></i></span>
+                    </div>
+                    <input type="text" name="search" class="form-control border-left-0" placeholder="Tên sản phẩm, SKU..." value="<?= $_GET['search'] ?? '' ?>">
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-2 mb-md-0">
+                <select name="category_id" class="form-control custom-select" onchange="this.form.submit()">
+                    <option value="">-- Tất cả Danh mục --</option>
+                    <?php if(!empty($categories)): foreach($categories as $cat): ?>
+                        <option value="<?= $cat['id'] ?>" <?= (($_GET['category_id'] ?? '') == $cat['id']) ? 'selected' : '' ?>>
+                            <?= empty($cat['parent_id']) ? $cat['name'] : '— ' . $cat['name'] ?>
+                        </option>
+                    <?php endforeach; endif; ?>
+                </select>
+            </div>
+
+            <div class="col-md-3 mb-2 mb-md-0">
+                <select name="stock_status" class="form-control custom-select" onchange="this.form.submit()">
+                    <option value="">-- Tình trạng Kho --</option>
+                    <option value="in_stock" <?= (($_GET['stock_status'] ?? '') == 'in_stock') ? 'selected' : '' ?>>Còn hàng</option>
+                    <option value="out_of_stock" <?= (($_GET['stock_status'] ?? '') == 'out_of_stock') ? 'selected' : '' ?>>Hết hàng</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex">
+                <button type="submit" class="btn btn-primary flex-grow-1 mr-2 font-weight-bold">Lọc</button>
+                <a href="/MY_WEB/public/admin/product" class="btn btn-outline-secondary" title="Xóa bộ lọc"><i class="fas fa-sync-alt"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="card shadow-sm border-0">
     <div class="card-body p-0">
         <div class="table-scroll-wrapper">
@@ -16,7 +55,6 @@
                         <th class="text-center" width="50">ID</th>
                         <th class="text-center" width="80">Hình ảnh</th>
                         <th style="min-width: 200px;">Tên sản phẩm</th>
-                        <th>Thương hiệu</th>
                         <th>Danh mục</th>
                         <th class="text-right">Giá bán</th>
                         <th class="text-center">Kho</th>
@@ -46,12 +84,6 @@
                                     <span class="badge badge-secondary"><i class="fas fa-box mr-1"></i> Tiêu chuẩn</span>
                                 </div>
                             <?php endif; ?>
-                        </td>
-
-                        <td class="align-middle">
-                            <?php if(!empty($p['brand'])): ?>
-                                <span class="badge badge-info font-weight-normal px-2"><?= htmlspecialchars($p['brand']) ?></span>
-                            <?php else: ?> - <?php endif; ?>
                         </td>
 
                         <td class="align-middle">
@@ -95,7 +127,10 @@
                         </td>
                     </tr>
                     <?php endforeach; else: ?>
-                    <tr><td colspan="8" class="text-center py-5 text-muted">Chưa có sản phẩm nào.</td></tr>
+                    <tr><td colspan="7" class="text-center py-5 text-muted">
+                        <i class="fas fa-box-open fa-3x mb-3 text-light"></i><br>
+                        Không tìm thấy sản phẩm nào phù hợp với bộ lọc.
+                    </td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>

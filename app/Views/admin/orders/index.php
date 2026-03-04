@@ -2,7 +2,46 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="text-dark font-weight-bold">Quản lý Đơn hàng</h3>
+</div>
+
+<div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-body p-3">
+        <form method="GET" action="/MY_WEB/public/admin/order" class="row align-items-center">
+            <div class="col-md-4 mb-2 mb-md-0">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-light border-right-0"><i class="fas fa-search text-muted"></i></span>
+                    </div>
+                    <input type="text" name="search" class="form-control border-left-0" placeholder="Tìm mã đơn, tên KH..." value="<?= $_GET['search'] ?? '' ?>">
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-2 mb-md-0">
+                <select name="status" class="form-control custom-select" onchange="this.form.submit()">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="pending" <?= (($_GET['status'] ?? '') == 'pending') ? 'selected' : '' ?>>Chờ xác nhận</option>
+                    <option value="processing" <?= (($_GET['status'] ?? '') == 'processing') ? 'selected' : '' ?>>Đang xử lý</option>
+                    <option value="shipping" <?= (($_GET['status'] ?? '') == 'shipping') ? 'selected' : '' ?>>Đang giao hàng</option>
+                    <option value="completed" <?= (($_GET['status'] ?? '') == 'completed') ? 'selected' : '' ?>>Hoàn thành</option>
+                    <option value="cancelled" <?= (($_GET['status'] ?? '') == 'cancelled') ? 'selected' : '' ?>>Đã hủy</option>
+                </select>
+            </div>
+
+            <div class="col-md-3 mb-2 mb-md-0">
+                <select name="payment_method" class="form-control custom-select" onchange="this.form.submit()">
+                    <option value="">-- Hình thức thanh toán --</option>
+                    <option value="cod" <?= (($_GET['payment_method'] ?? '') == 'cod') ? 'selected' : '' ?>>Thanh toán COD</option>
+                    <option value="banking" <?= (($_GET['payment_method'] ?? '') == 'banking') ? 'selected' : '' ?>>Chuyển khoản</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex">
+                <button type="submit" class="btn btn-primary flex-grow-1 mr-2 font-weight-bold">Lọc</button>
+                <a href="/MY_WEB/public/admin/order" class="btn btn-outline-secondary" title="Xóa bộ lọc"><i class="fas fa-sync-alt"></i></a>
+            </div>
+        </form>
     </div>
+</div>
 
 <div class="card shadow-sm border-0">
     <div class="card-body p-0">
@@ -26,7 +65,7 @@
                             <td class="align-middle font-weight-bold text-primary">#<?= $order['order_number'] ?></td>
                             <td class="align-middle">
                                 <div class="font-weight-bold text-dark"><?= $order['customer_name'] ?></div>
-                                </td>
+                            </td>
                             <td class="align-middle text-muted small">
                                 <?= date('d/m/Y H:i', strtotime($order['created_at'])) ?>
                             </td>
@@ -79,15 +118,18 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">Chưa có đơn hàng nào.</td>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-box-open fa-3x mb-3 text-light"></i><br>
+                                Không tìm thấy đơn hàng nào phù hợp với bộ lọc.
+                            </td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
-        </div>
+    </div>
     <div class="card-footer bg-white py-3">
-        <small class="text-muted">Tổng số: <strong><?= count($orders) ?></strong> đơn hàng</small>
+        <small class="text-muted">Tổng số: <strong><?= count($orders) ?></strong> kết quả</small>
     </div>
 </div>
 

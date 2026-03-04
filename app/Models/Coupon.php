@@ -53,4 +53,39 @@ class Coupon extends Model {
         // Tham số truyền vào dùng dấu ? giống như ở hàm findByCode của bạn
         return $this->db->query($sql, [$couponId]);
     }
+
+    // HÀM LẤY DANH SÁCH MÃ GIẢM GIÁ (CÓ BỘ LỌC)
+    public function getAllCoupons($filters = []) {
+        $sql = "SELECT * FROM {$this->table} WHERE 1=1";
+        $params = [];
+
+        // 1. Tìm kiếm theo mã Code
+        if (!empty($filters['search'])) {
+            $sql .= " AND code LIKE ?";
+            $params[] = "%" . $filters['search'] . "%";
+        }
+
+        // 2. Lọc theo Loại giảm giá
+        if (!empty($filters['type'])) {
+            $sql .= " AND type = ?";
+            $params[] = $filters['type'];
+        }
+
+        // 3. Lọc theo Trạng thái (Dựa vào thời gian starts_at và ends_at)
+        if (!empty($filters['status'])) {
+            if ($filters['status'] == 'active') {
+                // Đang chạy
+                $sql .= " AND starts_at <= NOW() AND ends_at >= NOW()";
+            } elseif ($filters['status'] == 'upcoming') {
+                // Sắp tới
+                $sql .= " AND starts_at > NOW()";
+            } elseif ($filters['status'] == 'expired') {
+                // Đã hết hạn
+                $sql .= " AND ends_at < NOW()";
+            }
+        }
+
+        $sql .= " ORDER BY created_at DESC";
+        return $this->db->fetchAll($sql, $params);
+    }
 }

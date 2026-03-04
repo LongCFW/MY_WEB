@@ -7,8 +7,17 @@ class CouponController extends Controller {
     public function index() {
         $this->checkAdmin();
         $couponModel = $this->model('Coupon');
-        // Lấy tất cả mã giảm giá, sắp xếp mới nhất lên đầu
-        $coupons = $couponModel->getAll('created_at DESC'); 
+        
+        // --- BẮT CÁC THAM SỐ LỌC TỪ URL PARAMS ---
+        $filters = [
+            'search' => trim($_GET['search'] ?? ''),
+            'type'   => $_GET['type'] ?? '',
+            'status' => $_GET['status'] ?? ''
+        ];
+
+        // Lấy danh sách mã giảm giá dựa trên bộ lọc
+        $coupons = $couponModel->getAllCoupons($filters); 
+        
         $this->view('admin/coupons/index', ['coupons' => $coupons]);
     }
 
