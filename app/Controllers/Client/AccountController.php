@@ -72,6 +72,13 @@ class AccountController extends Controller
             $data['totalPages'] = ceil($totalItems / $limit);
         }
 
+        // 4. VÍ VOUCHER
+        if ($currentPage == 'voucher') {
+            $userCouponModel = $this->model('UserCoupon');
+            $data['savedCoupons'] = $userCouponModel->getSavedCoupons($userId);
+            // Có thể thêm phân trang sau này nếu muốn
+        }
+
         $this->view('client/account/profile', $data);
     }
 

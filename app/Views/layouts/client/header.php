@@ -147,7 +147,7 @@ try {
                     <div class="d-flex gap-3 fw-medium">
                         <a href="/MY_WEB/public/" class="text-dark text-decoration-none hover-green pb-1">Trang chủ</a>
                         <a href="/MY_WEB/public/product" class="text-dark text-decoration-none hover-green pb-1">Sản phẩm</a>
-                        <a href="/MY_WEB/public/offers" class="text-dark text-decoration-none hover-green pb-1">Ưu đãi</a>
+                        <a href="/MY_WEB/public/offer" class="text-dark text-decoration-none hover-green pb-1">Ưu đãi</a>
                     </div>
 
                     <div class="vr text-secondary opacity-25" style="height: 25px;"></div>

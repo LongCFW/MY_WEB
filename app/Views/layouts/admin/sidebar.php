@@ -37,6 +37,9 @@ function isActive($path) {
             <a href="/MY_WEB/public/admin/user" class="list-group-item list-group-item-action <?= isActive('user') ?>">
                 <i class="fas fa-users"></i> Khách hàng
             </a>
+            <a href="/MY_WEB/public/admin/coupon" class="list-group-item list-group-item-action <?= isActive('coupon') ?>">
+                <i class="fas fa-ticket-alt"></i> Mã giảm giá
+            </a>
             
             <div class="mt-5 border-top border-secondary pt-3">
                 <a href="/MY_WEB/public/" target="_blank" class="list-group-item list-group-item-action">
