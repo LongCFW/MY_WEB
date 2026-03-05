@@ -45,7 +45,7 @@ function isActive($path) {
             </a>
             
             <div class="mt-5 border-top border-secondary pt-3">
-                <a href="/MY_WEB/public/" target="_blank" class="list-group-item list-group-item-action">
+                <a href="/MY_WEB/public/" class="list-group-item list-group-item-action">
                     <i class="fas fa-globe"></i> Trang chủ
                 </a>
                 <a href="/MY_WEB/public/admin/auth/logout" class="list-group-item list-group-item-action text-danger">

@@ -53,8 +53,17 @@ class AuthController extends Controller {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
                 $_SESSION['user_email'] = $user['email'];
-                $_SESSION['user_avatar'] = $user['avatar_url']; // Lưu avatar để hiện ở Header
+                $_SESSION['user_avatar'] = $user['avatar_url'];
+                $_SESSION['user_role'] = $user['role_id'];
 
+                // TỰ ĐỘNG CẤP QUYỀN ADMIN NẾU LÀ BAN QUẢN TRỊ
+                // (1: Admin, 2: Quản lý, 3: Nhân viên)
+                if (in_array($user['role_id'], [1, 2, 3])) {
+                    $_SESSION['admin_logged_in'] = true;
+                    $_SESSION['admin_id'] = $user['id'];
+                    $_SESSION['admin_name'] = $user['name'];
+                    $_SESSION['admin_role'] = $user['role_id'];
+                }
                 header('Location: /MY_WEB/public/');
             } else {
                 // Truyền lỗi về view
@@ -381,8 +390,16 @@ class AuthController extends Controller {
                 $_SESSION['user_name'] = $user['name'];
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_avatar'] = $user['avatar_url'] ?? $avatar;
-                
+                $_SESSION['user_role'] = $user['role_id'];
                 $_SESSION['login_method'] = 'google';
+
+                // --- TỰ ĐỘNG CẤP QUYỀN ADMIN NẾU LÀ BAN QUẢN TRỊ ---
+                if (in_array($user['role_id'], [1, 2, 3])) {
+                    $_SESSION['admin_logged_in'] = true;
+                    $_SESSION['admin_id'] = $user['id'];
+                    $_SESSION['admin_name'] = $user['name'];
+                    $_SESSION['admin_role'] = $user['role_id'];
+                }
 
                 // Chuyển hướng người dùng về trang chủ sau khi đăng nhập thành công
                 header('Location: /MY_WEB/public/');
