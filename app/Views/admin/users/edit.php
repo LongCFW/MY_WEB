@@ -48,8 +48,10 @@
                         <div class="form-group col-md-6">
                             <label class="font-weight-bold">Vai trò</label>
                             <select name="role_id" class="form-control">
-                                <option value="4" <?= $user['role_id']==4 ? 'selected' : '' ?>>Khách hàng</option>
-                                <option value="1" <?= $user['role_id']==1 ? 'selected' : '' ?>>Quản trị viên</option>
+                                <option value="4" <?= $user['role_id']==4 ? 'selected' : '' ?>>Khách hàng (User)</option>
+                                <option value="3" <?= $user['role_id']==3 ? 'selected' : '' ?>>Nhân viên (Staff)</option>
+                                <option value="2" <?= $user['role_id']==2 ? 'selected' : '' ?>>Quản lý (Manager)</option>
+                                <option value="1" <?= $user['role_id']==1 ? 'selected' : '' ?>>Quản trị viên (Admin)</option>
                                 <option value="5" <?= $user['role_id']==5 ? 'selected' : '' ?>>Tài khoản ảo (Seeding Reviews)</option>
                             </select>
                         </div>

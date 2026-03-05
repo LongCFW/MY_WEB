@@ -88,4 +88,11 @@ class Coupon extends Model {
         $sql .= " ORDER BY created_at DESC";
         return $this->db->fetchAll($sql, $params);
     }
+
+    // Đếm tổng số mã giảm giá
+    public function countAll() {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        $result = $this->db->fetch($sql);
+        return $result['total'] ?? 0;
+    }
 }

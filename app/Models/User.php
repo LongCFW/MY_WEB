@@ -63,9 +63,23 @@ class User extends Model {
         return $this->db->query($sql, [$newPasswordHash, $id]);
     }
 
-    // Đếm số lượng khách hàng 
-    public function countCustomers() {
+    // Đếm số lượng Khách hàng THẬT (role_id = 4)
+    public function countRealCustomers() {
         $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE role_id = 4";
+        $result = $this->db->fetch($sql);
+        return $result['total'] ?? 0;
+    }
+
+    // Đếm số lượng Tài khoản ẢO / SEEDING (role_id = 5)
+    public function countSeedingUsers() {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE role_id = 5";
+        $result = $this->db->fetch($sql);
+        return $result['total'] ?? 0;
+    }
+
+    // Đếm số lượng Quản trị & Nhân viên
+    public function countStaffAndAdmin() {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE role_id IN (1, 2, 3)";
         $result = $this->db->fetch($sql);
         return $result['total'] ?? 0;
     }

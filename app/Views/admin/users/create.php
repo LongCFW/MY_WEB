@@ -43,6 +43,8 @@
                         <label class="font-weight-bold">Vai trò</label>
                         <select name="role_id" class="form-control">
                             <option value="4">Khách hàng (User)</option>
+                            <option value="3">Nhân viên (Staff)</option>
+                            <option value="2">Quản lý (Manager)</option>
                             <option value="1">Quản trị viên (Admin)</option>
                             <option value="5">Tài khoản ảo (Seeding Reviews)</option>
                         </select>

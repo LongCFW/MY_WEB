@@ -40,4 +40,11 @@ class Category extends Model {
         }
         return $ids; // Trả về mảng [3, 6, 7] (Cha + Các con)
     }
+
+    // Đếm tổng số danh mục
+    public function countAll() {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        $result = $this->db->fetch($sql);
+        return $result['total'] ?? 0;
+    }
 }

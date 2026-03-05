@@ -22,6 +22,8 @@
                 <select name="role_id" class="form-control custom-select" onchange="this.form.submit()">
                     <option value="">-- Tất cả vai trò --</option>
                     <option value="1" <?= (($_GET['role_id'] ?? '') == '1') ? 'selected' : '' ?>>Quản trị viên (Admin)</option>
+                    <option value="2" <?= (($_GET['role_id'] ?? '') == '2') ? 'selected' : '' ?>>Quản lý (Manager)</option>
+                    <option value="3" <?= (($_GET['role_id'] ?? '') == '3') ? 'selected' : '' ?>>Nhân viên (Staff)</option>
                     <option value="4" <?= (($_GET['role_id'] ?? '') == '4') ? 'selected' : '' ?>>Khách hàng (User)</option>
                     <option value="5" <?= (($_GET['role_id'] ?? '') == '5') ? 'selected' : '' ?>>Tài khoản ảo (Seeding)</option>
                 </select>
@@ -78,6 +80,10 @@
                             <td class="align-middle text-center">
                                 <?php if($u['role_id'] == 1): ?>
                                     <span class="badge badge-danger px-2 py-1">Admin</span>
+                                <?php elseif($u['role_id'] == 2): ?>
+                                    <span class="badge badge-warning text-white px-2 py-1">Quản lý</span>
+                                <?php elseif($u['role_id'] == 3): ?>
+                                    <span class="badge badge-primary px-2 py-1">Nhân viên</span>
                                 <?php elseif($u['role_id'] == 5): ?>
                                     <span class="badge px-2 py-1" style="background-color: #6f42c1; color: white;"><i class="fas fa-robot mr-1"></i> Seeding</span>
                                 <?php else: ?>
