@@ -46,8 +46,8 @@ class Review extends Model {
         return $result ? $result['id'] : false; // Trả về ID đơn hàng nếu hợp lệ, ngược lại trả về false
     }
 
-    // --- Lấy danh sách cho trang Admin ---
-    public function getAllReviewsForAdmin() {
+    // --- Lấy danh sách cho trang Admin (Có hỗ trợ Lọc) ---
+    public function getAllReviewsForAdmin($filters = []) {
         $sql = "SELECT r.*, 
                        u.name as user_name, 
                        p.name as product_name,
@@ -55,7 +55,33 @@ class Review extends Model {
                 FROM {$this->table} r 
                 JOIN users u ON r.user_id = u.id 
                 JOIN products p ON r.product_id = p.id
-                ORDER BY r.created_at DESC";
-        return $this->db->fetchAll($sql);
+                WHERE 1=1";
+        
+        $params = [];
+
+        // 1. Lọc theo từ khóa (Tìm tên khách hoặc nội dung)
+        if (!empty($filters['search'])) {
+            $sql .= " AND (u.name LIKE ? OR r.comment LIKE ?)";
+            $params[] = "%" . $filters['search'] . "%";
+            $params[] = "%" . $filters['search'] . "%";
+        }
+
+        // 2. Lọc theo loại (Thật / Ảo)
+        if (!empty($filters['type'])) {
+            if ($filters['type'] == 'real') {
+                $sql .= " AND r.order_id IS NOT NULL";
+            } elseif ($filters['type'] == 'seeding') {
+                $sql .= " AND r.order_id IS NULL";
+            }
+        }
+
+        // 3. Lọc theo số sao
+        if (!empty($filters['rating'])) {
+            $sql .= " AND r.rating = ?";
+            $params[] = $filters['rating'];
+        }
+
+        $sql .= " ORDER BY r.created_at DESC";
+        return $this->db->fetchAll($sql, $params);
     }
 }

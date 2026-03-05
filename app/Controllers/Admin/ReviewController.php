@@ -7,9 +7,16 @@ class ReviewController extends Controller {
     public function index() {
         $this->checkAdmin();
         $reviewModel = $this->model('Review');
+
+        // --- [MỚI] BẮT THAM SỐ LỌC ---
+        $filters = [
+            'search' => trim($_GET['search'] ?? ''),
+            'type' => $_GET['type'] ?? '',
+            'rating' => $_GET['rating'] ?? ''
+        ];
         
         // Lấy tất cả đánh giá (Cả thật và ảo)
-        $reviews = $reviewModel->getAllReviewsForAdmin();
+        $reviews = $reviewModel->getAllReviewsForAdmin($filters);
         
         // Lấy dữ liệu mồi cho Form Seeding
         $userModel = $this->model('User');

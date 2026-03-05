@@ -1,5 +1,23 @@
 <?php require_once '../app/Views/layouts/admin/sidebar.php'; ?>
 
+<style>
+    /* Thêm CSS cho tính năng cuộn mượt mà */
+    .table-scroll-wrapper {
+        max-height: 500px;
+        /* Bạn có thể điều chỉnh độ cao này */
+        overflow-y: auto;
+    }
+
+    /* Đóng băng dòng tiêu đề khi cuộn xuống */
+    .table-scroll-wrapper thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 1;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="text-dark font-weight-bold">Quản lý Mã giảm giá</h3>
     <a href="/MY_WEB/public/admin/coupon/create" class="btn btn-success shadow-sm">
@@ -10,7 +28,7 @@
 <div class="card shadow-sm border-0 mb-4 bg-white">
     <div class="card-body p-3">
         <form method="GET" action="/MY_WEB/public/admin/coupon" class="row align-items-center">
-            
+
             <div class="col-md-5 mb-2 mb-md-0">
                 <div class="input-group">
                     <div class="input-group-prepend">
@@ -19,7 +37,7 @@
                     <input type="text" name="search" class="form-control border-left-0" placeholder="Nhập mã giảm giá..." value="<?= $_GET['search'] ?? '' ?>" style="text-transform: uppercase;">
                 </div>
             </div>
-            
+
             <div class="col-md-3 mb-2 mb-md-0">
                 <select name="type" class="form-control custom-select" onchange="this.form.submit()">
                     <option value="">-- Loại giảm giá --</option>
@@ -44,9 +62,10 @@
         </form>
     </div>
 </div>
+
 <div class="card shadow-sm border-0">
     <div class="card-body p-0">
-        <div class="table-responsive">
+        <div class="table-scroll-wrapper">
             <table class="table table-hover mb-0">
                 <thead class="thead-light">
                     <tr>
@@ -59,21 +78,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if(!empty($coupons)): ?>
-                        <?php foreach($coupons as $coupon): ?>
-                            <?php 
-                                // Logic kiểm tra trạng thái hiển thị
-                                $now = time();
-                                $start = strtotime($coupon['starts_at']);
-                                $end = strtotime($coupon['ends_at']);
-                                $statusClass = 'success';
-                                $statusText = 'Đang chạy';
-                                
-                                if ($now < $start) {
-                                    $statusClass = 'warning'; $statusText = 'Sắp tới';
-                                } elseif ($now > $end) {
-                                    $statusClass = 'danger'; $statusText = 'Hết hạn';
-                                }
+                    <?php if (!empty($coupons)): ?>
+                        <?php foreach ($coupons as $coupon): ?>
+                            <?php
+                            // Logic kiểm tra trạng thái hiển thị
+                            $now = time();
+                            $start = strtotime($coupon['starts_at']);
+                            $end = strtotime($coupon['ends_at']);
+                            $statusClass = 'success';
+                            $statusText = 'Đang chạy';
+
+                            if ($now < $start) {
+                                $statusClass = 'warning';
+                                $statusText = 'Sắp tới';
+                            } elseif ($now > $end) {
+                                $statusClass = 'danger';
+                                $statusText = 'Hết hạn';
+                            }
                             ?>
                             <tr>
                                 <td class="align-middle font-weight-bold text-primary">
@@ -81,7 +102,7 @@
                                     <span class="badge badge-<?= $statusClass ?>"><?= $statusText ?></span>
                                 </td>
                                 <td class="align-middle">
-                                    <?php if($coupon['type'] == 'percent'): ?>
+                                    <?php if ($coupon['type'] == 'percent'): ?>
                                         <span class="text-success font-weight-bold">Giảm <?= $coupon['value'] ?>%</span>
                                     <?php else: ?>
                                         <span class="text-success font-weight-bold">Giảm <?= number_format($coupon['value']) ?>đ</span>
@@ -92,9 +113,9 @@
                                 </td>
                                 <td class="align-middle">
                                     <?php
-                                        $limit = $coupon['usage_limit'] ?: 'Vô hạn';
-                                        $used = $coupon['used_count'];
-                                        $color = ($limit !== 'Vô hạn' && $used >= $limit) ? 'text-danger font-weight-bold' : 'text-dark';
+                                    $limit = $coupon['usage_limit'] ?: 'Vô hạn';
+                                    $used = $coupon['used_count'];
+                                    $color = ($limit !== 'Vô hạn' && $used >= $limit) ? 'text-danger font-weight-bold' : 'text-dark';
                                     ?>
                                     <span class="<?= $color ?>"><?= $used ?></span> / <?= $limit ?>
                                 </td>
@@ -123,6 +144,9 @@
                 </tbody>
             </table>
         </div>
+    </div>
+    <div class="card-footer bg-white py-3">
+        <small class="text-muted">Tổng số: <strong><?= is_array($coupons) ? count($coupons) : 0 ?></strong> mã giảm giá</small>
     </div>
 </div>
 
