@@ -1,10 +1,24 @@
 <style>
+    /* CSS Scroll đồng bộ với Voucher */
+    .notification-scroll-container {
+        max-height: 480px; /* Tương đương hiển thị khoảng 4-5 thông báo cùng lúc */
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 8px; /* Tránh để thanh cuộn đè vào box shadow */
+    }
+
+    .notification-scroll-container::-webkit-scrollbar { width: 6px; }
+    .notification-scroll-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    .notification-scroll-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+    .notification-scroll-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
     /* Hiệu ứng chìm nổi cho thông báo */
     .notif-card {
         transition: all 0.2s ease;
         border-radius: 12px !important;
         margin-bottom: 12px;
         overflow: hidden;
+        border: 1px solid #eee;
     }
     
     /* CHƯA ĐỌC: Nổi bật, nền trắng, có shadow, viền xanh bên trái */
@@ -12,33 +26,19 @@
         background-color: #ffffff;
         box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
         border-left: 4px solid var(--eco-primary) !important;
+        border-top: 1px solid transparent;
+        border-right: 1px solid transparent;
+        border-bottom: 1px solid transparent;
     }
     .notif-unread .notif-title { color: #2e7d32; font-weight: 700; }
     
     /* ĐÃ ĐỌC: Chìm xuống, nền xám, không shadow */
     .notif-read {
         background-color: #f8f9fa;
-        border: 1px solid #eee !important;
         opacity: 0.85;
     }
     .notif-read .notif-title { color: #6c757d; font-weight: 500; }
     .notif-read:hover { opacity: 1; background-color: #f1f3f5; }
-
-    /* CSS Phân trang đồng bộ màu xanh EcoStore */
-    .eco-pagination .page-item.active .page-link {
-        background-color: #2e7d32;
-        border-color: #2e7d32;
-        color: white;
-    }
-    .eco-pagination .page-link {
-        color: #2e7d32;
-        border-radius: 8px;
-        margin: 0 4px;
-        border: 1px solid #dee2e6;
-    }
-    .eco-pagination .page-link:hover {
-        background-color: #e8f5e9;
-    }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
@@ -66,7 +66,7 @@
     <?php endif; ?>
 </div>
 
-<div class="notification-list">
+<div class="notification-scroll-container pb-2">
     <?php if(!empty($notifications)): ?>
         <?php foreach($notifications as $notif): ?>
             <?php 
@@ -123,18 +123,6 @@
             </div>
         <?php endforeach; ?>
 
-        <?php if ($totalPages > 1): ?>
-            <nav class="mt-5">
-                <ul class="pagination eco-pagination justify-content-center">
-                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                        <li class="page-item <?= ($i == $pageNum) ? 'active' : '' ?>">
-                            <a class="page-link shadow-sm" href="?page=notification&p=<?= $i ?>"><?= $i ?></a>
-                        </li>
-                    <?php endfor; ?>
-                </ul>
-            </nav>
-        <?php endif; ?>
-
     <?php else: ?>
         <div class="text-center py-5 my-5">
             <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
@@ -149,42 +137,35 @@
 <script>
 // 1. Hàm xử lý khi click vào 1 thông báo
 function handleNotificationClick(e, id, redirectUrl) {
-    // Ngăn chặn nếu người dùng đang cố bấm nút Xóa
     if (e.target.closest('button')) return;
 
-    // Gửi AJAX đánh dấu đã đọc
     fetch(`/MY_WEB/public/account/readNotif/${id}`, { method: 'POST' })
     .then(() => {
-        // Sau khi báo API thành công, lập tức chuyển hướng
         window.location.href = redirectUrl;
     })
     .catch(() => {
-        // Nếu lỗi mạng, vẫn cho phép chuyển hướng
         window.location.href = redirectUrl;
     });
 }
 
-// 2. Xóa 1 thông báo (Ngăn nổi bọt)
+// 2. Xóa 1 thông báo
 function deleteSingleNotification(e, id, isRead) {
-    e.stopPropagation(); // Ngăn kích hoạt hành động handleNotificationClick ở thẻ cha
+    e.stopPropagation(); 
     
     if(confirm('Xóa thông báo này?')) {
         fetch(`/MY_WEB/public/account/deleteNotif/${id}`, { method: 'POST' })
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                // Hiệu ứng biến mất
                 const el = document.getElementById('notif-' + id);
                 el.style.opacity = 0;
                 el.style.transform = 'translateY(-10px)';
                 setTimeout(() => el.remove(), 200);
 
-                // Nếu xóa thông báo CHƯA ĐỌC, ta giảm số trên cái Chuông đi 1
                 if (isRead == 0) {
                     updateBadgeCount(-1);
                 }
                 
-                // Nếu xóa hết sạch thẻ trên màn hình thì tự reload để hiện giao diện Trống
                 setTimeout(() => {
                     if(document.querySelectorAll('.notif-card').length === 0) window.location.reload();
                 }, 250);
@@ -202,7 +183,7 @@ function updateBadgeCount(change) {
         
         let newCount = currentCount + change;
         if (newCount <= 0) {
-            badge.remove(); // Xóa cục đỏ nếu hết
+            badge.remove();
         } else {
             badge.innerText = newCount > 99 ? '99+' : newCount;
         }

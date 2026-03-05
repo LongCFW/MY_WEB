@@ -27,4 +27,10 @@ class UserCoupon extends Model {
         // Chuyển mảng đa chiều thành mảng 1 chiều chứa các coupon_id
         return array_column($result, 'coupon_id');
     }
+
+    // Xóa mã giảm giá khỏi ví của khách hàng
+    public function removeCouponFromWallet($userId, $couponId) {
+        $sql = "DELETE FROM {$this->table} WHERE user_id = ? AND coupon_id = ?";
+        return $this->db->query($sql, [$userId, $couponId]);
+    }
 }

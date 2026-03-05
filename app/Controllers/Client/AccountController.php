@@ -32,63 +32,42 @@ class AccountController extends Controller
         if ($pageNum < 1) $pageNum = 1;
         $offset = ($pageNum - 1) * $limit;
 
+        // chỉ dùng tạm, nên ưu tiên pagination nếu là thương mại điện tử lớn hoặc tăng limit lớn hơn
         $data = [
             'user' => $user,
             'current_page' => $currentPage,
-            'page_title' => 'Tài khoản của tôi',
-            'pageNum' => $pageNum,
-            'totalPages' => 0
+            'page_title' => 'Tài khoản của tôi',            
         ];
 
-        // 1. QUẢN LÝ ĐƠN HÀNG
+        // 1. QUẢN LÝ ĐƠN HÀNG (Lấy 50 đơn gần nhất)
         if ($currentPage == 'orders') {
             $orderModel = $this->model('Order');
-
-            // Lấy dữ liệu phân trang
-            $data['orders'] = $orderModel->getOrdersByUserId($userId, $limit, $offset);
-            $totalItems = $orderModel->countOrdersByUserId($userId);
-
-            // Tính toán
-            $data['totalPages'] = ceil($totalItems / $limit);
+            $data['orders'] = $orderModel->getOrdersByUserId($userId, 50, 0); 
         }
 
-        // 2. SỔ ĐỊA CHỈ
+        // 2. SỔ ĐỊA CHỈ (Lấy tất cả)
         if ($currentPage == 'address') {
             $addrModel = $this->model('ShippingAddress');
-
-            $data['addresses'] = $addrModel->getByUserId($userId, $limit, $offset);
-            $totalItems = $addrModel->countByUserId($userId);
-
-            $data['totalPages'] = ceil($totalItems / $limit);
+            $data['addresses'] = $addrModel->getByUserId($userId, 50, 0); 
         }
 
-        // 3. SẢN PHẨM YÊU THÍCH (Đã làm trước đó)
+        // 3. SẢN PHẨM YÊU THÍCH (Lấy 50 món)
         if ($currentPage == 'wishlist') {
             $wishlistModel = $this->model('Wishlist');
-
-            $data['wishlistItems'] = $wishlistModel->getWishlistItems($userId, $limit, $offset);
-            $totalItems = $wishlistModel->countWishlistItems($userId);
-
-            $data['totalPages'] = ceil($totalItems / $limit);
+            $data['wishlistItems'] = $wishlistModel->getWishlistItems($userId, 50, 0);
         }
 
         // 4. VÍ VOUCHER
         if ($currentPage == 'voucher') {
             $userCouponModel = $this->model('UserCoupon');
             $data['savedCoupons'] = $userCouponModel->getSavedCoupons($userId);
-            // Có thể thêm phân trang sau này nếu muốn
         }
 
         // --- 5. THÔNG BÁO (NOTIFICATIONS) ---
         if ($currentPage == 'notification') {
             $notificationModel = $this->model('Notification');
-            
-            // Lấy danh sách thông báo phân trang
-            $data['notifications'] = $notificationModel->getUserNotifications($userId, $limit, $offset);
-            $totalItems = $notificationModel->countUserNotifications($userId);
-            $data['totalPages'] = ceil($totalItems / $limit);                    
+            $data['notifications'] = $notificationModel->getUserNotifications($userId, 50, 0);                        
         }
-
         $this->view('client/account/profile', $data);
     }
 
@@ -217,5 +196,23 @@ class AccountController extends Controller
             echo json_encode(['success' => $success]);
             exit;
         }
+    }
+
+    // --- API Xóa Voucher đã lưu khỏi Ví của khách ---
+    public function removeSavedCoupon() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_logged_in'])) {
+            $couponId = $_GET['id'] ?? 0;
+            $userId = $_SESSION['user_id'];
+
+            if ($couponId > 0) {
+                $userCouponModel = $this->model('UserCoupon');
+                $success = $userCouponModel->removeCouponFromWallet($userId, $couponId);
+                
+                echo json_encode(['success' => $success]);
+                exit;
+            }
+        }
+        echo json_encode(['success' => false, 'message' => 'Lỗi tham số hoặc chưa đăng nhập']);
+        exit;
     }
 }

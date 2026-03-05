@@ -149,7 +149,7 @@ function deleteSavedCoupon(id) {
     if(confirm('Bạn có chắc chắn muốn xóa voucher này khỏi ví không?')) {
         // [QUAN TRỌNG]: Gửi request AJAX xuống backend để xóa thực sự trong DB
         // Bạn cần thay đổi '/MY_WEB/public/api/remove_coupon' thành route thực tế của bạn
-        fetch(`/MY_WEB/public/account/remove-saved-coupon?id=${id}`, {
+        fetch(`/MY_WEB/public/account/removeSavedCoupon?id=${id}`, {
             method: 'POST', // hoặc GET tùy thiết kế hệ thống của bạn
         })
         .then(response => response.json())
