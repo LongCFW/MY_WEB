@@ -158,11 +158,12 @@ class Product extends Model {
             $params = array_merge($params, $filters['brands']);
         }
 
-        // Loại / Trọng lượng (từ bảng product_variants)
-        if (!empty($filters['types'])) {
-            $placeholders = implode(',', array_fill(0, count($filters['types']), '?'));
-            $sql .= " AND v.name IN ($placeholders)";
-            $params = array_merge($params, $filters['types']);
+       // --- [MỚI] LỌC ĐÁNH GIÁ (Thay thế cho Loại) ---
+        if (!empty($filters['ratings'])) {
+            // Lấy số sao thấp nhất khách chọn (VD: Nếu check cả "5" và "4", ta chỉ cần lọc >= 4)
+            $minRating = min($filters['ratings']);
+            $sql .= " AND COALESCE((SELECT AVG(r.rating) FROM reviews r WHERE r.product_id = p.id), 0) >= ?";
+            $params[] = $minRating;
         }
 
         return $sql;

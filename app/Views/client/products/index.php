@@ -40,35 +40,41 @@
 
                         <div class="filter-group border-bottom">
                             <div class="filter-header d-flex justify-content-between align-items-center p-3">
-                                <h6 class="fw-bold m-0 text-dark">Loại</h6>
+                                <h6 class="fw-bold m-0 text-dark">Đánh giá</h6>
                                 <i class="fas fa-chevron-down arrow-icon text-muted"></i>
                             </div>
                             <div class="filter-body">
                                 <div class="p-3 pt-0">
-                                    <?php foreach ($types as $t): ?>
-                                        <?php
-                                        // Bỏ qua nếu tên biến thể rỗng hoặc là 'Default'
-                                        if (empty($t['type']) || strtolower($t['type']) == 'default') continue;
-                                        
-                                        $inputId = 'type_' . md5($t['type']);
-                                        $isChecked = in_array($t['type'], $filters['types']) ? 'checked' : '';
-                                        ?>
-                                        <div class="custom-check-item">
+                                    <?php
+                                    // Mảng hiển thị Số Sao
+                                    $ratingRanges = [
+                                        '5' => '⭐⭐⭐⭐⭐ (5 Sao)',
+                                        '4' => '⭐⭐⭐⭐ trở lên',
+                                        '3' => '⭐⭐⭐ trở lên'
+                                    ];
+                                    
+                                    // Đảm bảo biến tồn tại tránh lỗi Undefined index
+                                    $selectedRatings = $filters['ratings'] ?? []; 
+                                    
+                                    foreach ($ratingRanges as $val => $label):
+                                        $inputId = 'rating_' . $val;
+                                        $isChecked = in_array($val, $selectedRatings) ? 'checked' : '';
+                                    ?>
+                                        <div class="custom-check-item mb-2">
                                             <input type="checkbox"
                                                 class="filter-checkbox submit-on-change"
-                                                name="type[]"
-                                                value="<?= $t['type'] ?>"
+                                                name="rating[]"
+                                                value="<?= $val ?>"
                                                 id="<?= $inputId ?>"
                                                 <?= $isChecked ?>>
-                                            <label class="custom-check-label" for="<?= $inputId ?>">
-                                                <?= $t['type'] ?>
+                                            <label class="custom-check-label text-warning small" style="font-size: 0.9rem;" for="<?= $inputId ?>">
+                                                <?= $label ?>
                                             </label>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
                         </div>
-
                         <div class="filter-group border-bottom">
                             <div class="filter-header d-flex justify-content-between align-items-center p-3">
                                 <h6 class="fw-bold m-0 text-dark">Khoảng Giá</h6>
@@ -83,9 +89,12 @@
                                         '300000-500000' => '300k - 500k',
                                         '500000+' => 'Trên 500k'
                                     ];
+                                    // Đảm bảo biến tồn tại
+                                    $selectedPrices = $filters['price_ranges'] ?? [];
+
                                     foreach ($priceRanges as $val => $label):
                                         $inputId = 'price_' . str_replace(['+', '-'], '', $val);
-                                        $isChecked = in_array($val, $filters['price_ranges']) ? 'checked' : '';
+                                        $isChecked = in_array($val, $selectedPrices) ? 'checked' : '';
                                     ?>
                                         <div class="custom-check-item">
                                             <input type="checkbox"
@@ -110,11 +119,12 @@
                             </div>
                             <div class="filter-body">
                                 <div class="p-3 pt-0">
-                                    <?php foreach ($brands as $b): ?>
-                                        <?php
+                                    <?php 
+                                    $selectedBrands = $filters['brands'] ?? [];
+                                    if(!empty($brands)): foreach ($brands as $b): 
                                         $inputId = 'brand_' . md5($b['brand']);
-                                        $isChecked = in_array($b['brand'], $filters['brands']) ? 'checked' : '';
-                                        ?>
+                                        $isChecked = in_array($b['brand'], $selectedBrands) ? 'checked' : '';
+                                    ?>
                                         <div class="custom-check-item">
                                             <input type="checkbox"
                                                 class="filter-checkbox submit-on-change"
@@ -126,7 +136,7 @@
                                                 <?= $b['brand'] ?>
                                             </label>
                                         </div>
-                                    <?php endforeach; ?>
+                                    <?php endforeach; endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -136,13 +146,14 @@
 
                 <div class="col-lg-9">
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm border border-light">
-                        <span class="text-muted ms-2">Tìm thấy <strong class="text-dark"><?= $pagination['total_items'] ?></strong> sản phẩm</span>
+                        <span class="text-muted ms-2">Tìm thấy <strong class="text-dark"><?= $pagination['total_items'] ?? 0 ?></strong> sản phẩm</span>
                         <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
                             <label class="text-muted small fw-bold">Sắp xếp:</label>
+                            <?php $currentSort = $filters['sort'] ?? 'default'; ?>
                             <select name="sort" class="form-select form-select-sm rounded-pill border-light bg-light fw-bold submit-on-change" style="width: 170px;">
-                                <option value="default" <?= $filters['sort'] == 'default' ? 'selected' : '' ?>>Mặc định</option>
-                                <option value="price-asc" <?= $filters['sort'] == 'price-asc' ? 'selected' : '' ?>>Giá thấp đến cao</option>
-                                <option value="price-desc" <?= $filters['sort'] == 'price-desc' ? 'selected' : '' ?>>Giá cao đến thấp</option>
+                                <option value="default" <?= $currentSort == 'default' ? 'selected' : '' ?>>Mặc định</option>
+                                <option value="price-asc" <?= $currentSort == 'price-asc' ? 'selected' : '' ?>>Giá thấp đến cao</option>
+                                <option value="price-desc" <?= $currentSort == 'price-desc' ? 'selected' : '' ?>>Giá cao đến thấp</option>
                             </select>
                         </div>
                     </div>
@@ -163,7 +174,7 @@
                         <?php endif; ?>
                     </div>
 
-                    <?php if ($pagination['total_pages'] > 1): ?>
+                    <?php if (isset($pagination['total_pages']) && $pagination['total_pages'] > 1): ?>
                         <div class="d-flex justify-content-center mt-5">
                             <nav>
                                 <ul class="pagination eco-pagination">
@@ -209,22 +220,21 @@
                     <p id="qv-desc" class="text-muted mb-4 small"></p>
 
                     <div class="mt-auto">
-    <input type="hidden" id="qv-id"> 
-    
-    <div class="d-flex gap-3">
-        <div class="input-group border rounded-pill overflow-hidden" style="width: 120px;">
-            <button type="button" class="btn btn-light border-0" onclick="document.getElementById('qv-qty').stepDown()"><i class="fas fa-minus small"></i></button>
-            <input type="number" id="qv-qty" value="1" min="1" class="form-control border-0 text-center fw-bold bg-white">
-            <button type="button" class="btn btn-light border-0" onclick="document.getElementById('qv-qty').stepUp()"><i class="fas fa-plus small"></i></button>
-        </div>
+                        <input type="hidden" id="qv-id"> 
+                        <div class="d-flex gap-3">
+                            <div class="input-group border rounded-pill overflow-hidden" style="width: 120px;">
+                                <button type="button" class="btn btn-light border-0" onclick="document.getElementById('qv-qty').stepDown()"><i class="fas fa-minus small"></i></button>
+                                <input type="number" id="qv-qty" value="1" min="1" class="form-control border-0 text-center fw-bold bg-white">
+                                <button type="button" class="btn btn-light border-0" onclick="document.getElementById('qv-qty').stepUp()"><i class="fas fa-plus small"></i></button>
+                            </div>
 
-        <button type="button" 
-                class="btn btn-success rounded-pill fw-bold px-4 flex-grow-1 shadow-sm"
-                onclick="addToCartGlobal(document.getElementById('qv-id').value, document.getElementById('qv-qty').value)">
-            Mua ngay
-        </button>
-    </div>
-</div>
+                            <button type="button" 
+                                    class="btn btn-success rounded-pill fw-bold px-4 flex-grow-1 shadow-sm"
+                                    onclick="addToCartGlobal(document.getElementById('qv-id').value, document.getElementById('qv-qty').value)">
+                                Mua ngay
+                            </button>
+                        </div>
+                    </div>
 
                     <div class="mt-4 pt-3 border-top text-center">
                         <a id="qv-link" href="#" class="text-secondary text-decoration-none small fw-bold">Xem chi tiết sản phẩm <i class="fas fa-arrow-right ms-1"></i></a>
@@ -235,22 +245,17 @@
     </div>
 </div>
 
-        <?php require_once '../app/Views/client/components/quick_view_modal.php'; ?>
+<?php require_once '../app/Views/client/components/quick_view_modal.php'; ?>
+
 <script>
-    // 1. Logic Accordion cho Bộ Lọc (QUAN TRỌNG)
     document.addEventListener('DOMContentLoaded', function() {
-        
         // --- Xử lý Accordion Filter ---
         const filterGroups = document.querySelectorAll('.filter-group');
 
         filterGroups.forEach(group => {
             const header = group.querySelector('.filter-header');
-            
-            // YÊU CẦU 2: Mặc định luôn mở (Expanded by default)
-            // Không cần kiểm tra hasChecked, luôn add class 'expanded'
-            group.classList.add('expanded');
+            group.classList.add('expanded'); // Mặc định mở
 
-            // Click header để đóng/mở (Toggle)
             if (header) {
                 header.addEventListener('click', function() {
                     group.classList.toggle('expanded');
@@ -265,12 +270,10 @@
                 const pageInput = document.getElementById('pageInput');
                 const form = document.getElementById('filterForm');
                 
-                if (pageInput) pageInput.value = 1; // Reset về trang 1
+                if (pageInput) pageInput.value = 1; // Reset về trang 1 khi lọc
                 if (form) form.submit();
             });
         });
-
-       
     });
 
     // Mobile Toggle

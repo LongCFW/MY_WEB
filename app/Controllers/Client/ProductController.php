@@ -39,7 +39,7 @@ class ProductController extends Controller {
             'category_ids' => $final_category_ids, // Sử dụng mảng ID đã được gom
             'price_ranges' => $_GET['price'] ?? [],    
             'brands'       => $_GET['brand'] ?? [],
-            'types'        => $_GET['type'] ?? []
+            'ratings' => $_GET['rating'] ?? []
         ];
 
         // 2. Lấy dữ liệu sản phẩm
@@ -48,8 +48,7 @@ class ProductController extends Controller {
         $totalPages = ceil($totalProducts / $limit);
 
         $categories = $categoryModel->all();
-        $brands = $productModel->getDistinctBrands();
-        $types = $productModel->getDistinctTypes(); // Lấy danh sách số gam
+        $brands = $productModel->getDistinctBrands();        
 
         // --- 3. LOGIC WISHLIST ---
         $wishlistModel = $this->model('Wishlist');
@@ -62,8 +61,7 @@ class ProductController extends Controller {
         $data = [
             'products' => $products,
             'categories' => $categories,
-            'brands' => $brands,
-            'types' => $types, // Truyền types ra View
+            'brands' => $brands,            
             'filters' => $filters,
             'likedIds' => $likedIds, 
             'pagination' => [
