@@ -169,4 +169,12 @@ class User extends Model {
 
         return $this->db->fetchAll($sql, $params);
     }
+
+    // --- HÀM LẤY TÀI KHOẢN ẢO ĐỂ SEEDING ĐÁNH GIÁ ---
+    // (Bạn có thể quy ước trong CSDL những User nào có role_id = 5 là tài khoản Seeding)
+    public function getSeedingUsers() {
+        // Tạm thời lấy các user khách hàng để làm mồi (bạn có thể đổi WHERE role_id = 5 sau này)
+        $sql = "SELECT id, name, avatar_url FROM {$this->table} WHERE role_id = 5 AND status = 1";
+        return $this->db->fetchAll($sql);
+    }
 }

@@ -102,13 +102,56 @@ class ProductController extends Controller {
         }
         // -------------------------------
 
+        // --- LOGIC REVIEW & RATING ---
+        $reviewModel = $this->model('Review');
+        $reviews = $reviewModel->getReviewsByProduct($id);
+        $ratingInfo = $reviewModel->getAverageRating($id);
+        
+        // Kiểm tra xem User hiện tại có được phép đánh giá không
+        $eligibleOrderId = false;
+        if(isset($_SESSION['user_id'])) {
+            $eligibleOrderId = $reviewModel->getEligibleOrderId($_SESSION['user_id'], $id);
+        }
+
         // 4. Truyền data xuống View
         $data = [
             'product' => $product,
             'relatedProducts' => $relatedProducts,
-            'likedIds' => $likedIds 
+            'likedIds' => $likedIds,
+            'reviews' => $reviews,              // Truyền danh sách bình luận
+            'ratingInfo' => $ratingInfo,        // Truyền thông tin điểm số
+            'eligibleOrderId' => $eligibleOrderId // Truyền ID đơn hàng để duyệt
         ];
 
         $this->view('client/products/detail', $data);
     }    
+
+    // API Xử lý người dùng gửi Đánh giá
+    public function submitReview() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_logged_in'])) {
+            $productId = $_POST['product_id'];
+            $orderId = $_POST['order_id'];
+            $rating = $_POST['rating'] ?? 5;
+            $comment = trim($_POST['comment'] ?? '');
+
+            $reviewModel = $this->model('Review');
+            
+            // Re-check bảo mật: Tránh trường hợp hack HTML sửa order_id
+            $checkEligibility = $reviewModel->getEligibleOrderId($_SESSION['user_id'], $productId);
+            
+            if ($checkEligibility == $orderId) {
+                $reviewModel->create([
+                    'user_id' => $_SESSION['user_id'],
+                    'product_id' => $productId,
+                    'order_id' => $orderId,
+                    'rating' => $rating,
+                    'comment' => htmlspecialchars($comment),
+                    'is_approved' => 1 // Mặc định tự động duyệt (hoặc set 0 nếu muốn Admin duyệt trước)
+                ]);
+            }
+            
+            header("Location: /MY_WEB/public/product/detail/" . $productId . "#reviews");
+            exit;
+        }
+    }
 }

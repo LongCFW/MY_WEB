@@ -273,4 +273,10 @@ class Product extends Model {
                 ORDER BY type ASC";
         return $this->db->fetchAll($sql);
     }
+
+    // --- [MỚI] HÀM LẤY DANH SÁCH SẢN PHẨM RÚT GỌN (CHO FORM SEEDING ĐÁNH GIÁ) ---
+    public function getSimpleProductList() {
+        $sql = "SELECT id, name, sku FROM {$this->table} WHERE is_active = 1 ORDER BY id DESC";
+        return $this->db->fetchAll($sql);
+    }
 }

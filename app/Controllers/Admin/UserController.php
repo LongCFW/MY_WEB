@@ -46,13 +46,32 @@ class UserController extends Controller {
                 return;
             }
 
+            // --- XỬ LÝ UPLOAD ẢNH ---
+            $avatarPath = null;
+            if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+                $ext = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
+                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                
+                if (in_array($ext, $allowed)) {
+                    $newFilename = 'avatar_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+                    $uploadDir = __DIR__ . '/../../../public/assets/uploads/avatars/';
+                    
+                    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+                    
+                    if (move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadDir . $newFilename)) {
+                        $avatarPath = 'assets/uploads/avatars/' . $newFilename;
+                    }
+                }
+            }
+
             $data = [
                 'name' => $name,
                 'email' => $email,
                 'phone' => $phone,
                 'password_hash' => password_hash($password, PASSWORD_DEFAULT),
                 'role_id' => $role_id,
-                'status' => 1 // Active
+                'status' => 1,
+                'avatar_url' => $avatarPath
             ];
 
             $userModel->create($data);
