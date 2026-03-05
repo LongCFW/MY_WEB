@@ -109,9 +109,9 @@
                                 </a>
                                 
                                 <?php if($order['payment_method'] == 'banking' && $order['payment_status'] == 'unpaid'): ?>
-                                    <a href="/MY_WEB/public/admin/order/confirmPayment/<?= $order['id'] ?>" class="btn btn-sm btn-success shadow-sm rounded-pill font-weight-bold px-2" onclick="return confirm('Xác nhận đã nhận đủ tiền cho đơn hàng này?');">
+                                    <button type="button" class="btn btn-sm btn-success shadow-sm rounded-pill font-weight-bold px-2" onclick="confirmPayment(<?= $order['id'] ?>, this)">
                                         <i class="fas fa-check-circle mr-1"></i> Đã nhận tiền
-                                    </a>
+                                    </button>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -132,5 +132,29 @@
         <small class="text-muted">Tổng số: <strong><?= count($orders) ?></strong> kết quả</small>
     </div>
 </div>
+
+<script>
+    function confirmPayment(orderId, btnElement) {
+        if(confirm('Xác nhận đã nhận đủ tiền cho đơn hàng này?')) {
+            // Đổi giao diện nút thành trạng thái đang xử lý để chống click nhiều lần
+            const originalHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang xử lý...';
+            btnElement.disabled = true;
+
+            // Gọi ngầm xuống Controller
+            fetch(`/MY_WEB/public/admin/order/confirmPayment/${orderId}`)
+            .then(() => {
+                // Ép trình duyệt tải lại trang (bỏ qua Cache) để hiển thị huy hiệu "Đã CK"
+                window.location.reload();
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Lỗi kết nối. Vui lòng thử lại!');
+                btnElement.innerHTML = originalHtml;
+                btnElement.disabled = false;
+            });
+        }
+    }
+</script>
 
 <?php require_once '../app/Views/layouts/admin/footer.php'; ?>
