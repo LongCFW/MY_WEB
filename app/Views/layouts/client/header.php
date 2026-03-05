@@ -87,13 +87,23 @@ if (isset($_SESSION['user_logged_in'])) {
             border-radius: 12px;
             z-index: 1000;
             padding: 10px 0;
-            border: 1px solid #eee;
-            margin-top: 10px;
+            border: 1px solid #eee;            
+            transform: translateY(10px);
+        }
+
+        .category-dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -15px; /* Phủ kín khoảng cách 10px phía trên */
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: transparent;
         }
 
         .category-menu-wrapper:hover .category-dropdown-menu {
             display: block;
-            animation: fadeIn 0.2s ease-in-out;
+            animation: fadeIn 0.2s ease-in-out forwards;
         }
 
         .cat-parent {
@@ -153,15 +163,14 @@ if (isset($_SESSION['user_logged_in'])) {
             font-weight: bold;
         }
 
-        @keyframes fadeIn {
+        @keyframes fadeInMenu {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(15px);
             }
-
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(10px); /* Giữ lại khoảng hở đẹp mắt */
             }
         }
 
