@@ -44,19 +44,6 @@
     </div>    
 </section>
 
-<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content bg-transparent border-0">
-            <div class="modal-body p-0 position-relative">
-                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 z-3" data-bs-dismiss="modal"></button>
-                <div class="ratio ratio-16x9 rounded-4 overflow-hidden shadow-lg">
-                    <iframe src="https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=0&mute=0" title="EcoStore Story" allowfullscreen></iframe>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <section class="mb-5 mt-n5 position-relative z-2">
     <div class="container">
         <div class="row g-4 justify-content-center">
@@ -91,7 +78,7 @@
         <div class="row g-4 justify-content-center">
             <?php foreach($categories as $cat): ?>
             <div class="col-6 col-md-4 col-lg-2">
-                <a href="/MY_WEB/public/product?cat=<?= $cat['name'] ?>" class="text-decoration-none">
+                <a href="/MY_WEB/public/product?category=<?= $cat['id'] ?>" class="text-decoration-none">
                     <div class="category-item">
                         <div class="cat-img-wrap mb-3 shadow-sm">
                             <img src="<?= $cat['img'] ?>" alt="<?= $cat['name'] ?>">
@@ -132,18 +119,11 @@
                         <img src="<?= $img ?>" class="card-img-top object-fit-contain p-3" height="200" alt="<?= $p['name'] ?>">
                         
                         <div class="product-action-overlay">
-                            <?php 
-        // Kiểm tra xem sản phẩm này có trong danh sách đã thích không
-        $isLiked = in_array($p['id'], $wishlistProductIds ?? []); 
-    ?>
-    <button class="btn btn-white rounded-circle shadow m-1 text-danger" 
-            title="Yêu thích" 
-            onclick="toggleWishlist(this, <?= $p['id'] ?>)">
-        
-        <i class="<?= $isLiked ? 'fas' : 'far' ?> fa-heart"></i>
-    </button>
-                            <button class="btn btn-white rounded-circle shadow m-1 text-primary" title="Xem nhanh" 
-                                    data-bs-toggle="modal" data-bs-target="#quickViewModal<?= $p['id'] ?>">
+                            <?php $isLiked = in_array($p['id'], $wishlistProductIds ?? []); ?>
+                            <button class="btn btn-white rounded-circle shadow m-1 text-danger" title="Yêu thích" onclick="toggleWishlist(this, <?= $p['id'] ?>)">
+                                <i class="<?= $isLiked ? 'fas' : 'far' ?> fa-heart"></i>
+                            </button>
+                            <button class="btn btn-white rounded-circle shadow m-1 text-primary" title="Xem nhanh" data-bs-toggle="modal" data-bs-target="#quickViewModal<?= $p['id'] ?>">
                                 <i class="far fa-eye"></i>
                             </button>
                         </div>
@@ -198,6 +178,67 @@
     </div>
 </section>
 
+<section class="mb-5 py-5 bg-white">
+    <div class="container">
+        <h3 class="section-title text-center mb-5">Trải Nghiệm Cùng EcoStore</h3>
+        <div class="row g-4">
+            
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden cursor-pointer btn-hover-up" data-bs-toggle="modal" data-bs-target="#certModal">
+                    <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80" class="card-img-top" style="height: 180px; object-fit: cover; filter: brightness(0.9);">
+                    <div class="card-body text-center p-4 position-relative">
+                        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center border border-4 border-white shadow-sm" style="width: 70px; height: 70px; margin-top: -65px; position: relative; z-index: 2;">
+                            <i class="fas fa-award fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mt-3">Tiêu Chuẩn Chất Lượng</h5>
+                        <p class="text-muted small mb-0">Hệ thống chứng nhận chuẩn hữu cơ quốc tế được kiểm định khắt khe.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden cursor-pointer btn-hover-up" data-bs-toggle="modal" data-bs-target="#guideModal">
+                    <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=600&q=80" class="card-img-top" style="height: 180px; object-fit: cover; filter: brightness(0.9);">
+                    <div class="card-body text-center p-4 position-relative">
+                        <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center border border-4 border-white shadow-sm" style="width: 70px; height: 70px; margin-top: -65px; position: relative; z-index: 2;">
+                            <i class="fas fa-book-open fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mt-3">Cẩm Nang Sống Xanh</h5>
+                        <p class="text-muted small mb-0">Bí quyết bảo quản thực phẩm khoa học, giữ trọn vẹn giá trị dinh dưỡng.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden cursor-pointer btn-hover-up" data-bs-toggle="modal" data-bs-target="#farmModal">
+                    <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=600&q=80" class="card-img-top" style="height: 180px; object-fit: cover; filter: brightness(0.9);">
+                    <div class="card-body text-center p-4 position-relative">
+                        <div class="bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center border border-4 border-white shadow-sm" style="width: 70px; height: 70px; margin-top: -65px; position: relative; z-index: 2;">
+                            <i class="fas fa-tractor fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mt-3">Câu Chuyện Nông Trại</h5>
+                        <p class="text-muted small mb-0">Khám phá hành trình "Từ nông trại đến bàn ăn" với tiêu chuẩn 3 KHÔNG.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body p-0 position-relative">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 z-3" data-bs-dismiss="modal"></button>
+                <div class="ratio ratio-16x9 rounded-4 overflow-hidden shadow-lg">
+                    <iframe src="https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=0&mute=0" title="EcoStore Story" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="voucherModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0" style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);">
@@ -206,16 +247,12 @@
                 <div class="bg-white rounded-circle d-inline-flex p-3 mb-3 shadow-sm text-success">
                     <i class="fas fa-gift fs-1"></i>
                 </div>
-                <h3 class="fw-bold text-dark">Quà Tặng Cho Bạn!</h3>
-                <p class="text-dark opacity-75">Nhập mã bên dưới để được giảm 20% cho đơn hàng đầu tiên.</p>
-                
+                <h3 class="fw-bold text-dark">Quà Tặng Chào Bạn Mới!</h3>
+                <p class="text-dark opacity-75">Sử dụng mã bên dưới để được giảm 20% cho đơn hàng đầu tiên.</p>
                 <div class="bg-white border-2 border-dashed border-success p-3 rounded-3 mb-3 mx-auto" style="max-width: 300px; border-style: dashed;">
                     <h2 class="fw-bold text-success mb-0 ls-2">ECO2026</h2>
                 </div>
-                
-                <button class="btn btn-dark rounded-pill px-4 w-100" onclick="navigator.clipboard.writeText('ECO2026'); alert('Đã sao chép mã!');">
-                    Sao chép mã
-                </button>
+                <button class="btn btn-dark rounded-pill px-4 w-100" onclick="navigator.clipboard.writeText('ECO2026'); alert('Đã sao chép mã!');">Sao chép mã</button>
             </div>
         </div>
     </div>
@@ -229,17 +266,11 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-0">
-                <div class="d-flex">
-                    <div class="nav flex-column nav-pills p-3 bg-light" style="width: 200px;" id="v-pills-tab" role="tablist">
-                        <button class="nav-link active text-start rounded-3 mb-2 fw-bold" id="tab-shipping" data-bs-toggle="pill" data-bs-target="#content-shipping" type="button">
-                            <i class="fas fa-truck me-2"></i> Giao hàng
-                        </button>
-                        <button class="nav-link text-start rounded-3 mb-2 fw-bold" id="tab-return" data-bs-toggle="pill" data-bs-target="#content-return" type="button">
-                            <i class="fas fa-undo me-2"></i> Đổi trả
-                        </button>
-                        <button class="nav-link text-start rounded-3 fw-bold" id="tab-contact" data-bs-toggle="pill" data-bs-target="#content-contact" type="button">
-                            <i class="fas fa-headset me-2"></i> Liên hệ
-                        </button>
+                <div class="d-flex flex-column flex-md-row">
+                    <div class="nav flex-column nav-pills p-3 bg-light" style="min-width: 200px;" id="v-pills-tab" role="tablist">
+                        <button class="nav-link active text-start rounded-3 mb-2 fw-bold" id="tab-shipping" data-bs-toggle="pill" data-bs-target="#content-shipping" type="button"><i class="fas fa-truck me-2"></i> Giao hàng</button>
+                        <button class="nav-link text-start rounded-3 mb-2 fw-bold" id="tab-return" data-bs-toggle="pill" data-bs-target="#content-return" type="button"><i class="fas fa-undo me-2"></i> Đổi trả</button>
+                        <button class="nav-link text-start rounded-3 fw-bold" id="tab-contact" data-bs-toggle="pill" data-bs-target="#content-contact" type="button"><i class="fas fa-headset me-2"></i> Liên hệ</button>
                     </div>
                     <div class="tab-content p-4 flex-grow-1" id="v-pills-tabContent">
                         <div class="tab-pane fade show active" id="content-shipping">
@@ -266,8 +297,105 @@
     </div>
 </div>
 
+<div class="modal fade" id="certModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-0 bg-light rounded-top-4 pb-0">
+                <button type="button" class="btn-close m-2" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-4 pt-0 bg-light rounded-bottom-4">
+                <i class="fas fa-seedling text-success" style="font-size: 4rem;"></i>
+                <h3 class="fw-bold text-success mt-3 mb-4">Cam Kết Chất Lượng</h3>
+                <div class="d-flex justify-content-center gap-3 mb-4">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/USDA_organic_seal.svg/1200px-USDA_organic_seal.svg.png" width="60" alt="USDA">
+                    <img src="https://vietnamorganic.vn/wp-content/uploads/2019/12/logo-eu-organic.png" width="60" alt="EU Organic" style="object-fit: contain;">
+                </div>
+                <ul class="list-unstyled text-start text-muted bg-white p-3 rounded-3 shadow-sm mx-auto" style="max-width: 90%;">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 100% Đất và nước trồng đạt chuẩn kiểm định</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Không sử dụng giống biến đổi gen (Non-GMO)</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Đạt chuẩn Global GAP và VietGAP</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="guideModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 overflow-hidden">
+            <div class="row g-0">
+                <div class="col-md-5 d-none d-md-block" style="background: url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&q=80') center/cover;"></div>
+                <div class="col-md-7 p-4 p-md-5 bg-white position-relative">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+                    <h4 class="fw-bold text-success mb-4">Mẹo Bảo Quản Thực Phẩm</h4>
+                    
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="bg-light text-success rounded-circle p-2 me-3"><i class="fas fa-temperature-low"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Nhiệt độ thích hợp</h6>
+                            <p class="text-muted small">Ngăn mát tủ lạnh ở 1°C - 4°C là lý tưởng nhất cho hầu hết các loại rau ăn lá.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="bg-light text-success rounded-circle p-2 me-3"><i class="fas fa-tint-slash"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Không rửa trước khi cất</h6>
+                            <p class="text-muted small">Độ ẩm cao làm rau củ nhanh hỏng. Chỉ nên rửa sạch ngay trước khi nấu.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start">
+                        <div class="bg-light text-success rounded-circle p-2 me-3"><i class="fas fa-box"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Sử dụng hộp/túi có lỗ thoáng</h6>
+                            <p class="text-muted small">Giúp rau củ "thở" và không bị đọng nước gây úng thối.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="farmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 overflow-hidden">
+            <div class="row g-0">
+                <div class="col-md-5 d-none d-md-block" style="background: url('https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?w=500&q=80') center/cover;"></div>
+                <div class="col-md-7 p-4 p-md-5 bg-white position-relative">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+                    <h4 class="fw-bold text-success mb-3"><i class="fas fa-leaf me-2"></i>Quy Trình 3 KHÔNG</h4>
+                    <p class="text-muted small mb-4">Chúng tôi tự hào mang đến nguồn thực phẩm minh bạch, an toàn tuyệt đối cho sức khỏe người Việt.</p>
+                    
+                    <div class="timeline-step d-flex mb-4">
+                        <div class="step-icon bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;"><i class="fas fa-seedling"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">KHÔNG hóa chất kích thích</h6>
+                            <p class="text-muted small mb-0">Mọi sản phẩm đều được phát triển tự nhiên theo đúng chu kỳ sinh trưởng.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-step d-flex mb-4">
+                        <div class="step-icon bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;"><i class="fas fa-bug-slash"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">KHÔNG thuốc trừ sâu độc hại</h6>
+                            <p class="text-muted small mb-0">Sử dụng thiên địch và các chế phẩm sinh học tự ủ để bảo vệ mùa màng.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-step d-flex">
+                        <div class="step-icon bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;"><i class="fas fa-prescription-bottle"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">KHÔNG chất bảo quản</h6>
+                            <p class="text-muted small mb-0">Thu hoạch vào buổi sáng sớm và giao trực tiếp trong ngày để giữ trọn vị tươi ngon.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // JS cho Countdown Flash Sale
     function startTimer(duration, displayHours, displayMinutes, displaySeconds) {
         var timer = duration, hours, minutes, seconds;
         setInterval(function () {
@@ -279,17 +407,14 @@
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
 
-            displayHours.textContent = hours;
-            displayMinutes.textContent = minutes;
-            displaySeconds.textContent = seconds;
+            if(displayHours) displayHours.textContent = hours;
+            if(displayMinutes) displayMinutes.textContent = minutes;
+            if(displaySeconds) displaySeconds.textContent = seconds;
 
-            if (--timer < 0) {
-                timer = duration;
-            }
+            if (--timer < 0) { timer = duration; }
         }, 1000);
     }
 
-    // JS để chuyển Tab trong modal Policy khi click từ ngoài
     function switchPolicyTab(tabName) {
         if(!tabName) return;
         var triggerEl = document.querySelector('#tab-' + tabName);
@@ -300,8 +425,10 @@
     }
 
     window.onload = function () {
-        // Timer 2 tiếng
-        startTimer(7200, document.querySelector('#hours'), document.querySelector('#minutes'), document.querySelector('#seconds'));
+        const hoursEl = document.querySelector('#hours');
+        if(hoursEl) {
+            startTimer(7200, hoursEl, document.querySelector('#minutes'), document.querySelector('#seconds'));
+        }
     };
 </script>
 
