@@ -64,8 +64,8 @@ Cấu hình gửi Mail & Đăng nhập Google (Điền thông tin của bạn đ
 
 MAIL_USERNAME=your_email@gmail.com (email này sẽ được dùng để tạo App Password)
 MAIL_PASSWORD=your_app_password (sau khi tạo app password theo hướng dẫn thành công thì copy chuỗi đó và nhập vào đây)
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CLIENT_ID="your_google_client_id"
+GOOGLE_CLIENT_SECRET="your_google_client_secret"
 ```
 
 ---
