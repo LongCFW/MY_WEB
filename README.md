@@ -1,4 +1,4 @@
-# 🌿 EcoStore - Nông Sản Sạch Từ Tâm Người Việt
+# EcoStore
 
 **EcoStore** là một nền tảng **thương mại điện tử (E-commerce)** chuyên cung cấp các sản phẩm **nông sản và thực phẩm hữu cơ**.
 
@@ -10,34 +10,32 @@ Dự án được xây dựng **từ đầu bằng PHP thuần theo mô hình MV
 
 ---
 
-# Các Tính Năng Nổi Bật 
+## Các Tính Năng Nổi Bật
 
-## Dành cho Khách hàng (Client)
+### Dành cho Khách hàng (Client)
 
-### 🔐 Xác thực
+#### Xác thực
 
 * Đăng ký / Đăng nhập tài khoản
 * **Đăng nhập bằng Google (OAuth 2.0)**
 * Quên mật khẩu → gửi **OTP qua Email** (sử dụng PHPMailer)
 
-### 🛒 Mua sắm
+#### Mua sắm
 
 * Lọc sản phẩm nâng cao:
-
   * Theo **Danh mục**
   * Theo **Khoảng giá**
   * Theo **Số sao đánh giá**
   * Theo **Thương hiệu**
 
-### 💳 Giỏ hàng & Thanh toán
+#### Giỏ hàng & Thanh toán
 
 * Quản lý giỏ hàng bằng **Database**
 * Thanh toán hỗ trợ:
-
   * **COD (Thanh toán khi nhận hàng)**
   * **Chuyển khoản ngân hàng (VietQR)**
 
-### 👤 Tài khoản cá nhân
+#### Tài khoản cá nhân
 
 Người dùng có thể:
 
@@ -48,29 +46,28 @@ Người dùng có thể:
 * Quản lý **Voucher**
 * Nhận **thông báo hệ thống**
 
-### ⭐ Tương tác
+#### Tương tác
 
 * Đánh giá sản phẩm
 * Bình luận sản phẩm
-
 *(Chỉ cho phép sau khi mua hàng thành công)*
 
 ---
 
-# 🛠 Chức Năng Quản Trị (Admin)
+## Chức Năng Quản Trị (Admin)
 
-## 📊 Dashboard
+### Dashboard
 
 * Thống kê **doanh thu**
 * Thống kê **đơn hàng**
 * Thống kê **sản phẩm**
 
-## 📦 Quản lý đơn hàng
+### Quản lý đơn hàng
 
 * Cập nhật trạng thái giao hàng
 * Xác nhận **đã nhận tiền chuyển khoản**
 
-## 🛍 Quản lý sản phẩm
+### Quản lý sản phẩm
 
 * Thêm / sửa / xóa sản phẩm
 * Upload **nhiều hình ảnh**
@@ -81,34 +78,33 @@ Ví dụ:
 * 500g
 * 1kg
 * 2kg
-
 *(mỗi biến thể có giá khác nhau)*
 
-## 🎯 Marketing
+### Marketing
 
 * Tạo **Coupon / Voucher**
 * Giới hạn **số lượt sử dụng**
 
-## 👥 Quản lý người dùng
+### Quản lý người dùng
 
 * Khóa / mở khóa tài khoản
 * Kiểm duyệt **đánh giá sản phẩm**
 
 ---
 
-# 🛠 Tech Stack
+## Tech Stack
 
-## Backend
+### Backend
 
 * **PHP 8.3**
 * OOP
 * MVC Architecture
 
-## Database
+### Database
 
 * **MySQL**
 
-## Frontend
+### Frontend
 
 * HTML5
 * CSS3
@@ -116,22 +112,16 @@ Ví dụ:
 * Vanilla JavaScript
 * AJAX (Fetch API)
 
-## Thư viện sử dụng (Composer)
+### Thư viện sử dụng (Composer)
 
-* `vlucas/phpdotenv`
-  → Quản lý biến môi trường
-
-* `phpmailer/phpmailer`
-  → Gửi email (OTP, thông báo đơn hàng)
-
-* `google/apiclient`
-  → Đăng nhập bằng Google
+* `vlucas/phpdotenv` → Quản lý biến môi trường
+* `phpmailer/phpmailer` → Gửi email (OTP, thông báo đơn hàng)
+* `google/apiclient` → Đăng nhập bằng Google
 
 ---
 
-# 📁 Cấu Trúc Thư Mục Chính
+## Cấu Trúc Thư Mục Chính
 
-```
 MY_WEB/
 │
 ├── app/
@@ -150,27 +140,24 @@ MY_WEB/
 ├── vendor/              # Thư viện Composer (ignore trên git)
 ├── .env                 # Biến môi trường (Local)
 └── ecostore.sql         # File Database mẫu
-```
 
 ---
 
-# ⚙️ Hướng Dẫn Cài Đặt
+## Hướng Dẫn Cài Đặt
 
-Vui lòng xem chi tiết tại:
+* Vui lòng xem chi tiết tại: [SETUP.md](./SETUP.md)
+  * File này sẽ hướng dẫn:
 
-```
-SETUP.md
-```
+    * Cài đặt môi trường (Laragon/XAMPP)
 
-File này sẽ hướng dẫn:
+    * Import database
 
-* Cài đặt môi trường
-* Import database
-* Cấu hình `.env`
-* Chạy project trên localhost
+    * Cấu hình .env
+
+    * Chạy project trên localhost
 
 ---
 
-# 👨‍💻 Tác giả
+## Tác giả
 
-**Mr. Long**
+* Dự án được phát triển bởi Mr. Long
