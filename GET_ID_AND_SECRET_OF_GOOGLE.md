@@ -93,3 +93,6 @@ GOOGLE_CLIENT_SECRET=xxxxxxxxxxxxxxxx
 - Email đăng nhập Google phải nằm trong **Test Users**, nếu không sẽ báo lỗi **Access blocked**.
 - Redirect URI phải **giống 100%** với URI đã cấu hình, nếu khác sẽ xảy ra lỗi **redirect_uri_mismatch**.
 - Nếu deploy lên server thật, cần thêm redirect URI của domain thật vào danh sách **Authorized redirect URIs**
+
+**Link quay lại hướng dẫn cài đặt:**
+[SETUP.md](./SETUP.md)

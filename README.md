@@ -137,4 +137,5 @@ Ví dụ:
 
 ## Tác giả
 
-* Dự án được phát triển bởi Mr. Long
+* Developed by **Long**  
+* GitHub: [LongCFW](https://github.com/LongCFW)
