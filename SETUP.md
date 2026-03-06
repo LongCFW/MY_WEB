@@ -4,8 +4,8 @@
 
 Mở Terminal (hoặc Git Bash) tại thư mục web của bạn (ví dụ: `C:\laragon\www`) và chạy lệnh:
 
-git clone [https://github.com/LongCFW/MY_WEB.git](https://github.com/LongCFW/MY_WEB.git)
-cd MY_WEB
+1. git clone [https://github.com/LongCFW/MY_WEB.git](https://github.com/LongCFW/MY_WEB.git)
+2. cd MY_WEB
 
 ## Bước 2: Cài Đặt Thư Viện (Composer)
 
