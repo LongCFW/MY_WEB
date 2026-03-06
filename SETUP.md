@@ -1,5 +1,15 @@
 # Hướng Dẫn Cài Đặt (Setup Guide)
 
+## Yêu cầu trước khi cài đặt
+
+Đảm bảo máy của bạn đã cài đặt các công cụ sau:
+
+- PHP 8.x
+- Composer
+- MySQL
+- Web Server (Laragon hoặc XAMPP)
+- Git (để clone repository)
+
 ## Bước 1: Tải mã nguồn (Clone Project)
 
 Mở Terminal (hoặc Git Bash) tại thư mục web của bạn (ví dụ: `C:\laragon\www`) và chạy lệnh:

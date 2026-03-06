@@ -19,3 +19,6 @@
      `MAIL_PASSWORD=chuỗi_16_ký_tự_vừa_copy`
 
 *Lưu ý: Không chia sẻ mã này cho bất kỳ ai.*
+
+**Link quay lại hướng dẫn cài đặt:**  
+[SETUP.md](./SETUP.md)
