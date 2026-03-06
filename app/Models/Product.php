@@ -154,16 +154,21 @@ class Product extends Model {
         // Thương hiệu
         if (!empty($filters['brands'])) {
             $placeholders = implode(',', array_fill(0, count($filters['brands']), '?'));
-            $sql .= " AND p.brand IN ($placeholders)"; // Giả sử bảng products có cột brand
+            $sql .= " AND p.brand IN ($placeholders)"; 
             $params = array_merge($params, $filters['brands']);
         }
 
-       // --- [MỚI] LỌC ĐÁNH GIÁ (Thay thế cho Loại) ---
+        // --- [CẬP NHẬT MỚI] LỌC ĐÁNH GIÁ CHÍNH XÁC ---
         if (!empty($filters['ratings'])) {
-            // Lấy số sao thấp nhất khách chọn (VD: Nếu check cả "5" và "4", ta chỉ cần lọc >= 4)
-            $minRating = min($filters['ratings']);
-            $sql .= " AND COALESCE((SELECT AVG(r.rating) FROM reviews r WHERE r.product_id = p.id), 0) >= ?";
-            $params[] = $minRating;
+            // Tạo dấu ? tương ứng số lượng sao mà khách hàng check (VD chọn 4 và 5 sao -> IN (?,?))
+            $placeholders = implode(',', array_fill(0, count($filters['ratings']), '?'));
+            
+            // Dùng FLOOR() để làm tròn xuống. VD: 4.8 sao sẽ làm tròn thành 4 sao.
+            // Như vậy sẽ lấy CHÍNH XÁC những mốc sao mà khách hàng đánh dấu tick.
+            $sql .= " AND FLOOR(COALESCE((SELECT AVG(r.rating) FROM reviews r WHERE r.product_id = p.id), 0)) IN ($placeholders)";
+            
+            // Đẩy mảng các số sao vào params
+            $params = array_merge($params, $filters['ratings']);
         }
 
         return $sql;

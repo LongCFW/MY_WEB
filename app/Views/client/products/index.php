@@ -46,14 +46,15 @@
                             <div class="filter-body">
                                 <div class="p-3 pt-0">
                                     <?php
-                                    // Mảng hiển thị Số Sao
+                                    // [CẬP NHẬT] Đã thêm 1 và 2 sao, chỉnh lại text
                                     $ratingRanges = [
                                         '5' => '⭐⭐⭐⭐⭐ (5 Sao)',
-                                        '4' => '⭐⭐⭐⭐ trở lên',
-                                        '3' => '⭐⭐⭐ trở lên'
+                                        '4' => '⭐⭐⭐⭐ (4 Sao)',
+                                        '3' => '⭐⭐⭐ (3 Sao)',
+                                        '2' => '⭐⭐ (2 Sao)',
+                                        '1' => '⭐ (1 Sao)'
                                     ];
                                     
-                                    // Đảm bảo biến tồn tại tránh lỗi Undefined index
                                     $selectedRatings = $filters['ratings'] ?? []; 
                                     
                                     foreach ($ratingRanges as $val => $label):
@@ -89,7 +90,6 @@
                                         '300000-500000' => '300k - 500k',
                                         '500000+' => 'Trên 500k'
                                     ];
-                                    // Đảm bảo biến tồn tại
                                     $selectedPrices = $filters['price_ranges'] ?? [];
 
                                     foreach ($priceRanges as $val => $label):
@@ -249,12 +249,11 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- Xử lý Accordion Filter ---
         const filterGroups = document.querySelectorAll('.filter-group');
 
         filterGroups.forEach(group => {
             const header = group.querySelector('.filter-header');
-            group.classList.add('expanded'); // Mặc định mở
+            group.classList.add('expanded'); 
 
             if (header) {
                 header.addEventListener('click', function() {
@@ -263,20 +262,18 @@
             }
         });
 
-        // --- Auto Submit khi chọn checkbox/select ---
         const filters = document.querySelectorAll('.submit-on-change');
         filters.forEach(input => {
             input.addEventListener('change', function() {
                 const pageInput = document.getElementById('pageInput');
                 const form = document.getElementById('filterForm');
                 
-                if (pageInput) pageInput.value = 1; // Reset về trang 1 khi lọc
+                if (pageInput) pageInput.value = 1; 
                 if (form) form.submit();
             });
         });
     });
 
-    // Mobile Toggle
     function toggleMobileFilter() {
         const sidebar = document.getElementById('filterSidebar');
         const overlay = document.getElementById('filterOverlay');
@@ -287,7 +284,6 @@
         }
     }
 
-    // Pagination
     function changePage(page) {
         const pageInput = document.getElementById('pageInput');
         const form = document.getElementById('filterForm');
