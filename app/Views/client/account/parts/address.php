@@ -1,5 +1,3 @@
-<?php use App\Utils\Pagination; ?>
-
 <h4 class="fw-bold text-success mb-4 border-bottom pb-3">
     <i class="fas fa-map-marker-alt me-2"></i> Sổ địa chỉ nhận hàng
 </h4>
@@ -16,64 +14,71 @@
         <p class="text-muted">Bạn chưa lưu địa điểm nào.</p>
     </div>
 <?php else: ?>
-    <div class="list-group shadow-sm rounded-4 overflow-hidden">
-        <?php foreach($addresses as $addr): ?>
-        <div class="list-group-item p-3 border-0 border-bottom bg-white">
-            <div class="d-flex justify-content-between align-items-center">
-                
-                <div class="d-flex align-items-start">
-                    <div class="me-3 mt-1">
-                        <i class="fas fa-map-pin text-danger fs-5"></i>
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-center mb-1">
-                            <h6 class="fw-bold mb-0 text-dark">
-                                <?= htmlspecialchars($addr['address'] ?? $addr['address_line'] ?? '') ?>
-                            </h6>
-                            <?php if(!empty($addr['is_default'])): ?>
-                                <span class="badge bg-success ms-2 rounded-pill" style="font-size: 0.7rem;">Mặc định</span>
-                            <?php endif; ?>
+    <div class="eco-scroll-container">
+        <div class="list-group shadow-sm rounded-4 overflow-hidden mb-2">
+            <?php foreach($addresses as $addr): ?>
+            <div class="list-group-item p-3 border-0 border-bottom bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    
+                    <div class="d-flex align-items-start">
+                        <div class="me-3 mt-1">
+                            <i class="fas fa-map-pin text-danger fs-5"></i>
                         </div>
-                        
-                        <p class="text-muted small mb-0">
-                            <?= htmlspecialchars($addr['city'] ?? '') ?>
-                        </p>
+                        <div>
+                            <div class="d-flex align-items-center mb-1">
+                                <h6 class="fw-bold mb-0 text-dark">
+                                    <?= htmlspecialchars($addr['address'] ?? $addr['address_line'] ?? '') ?>
+                                </h6>
+                                <?php if(!empty($addr['is_default'])): ?>
+                                    <span class="badge bg-success ms-2 rounded-pill" style="font-size: 0.7rem;">Mặc định</span>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <p class="text-muted small mb-0">
+                                <?= htmlspecialchars($addr['city'] ?? '') ?>
+                            </p>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="dropdown">
-                    <button class="btn btn-light btn-sm rounded-circle shadow-sm" data-bs-toggle="dropdown">
-                        <i class="fas fa-ellipsis-v text-secondary"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow rounded-3">
-                        <?php if(empty($addr['is_default'])): ?>
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm rounded-circle shadow-sm" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v text-secondary"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow rounded-3">
+                            <?php if(empty($addr['is_default'])): ?>
+                                <li>
+                                    <button class="dropdown-item cursor-pointer small py-2" onclick="setAddressDefault(<?= $addr['id'] ?>)">
+                                        <i class="fas fa-check-circle text-success me-2"></i> Đặt làm mặc định
+                                    </button>
+                                </li>
+                            <?php endif; ?>
                             <li>
-                                <button class="dropdown-item cursor-pointer small py-2" onclick="setAddressDefault(<?= $addr['id'] ?>)">
-                                    <i class="fas fa-check-circle text-success me-2"></i> Đặt làm mặc định
-                                </button>
+                                <a class="dropdown-item text-danger small py-2" href="/MY_WEB/public/ShippingAddress/delete/<?= $addr['id'] ?>" onclick="return confirm('Xóa địa điểm này?')">
+                                    <i class="fas fa-trash-alt me-2"></i> Xóa địa điểm
+                                </a>
                             </li>
-                        <?php endif; ?>
-                        <li>
-                            <a class="dropdown-item text-danger small py-2" href="/MY_WEB/public/ShippingAddress/delete/<?= $addr['id'] ?>" onclick="return confirm('Xóa địa điểm này?')">
-                                <i class="fas fa-trash-alt me-2"></i> Xóa địa điểm
-                            </a>
-                        </li>
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
             </div>
+            <?php endforeach; ?>
         </div>
-        <?php endforeach; ?>
     </div>
 <?php endif; ?>
 
-<div class="py-3">
-    <?php 
-        // Biến $pageNum và $totalPages ĐƯỢC TRUYỀN TỪ AccountController
-        if (isset($pageNum) && isset($totalPages)) {
-            echo Pagination::render($pageNum, $totalPages, 'p'); 
-        }
-    ?>
-</div>
+<style>
+    /* CSS Khung cuộn chung cho tất cả các trang Account */
+    .eco-scroll-container {
+        max-height: 480px; 
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 8px; 
+    }
+    .eco-scroll-container::-webkit-scrollbar { width: 6px; }
+    .eco-scroll-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    .eco-scroll-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+    .eco-scroll-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+</style>
 
 <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -89,12 +94,10 @@
                         <label class="form-label fw-bold small">Tỉnh / Thành phố</label>
                         <input type="text" name="city" class="form-control rounded-3 bg-light" required placeholder="Ví dụ: TP. Hồ Chí Minh">
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label fw-bold small">Địa chỉ chi tiết</label>
                         <textarea name="address" class="form-control rounded-3 bg-light" rows="3" required placeholder="Số nhà, tên đường, phường/xã..."></textarea>
                     </div>
-
                     <div class="form-check bg-light p-3 rounded-3 border">
                         <input class="form-check-input" type="checkbox" name="is_default" id="defaultCheck">
                         <label class="form-check-label small fw-bold cursor-pointer" for="defaultCheck">

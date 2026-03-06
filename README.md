@@ -1,183 +1,163 @@
-# Ecostore – Website Bán Hàng Nông Sản Hữu Cơ
+# EcoStore
 
-**Ecostore** là hệ thống thương mại điện tử chuyên cung cấp các sản phẩm xanh, sạch. Website được xây dựng từ đầu (From Scratch) theo mô hình **Pure MVC** (Model-View-Controller) của PHP, không sử dụng Framework có sẵn, nhằm tối ưu hiệu năng và dễ dàng kiểm soát luồng dữ liệu.
+**EcoStore** là một nền tảng **thương mại điện tử (E-commerce)** chuyên cung cấp các sản phẩm **nông sản và thực phẩm hữu cơ**.
 
-Điểm đặc biệt của dự án là logic xử lý **Quản lý tồn kho chặt chẽ (Stock Management)** và **Bảo mật phiên làm việc thời gian thực**.
+Dự án được xây dựng **từ đầu bằng PHP thuần theo mô hình MVC (Object-Oriented Programming)**, **không sử dụng PHP Framework**, nhằm mục đích hiểu sâu về:
 
----
-
-## Công nghệ sử dụng
-
-    Backend
-    **Ngôn ngữ:** PHP (Pure MVC Architecture).
-    **Database:** MySQL.
-    **Core Logic:**
-    * `PDO`: Kết nối cơ sở dữ liệu an toàn, chống SQL Injection.
-    * `Transaction`: Xử lý giao dịch khi thanh toán để đảm bảo toàn vẹn dữ liệu.
-    * `Session Management`: Quản lý phiên đăng nhập riêng biệt cho Admin và User.
-
-    Frontend
-    **HTML5 / CSS3**: Giao diện hiện đại, Responsive.
-    **Bootstrap 5**: Framework UI chính (Grid system, Modals, Forms).
-    **JavaScript / jQuery**: Xử lý các tác vụ phía client.
-    **AJAX**: Thêm vào giỏ hàng, Yêu thích sản phẩm (Wishlist) không cần tải lại trang.
-    **FontAwesome**: Bộ icon.
+* Kiến trúc hệ thống
+* Luồng xử lý request
+* Cách tổ chức code theo mô hình MVC
 
 ---
 
-## Tính năng nổi bật
+## Các Tính Năng Nổi Bật
 
-    1. Quản lý Tồn kho & Đơn hàng (Advanced)
-    
-    **Kiểm soát tồn kho thực tế:**
-    * Hiển thị trạng thái "Hết hàng" (Badge, làm mờ sản phẩm) ngay trên giao diện khi `stock = 0`.
-    * Chặn thêm vào giỏ hàng nếu số lượng mua lớn hơn số lượng tồn.
-    
-    **Xử lý chống Bán khống (Overselling):**
-    * Sử dụng **Database Transaction** và **Row Locking** (`SELECT ... FOR UPDATE`) tại bước thanh toán.
-    * Đảm bảo tính nhất quán dữ liệu khi có nhiều người cùng mua một sản phẩm cuối cùng.
-    
-    **Doanh thu thực:** Hệ thống chỉ tính doanh thu cho các đơn hàng có trạng thái `Completed`.
+### Dành cho Khách hàng (Client)
 
-    2. Khách hàng (Client Side)
-    **Xác thực:** Đăng ký, Đăng nhập, Quên mật khẩu (Check trùng Email/SĐT), Đổi mật khẩu.
-    
-    **Mua sắm:**
-    * Tìm kiếm sản phẩm (Modal Global Search).
-    * Lọc sản phẩm theo Danh mục, Khoảng giá, Thương hiệu.
-    * Sắp xếp sản phẩm (Giá tăng/giảm, Tên A-Z).
+#### Xác thực
 
-    **Giỏ hàng & Thanh toán:**
-    * Giỏ hàng lưu trong Database (Persistent Cart) cho thành viên.
-    * Thanh toán COD (Cash On Delivery).
-    
-    **Tiện ích:**
-    * **Wishlist:** Thả tim sản phẩm (AJAX), lưu danh sách yêu thích.
-    * **Lịch sử đơn hàng:** Xem lại đơn hàng đã mua và trạng thái xử lý.
+* Đăng ký / Đăng nhập tài khoản
+* **Đăng nhập bằng Google (OAuth 2.0)**
+* Quên mật khẩu → gửi **OTP qua Email** (sử dụng PHPMailer)
 
-    3. Quản trị viên (Admin Dashboard)
-    **Dashboard:**
-    * Thống kê tổng quan: Doanh thu, Tổng đơn, Tổng khách hàng, Tổng sản phẩm.
-    * Biểu đồ hoặc bảng danh sách đơn hàng mới nhất.
-    
-    **Quản lý Sản phẩm (CRUD):** Thêm, sửa, xóa, cập nhật hình ảnh, giá, tồn kho.
-    
-    **Quản lý Danh mục:** Tạo và chỉnh sửa danh mục sản phẩm.
-    
-    **Quản lý Đơn hàng:**
-    * Xem chi tiết đơn hàng (Items, địa chỉ, tổng tiền).
-    * Cập nhật trạng thái đơn hàng (Pending -> Shipping -> Completed/Cancelled).
-    * **Lịch sử đơn hàng:** Ghi log ai là người cập nhật trạng thái và vào thời gian nào.
-    
-    **Quản lý Khách hàng:**
-    * Xem danh sách người dùng.
-    * **Real-time Blocking:** Khóa tài khoản người dùng. Người dùng sẽ bị đăng xuất ngay lập tức (Force Logout) nếu đang online.
+#### Mua sắm
+
+* Lọc sản phẩm nâng cao:
+  * Theo **Danh mục**
+  * Theo **Khoảng giá**
+  * Theo **Số sao đánh giá**
+  * Theo **Thương hiệu**
+
+#### Giỏ hàng & Thanh toán
+
+* Quản lý giỏ hàng bằng **Database**
+* Thanh toán hỗ trợ:
+  * **COD (Thanh toán khi nhận hàng)**
+  * **Chuyển khoản ngân hàng (VietQR)**
+
+#### Tài khoản cá nhân
+
+Người dùng có thể:
+
+* Quản lý thông tin cá nhân
+* Quản lý **sổ địa chỉ**
+* Thiết lập **địa chỉ mặc định**
+* Xem **danh sách yêu thích (Wishlist)**
+* Quản lý **Voucher**
+* Nhận **thông báo hệ thống**
+
+#### Tương tác
+
+* Đánh giá sản phẩm
+* Bình luận sản phẩm
+*(Chỉ cho phép sau khi mua hàng thành công)*
 
 ---
 
-## Cấu trúc dự án
+## Chức Năng Quản Trị (Admin)
 
-    Cấu trúc thư mục được tổ chức khoa học, phân tách rõ ràng giữa Admin và Client:
-    ```text
-    MY_WEB/
-    ├── app/                            # Chứa toàn bộ logic ứng dụng
-    │   ├── Controllers/                # Xử lý yêu cầu từ người dùng (Điều phối)
-    │   │   ├── Admin/                  # Các Controller dành cho trang quản trị (Dashboard, Product, Order...)
-    │   │   └── Client/                 # Các Controller dành cho khách hàng (Home, Cart, Checkout...)
-    │   ├── Core/                       # Lớp lõi của Framework tự build
-    │   │   │   ├── App.php             # Router, xử lý URL
-    │   │   ├── Controller.php          # Base Controller, tích hợp Middleware bảo mật
-    │   │   └── Database.php            # Wrapper PDO, xử lý kết nối và Transaction
-    │   ├── Helpers/                    # Các hàm hỗ trợ (Format tiền, Date...)
-    │   ├── Models/                     # Tương tác trực tiếp với Database (CRUD)
-    │   ├── Utils/                      # Các tiện ích mở rộng
-    │   └── Views/                      # Giao diện hiển thị (HTML/PHP)
-    │       ├── admin/                  # Giao diện Dashboard (Categories, Orders, Products, Users...)
-    │       ├── auth/                   # Giao diện Đăng nhập / Đăng ký chung
-    │       ├── client/                 # Giao diện phía người dùng
-    │       │   ├── account/            # Trang cá nhân
-    │       │   ├── cart/               # Giỏ hàng
-    │       │   ├── checkout/           # Thanh toán
-    │       │   ├── home/               # Trang chủ
-    │       │   └── products/           # Danh sách sản phẩm
-    │       └── layouts/                # Các file bố cục chung (Header, Footer, Sidebar)
-    ├── config/                         # Chứa file cấu hình Database
-    ├── node_modules/                   # Thư viện Frontend (nếu dùng npm)
-    ├── public/                         # Thư mục gốc truy cập của Web Server
-    │   ├── assets/                     # Tài nguyên tĩnh
-    │   │   ├── css/                    # File style (Global, Admin, Home...)
-    │   │   ├── images/                 # Hình ảnh giao diện
-    │   │   ├── js/                     # File Javascript xử lý sự kiện
-    │   │   └── uploads/                # Chứa ảnh sản phẩm/avatar do người dùng upload
-    │   ├── .htaccess                   # Cấu hình rewrite URL
-    │   └── index.php                   # Điểm khởi chạy ứng dụng (Entry Point)
-    ├── vendor/                         # Thư viện Composer
-    ├── .env                            # Biến môi trường
-    └── ecostore.sql                    # File backup Database
----
+### Dashboard
 
-## Hướng dẫn cài đặt & chạy dự án
+* Thống kê **doanh thu**
+* Thống kê **đơn hàng**
+* Thống kê **sản phẩm**
 
-    Bước 1: Chuẩn bị môi trường
-    Cài đặt Laragon (hoặc XAMPP) hỗ trợ PHP >= 7.4 và MySQL.
+### Quản lý đơn hàng
 
-    Start Apache và MySQL.
+* Cập nhật trạng thái giao hàng
+* Xác nhận **đã nhận tiền chuyển khoản**
 
-    Bước 2: Giải nén thư mục 
-    Di chuyển thư mục MY_WEB vào thư mục laragon/www để chạy dự án
-    Hoặc
-    Clone từ trên github [https://github.com/LongCFW/MY_WEB]
-    Lệnh để clone "git clone https://github.com/LongCFW/MY_WEB.git"
+### Quản lý sản phẩm
 
-    Bước 3: Cài đặt Database
-    Truy cập [http://localhost/phpmyadmin]
+* Thêm / sửa / xóa sản phẩm
+* Upload **nhiều hình ảnh**
+* Hỗ trợ **Product Variants**
 
-    Tạo database mới tên: ecostore_db (hoặc tên tùy chỉnh trong app/Core/Database.php).
+Ví dụ:
 
-    Import file ecostore.sql (nằm trong thư mục root của dự án) vào database vừa tạo.
+* 500g
+* 1kg
+* 2kg
+*(mỗi biến thể có giá khác nhau)*
 
-    Bước 4: Cấu hình
-    Mở file app/Core/Database.php và cập nhật thông tin kết nối nếu cần (DB_NAME, USERNAME, PASSWORD).
+### Marketing
 
-    Bước 5: Truy cập
-    Trang chủ: [http://localhost/MY_WEB/public/]
+* Tạo **Coupon / Voucher**
+* Giới hạn **số lượt sử dụng**
 
-    Admin Dashboard: [http://localhost/MY_WEB/public/admin/login]
+### Quản lý người dùng
+
+* Khóa / mở khóa tài khoản
+* Kiểm duyệt **đánh giá sản phẩm**
 
 ---
 
-## Tài khoản demo
+## Tech Stack
 
-    **Admin**
-    Email: [admin@ecostore.com]
-    Password: 123456
+### Backend
 
-    **Manager**
-    Email: [manager@ecostore.com]
-    Password: 123456
+* **PHP 8.3**
+* OOP
+* MVC Architecture
 
-    **Staff**
-    Email: [staff@ecostore.com]
-    Password: 123456
+### Database
 
-    **Customer**
-    Email: [demo@gmail.com]
-    Password: 123456
+* **MySQL**
+
+### Frontend
+
+* HTML5
+* CSS3
+* **Bootstrap 5**
+* Vanilla JavaScript
+* AJAX (Fetch API)
+
+### Thư viện sử dụng (Composer)
+
+* `vlucas/phpdotenv` → Quản lý biến môi trường
+* `phpmailer/phpmailer` → Gửi email (OTP, thông báo đơn hàng)
+* `google/apiclient` → Đăng nhập bằng Google
 
 ---
 
-## Hướng phát triển trong tương lai
+## Cấu Trúc Thư Mục Chính
 
-    Voucher: Áp dụng mã giảm giá khi thanh toán, quản lý kho voucher 
-    Thông báo: Gửi thông báo cập nhật tin tức cho người dùng real-time
-    Thanh toán Online: Tích hợp API VNPay hoặc MoMo
-    Email Marketing: Gửi email xác nhận đơn hàng tự động (PHPMailer)
-    Reviews: Cho phép khách hàng đánh giá sao và bình luận sản phẩm
-    Analytics: Biểu đồ doanh thu theo tháng/năm
+MY_WEB/
+│
+├── app/
+│   ├── Controllers/     # Logic điều khiển (Admin, Client)
+│   ├── Models/          # Tương tác Database
+│   ├── Views/           # Giao diện (HTML + PHP)
+│   ├── Core/            # Router, Database, Base Controller
+│   └── Utils/           # Helper, Pagination, Upload...
+│
+├── public/              # Document Root
+│   ├── assets/          # CSS, JS, Images, Uploads
+│   ├── .htaccess        # URL Rewrite
+│   └── index.php        # Entry Point của ứng dụng
+│
+├── config/              # File cấu hình hệ thống
+├── vendor/              # Thư viện Composer (ignore trên git)
+├── .env                 # Biến môi trường (Local)
+└── ecostore.sql         # File Database mẫu
+
+---
+
+## Hướng Dẫn Cài Đặt
+
+* Vui lòng xem chi tiết tại: [SETUP.md](./SETUP.md)
+  * File này sẽ hướng dẫn:
+
+    * Cài đặt môi trường (Laragon/XAMPP)
+
+    * Import database
+
+    * Cấu hình .env
+
+    * Chạy project trên localhost
 
 ---
 
 ## Tác giả
 
-    **Họ tên**: Lê Nguyên Bảo Long (Brian Lê)
-    **Email**: [imlongmanhme@gmail.com]
+* Dự án được phát triển bởi Mr. Long

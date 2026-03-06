@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/MY_WEB/public/assets/css/global.css">
     <link rel="stylesheet" href="/MY_WEB/public/assets/css/auth-profile.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <style>
+        .otp-input { letter-spacing: 5px; font-size: 1.5rem; text-align: center; }
+    </style>
 </head>
 <body>
 
@@ -29,50 +32,160 @@
         </a>
         
         <div class="auth-form-container" style="max-width: 450px; margin: 0 auto;">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold text-dark mb-2">Tạo Tài Khoản Mới</h2>
-                <p class="text-muted">Nhập thông tin của bạn bên dưới</p>
+            
+            <div id="step1">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold text-dark mb-2">Tạo Tài Khoản Mới</h2>
+                    <p class="text-muted">Nhập thông tin của bạn bên dưới</p>
+                </div>
+
+                <div id="registerError" class="alert alert-danger text-center rounded-3 border-0 shadow-sm mb-4 d-none">
+                    <i class="fas fa-exclamation-circle me-2"></i> <span></span>
+                </div>
+
+                <form id="registerForm">
+                    <div class="mb-3">
+                        <label class="fw-bold small text-secondary mb-1">HỌ VÀ TÊN</label>
+                        <input type="text" name="name" class="form-control modern-input border-0 bg-light py-3 px-3" placeholder="Nguyễn Văn A" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold small text-secondary mb-1">EMAIL</label>
+                        <input type="email" name="email" id="regEmail" class="form-control modern-input border-0 bg-light py-3 px-3" placeholder="name@example.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold small text-secondary mb-1">SỐ ĐIỆN THOẠI</label>
+                        <input type="text" name="phone" class="form-control modern-input border-0 bg-light py-3 px-3" placeholder="0901234567" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="fw-bold small text-secondary mb-1">MẬT KHẨU</label>
+                        <input type="password" name="password" class="form-control modern-input border-0 bg-light py-3 px-3" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+                    </div>
+
+                    <button type="submit" id="btnRegister" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm text-uppercase mb-4">
+                        Đăng Ký Thành Viên
+                    </button>
+
+                    <div class="text-center">
+                        <span class="text-muted">Đã có tài khoản? </span>
+                        <a href="/MY_WEB/public/auth/login" class="text-decoration-none fw-bold text-success">Đăng nhập</a>
+                    </div>
+                </form>
             </div>
 
-            <?php if(isset($error)): ?>
-                <div class="alert alert-danger text-center rounded-3 border-0 shadow-sm mb-4">
-                    <i class="fas fa-exclamation-circle me-2"></i> <?= $error ?>
-                </div>
-            <?php endif; ?>
-
-            <form action="/MY_WEB/public/auth/handleRegister" method="POST">
-                <div class="mb-3">
-                    <label class="fw-bold small text-secondary mb-1">HỌ VÀ TÊN</label>
-                    <input type="text" name="name" class="form-control modern-input border-0 bg-light py-3 px-3" placeholder="Nguyễn Văn A" required>
+            <div id="step2" class="d-none">
+                <div class="text-center mb-4">
+                    <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle d-inline-flex mb-3">
+                        <i class="fas fa-envelope-open-text fs-2"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark mb-2">Xác Thực Email</h2>
+                    <p class="text-muted">Chúng tôi đã gửi mã OTP 6 số đến email <br><strong id="displayEmail" class="text-dark"></strong></p>
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-bold small text-secondary mb-1">EMAIL</label>
-                    <input type="email" name="email" class="form-control modern-input border-0 bg-light py-3 px-3" placeholder="name@example.com" required>
-                </div>
+                <div id="otpError" class="alert alert-danger text-center rounded-3 border-0 shadow-sm mb-4 d-none"></div>
 
-                <div class="mb-3">
-                    <label class="fw-bold small text-secondary mb-1">SỐ ĐIỆN THOẠI</label>
-                    <input type="text" name="phone" class="form-control modern-input border-0 bg-light py-3 px-3" placeholder="0901234567" required>
-                </div>
+                <form id="otpForm">
+                    <input type="hidden" name="user_id" id="hiddenUserId">
+                    
+                    <div class="mb-4">
+                        <input type="text" name="otp" class="form-control modern-input border-0 bg-light py-3 px-3 otp-input" placeholder="------" required maxlength="6" autocomplete="off">
+                    </div>
 
-                <div class="mb-4">
-                    <label class="fw-bold small text-secondary mb-1">MẬT KHẨU</label>
-                    <input type="password" name="password" class="form-control modern-input border-0 bg-light py-3 px-3" placeholder="Tối thiểu 6 ký tự" required minlength="6">
-                </div>
+                    <button type="submit" id="btnVerify" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm text-uppercase mb-3">
+                        Xác Nhận
+                    </button>
+                    
+                    <div class="text-center">
+                        <span class="text-muted small">Không nhận được mã? </span>
+                        <a href="javascript:void(0)" class="text-decoration-none fw-bold text-success small">Gửi lại</a>
+                    </div>
+                </form>
+            </div>
 
-                <button type="submit" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm text-uppercase mb-4">
-                    Đăng Ký Thành Viên
-                </button>
-
-                <div class="text-center">
-                    <span class="text-muted">Đã có tài khoản? </span>
-                    <a href="/MY_WEB/public/auth/login" class="text-decoration-none fw-bold text-success">Đăng nhập</a>
-                </div>
-            </form>
         </div>
     </div>
 </div>
+
+<script>
+    // XỬ LÝ SUBMIT ĐĂNG KÝ BẰNG AJAX
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Chặn load trang
+        
+        const btn = document.getElementById('btnRegister');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang xử lý...';
+        btn.disabled = true;
+        
+        const formData = new FormData(this);
+
+        fetch('/MY_WEB/public/auth/handleRegister', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            btn.innerHTML = 'Đăng Ký Thành Viên';
+            btn.disabled = false;
+
+            if(data.status === 'success') {
+                // Thành công -> Ẩn step 1, Hiện step 2
+                document.getElementById('step1').classList.add('d-none');
+                document.getElementById('step2').classList.remove('d-none');
+                
+                // Truyền dữ liệu sang form OTP
+                document.getElementById('hiddenUserId').value = data.user_id;
+                document.getElementById('displayEmail').innerText = document.getElementById('regEmail').value;
+                
+                // Bật thông báo góc (SweetAlert)
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: data.message, showConfirmButton: false, timer: 4000 });
+            } else {
+                // Lỗi
+                const errBox = document.getElementById('registerError');
+                errBox.classList.remove('d-none');
+                errBox.querySelector('span').innerText = data.message;
+            }
+        })
+        .catch(error => {
+            btn.innerHTML = 'Đăng Ký Thành Viên'; btn.disabled = false;
+            alert("Có lỗi xảy ra, vui lòng thử lại!");
+        });
+    });
+
+    // XỬ LÝ SUBMIT OTP BẰNG AJAX
+    document.getElementById('otpForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('btnVerify');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang kiểm tra...';
+        btn.disabled = true;
+
+        const formData = new FormData(this);
+
+        fetch('/MY_WEB/public/auth/verifyOTP', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            btn.innerHTML = 'Xác Nhận';
+            btn.disabled = false;
+
+            if(data.status === 'success') {
+                Swal.fire({ icon: 'success', title: 'Hoàn tất!', text: data.message, showConfirmButton: false, timer: 2000 })
+                .then(() => {
+                    // Chuyển thẳng về trang chủ (vì đã tự đăng nhập ở Backend)
+                    window.location.href = '/MY_WEB/public/';
+                });
+            } else {
+                const errBox = document.getElementById('otpError');
+                errBox.classList.remove('d-none');
+                errBox.innerText = data.message;
+            }
+        })
+        .catch(error => {
+            btn.innerHTML = 'Xác Nhận'; btn.disabled = false;
+            alert("Lỗi kết nối máy chủ!");
+        });
+    });
+</script>
 
 </body>
 </html>

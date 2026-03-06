@@ -16,6 +16,42 @@ if (isset($_SESSION['user_logged_in'])) {
     // Nếu chưa đăng nhập: Đếm từ Session
     $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
 }
+
+// --- [LOGIC LẤY CÂY DANH MỤC CHO HEADER] ---
+$catTree = [];
+try {
+    if (class_exists('\App\Models\Category')) {
+        $categoryModelHeader = new \App\Models\Category();
+        $categoriesHeader = $categoryModelHeader->all();
+
+        // Chuyển mảng phẳng thành cây (Cha -> Con)
+        foreach ($categoriesHeader as $c) {
+            if (empty($c['parent_id'])) {
+                $catTree[$c['id']] = $c;
+                $catTree[$c['id']]['children'] = [];
+            }
+        }
+        foreach ($categoriesHeader as $c) {
+            if (!empty($c['parent_id']) && isset($catTree[$c['parent_id']])) {
+                $catTree[$c['parent_id']]['children'][] = $c;
+            }
+        }
+    }
+} catch (\Exception $e) {
+    // Bỏ qua nếu lỗi
+}
+
+// --- [LOGIC ĐẾM THÔNG BÁO CHƯA ĐỌC] ---
+$unreadCount = 0;
+if (isset($_SESSION['user_logged_in'])) {
+    try {
+        if (class_exists('\App\Models\Notification')) {
+            $notifModelHeader = new \App\Models\Notification();
+            $unreadCount = $notifModelHeader->countUnread($_SESSION['user_id']);
+        }
+    } catch (\Exception $e) {
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -24,6 +60,7 @@ if (isset($_SESSION['user_logged_in'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EcoStore - Sống Xanh</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/MY_WEB/public/assets/css/global.css">
@@ -31,13 +68,131 @@ if (isset($_SESSION['user_logged_in'])) {
     <link rel="stylesheet" href="/MY_WEB/public/assets/css/product.css">
     <link rel="stylesheet" href="/MY_WEB/public/assets/css/auth-profile.css">
     <link rel="stylesheet" href="/MY_WEB/public/assets/css/cart-checkout.css">
+
+    <style>
+        /* CSS cho Menu Danh Mục (Dropdown Bách Hóa Xanh) */
+        .category-menu-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .category-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            min-width: 250px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            z-index: 1000;
+            padding: 10px 0;
+            border: 1px solid #eee;            
+            transform: translateY(10px);
+        }
+
+        .category-dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -15px; /* Phủ kín khoảng cách 10px phía trên */
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: transparent;
+        }
+
+        .category-menu-wrapper:hover .category-dropdown-menu {
+            display: block;
+            animation: fadeIn 0.2s ease-in-out forwards;
+        }
+
+        .cat-parent {
+            position: relative;
+            padding: 12px 20px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .cat-parent:hover {
+            background: #f1f8f5;
+            color: #2e7d32;
+        }
+
+        .cat-parent a {
+            color: inherit;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+        }
+
+        /* Submenu con */
+        .cat-submenu {
+            display: none;
+            position: absolute;
+            top: -1px;
+            left: 100%;
+            background: #fff;
+            min-width: 220px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            min-height: 100%;
+            padding: 10px 0;
+            border: 1px solid #eee;
+        }
+
+        .cat-parent:hover .cat-submenu {
+            display: block;
+            animation: fadeInLeft 0.2s ease-in-out;
+        }
+
+        .cat-submenu a {
+            padding: 10px 20px;
+            display: block;
+            text-decoration: none;
+            color: #555;
+            transition: all 0.2s;
+        }
+
+        .cat-submenu a:hover {
+            background: #f1f8f5;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        @keyframes fadeInMenu {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(10px); /* Giữ lại khoảng hở đẹp mắt */
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
 </head>
 
 <body>
 
     <nav class="navbar navbar-expand-lg sticky-top py-3 bg-white shadow-sm" style="z-index: 1020;">
         <div class="container">
-            <a class="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2 me-lg-5" href="/MY_WEB/public/">
+            <a class="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2 me-lg-4" href="/MY_WEB/public/">
                 <div class="bg-success bg-opacity-10 p-2 rounded-circle d-flex align-items-center justify-content-center">
                     <i class="fas fa-leaf text-success"></i>
                 </div>
@@ -49,8 +204,36 @@ if (isset($_SESSION['user_logged_in'])) {
             </button>
 
             <div class="collapse navbar-collapse d-none d-lg-flex" id="basic-navbar-nav">
-                
-                <div class="mx-auto w-100 px-lg-5" style="max-width: 600px;">
+
+                <div class="category-menu-wrapper me-2">
+                    <button class="btn btn-success fw-bold rounded-pill px-4 shadow-sm py-2">
+                        <i class="fas fa-bars me-2"></i> Danh Mục
+                    </button>
+                    <div class="category-dropdown-menu">
+                        <?php if (!empty($catTree)): ?>
+                            <?php foreach ($catTree as $parent): ?>
+                                <div class="cat-parent">
+                                    <a href="/MY_WEB/public/product?category=<?= $parent['id'] ?>">
+                                        <?= htmlspecialchars($parent['name']) ?>
+                                    </a>
+                                    <?php if (!empty($parent['children'])): ?>
+                                        <i class="fas fa-chevron-right small text-muted"></i>
+                                        <div class="cat-submenu">
+                                            <?php foreach ($parent['children'] as $child): ?>
+                                                <a href="/MY_WEB/public/product?category=<?= $child['id'] ?>">
+                                                    <?= htmlspecialchars($child['name']) ?>
+                                                </a>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="p-3 text-muted small text-center">Đang cập nhật danh mục...</div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="mx-auto w-100 px-lg-3" style="max-width: 500px;">
                     <div class="position-relative w-100 cursor-pointer" data-bs-toggle="modal" data-bs-target="#searchModal">
                         <input type="text" placeholder="Tìm kiếm sản phẩm xanh..."
                             class="form-control rounded-pill border-0 bg-light py-2 ps-4 pe-5 shadow-sm"
@@ -61,20 +244,30 @@ if (isset($_SESSION['user_logged_in'])) {
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-4">
+                <div class="d-flex align-items-center gap-4 ms-auto">
                     <div class="d-flex gap-3 fw-medium">
                         <a href="/MY_WEB/public/" class="text-dark text-decoration-none hover-green pb-1">Trang chủ</a>
                         <a href="/MY_WEB/public/product" class="text-dark text-decoration-none hover-green pb-1">Sản phẩm</a>
-                        <a href="/MY_WEB/public/offers" class="text-dark text-decoration-none hover-green pb-1">Ưu đãi</a>
+                        <a href="/MY_WEB/public/offer" class="text-dark text-decoration-none hover-green pb-1">Ưu đãi</a>
                     </div>
 
                     <div class="vr text-secondary opacity-25" style="height: 25px;"></div>
 
                     <div class="d-flex align-items-center gap-3">
 
+                        <?php if (isset($_SESSION['user_logged_in'])): ?>
+                            <a href="/MY_WEB/public/account?page=notification" class="position-relative btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center text-success" style="width: 42px; height: 42px;">
+                                <i class="fas fa-bell"></i>
+                                <?php if ($unreadCount > 0): ?>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 0.65rem;">
+                                        <?= $unreadCount > 99 ? '99+' : $unreadCount ?>
+                                    </span>
+                                <?php endif; ?>
+                            </a>
+                        <?php endif; ?>
+
                         <a href="/MY_WEB/public/cart" class="position-relative btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center text-success cart-icon-hover" style="width: 42px; height: 42px;">
                             <i class="fas fa-shopping-cart"></i>
-
                             <?php if ($cartCount > 0): ?>
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 0.7rem;">
                                     <?= $cartCount ?>
@@ -103,11 +296,20 @@ if (isset($_SESSION['user_logged_in'])) {
                                             <small class="text-muted"><?= $_SESSION['user_email'] ?></small>
                                         </div>
                                     </li>
+                                    <?php
+                                    // Kiểm tra xem User đăng nhập có phải là Admin/Staff không (dựa vào session admin_role hoặc user_role)
+                                    $role = $_SESSION['admin_role'] ?? $_SESSION['user_role'] ?? null;
+                                    if ($role && in_array($role, [1, 2, 3])):
+                                    ?>
+                                        <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-bold text-success" href="/MY_WEB/public/admin/dashboard">
+                                                <i class="fas fa-tachometer-alt me-2"></i> Vào Admin Dashboard
+                                            </a></li>
+                                    <?php endif; ?>
                                     <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account">
                                             <i class="fas fa-user-circle me-2 text-success"></i> Tài khoản
                                         </a></li>
-                                        <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account?page=orders">
-                                             <i class="fa-solid fa-file-invoice-dollar me-2"></i>  Lịch sử đơn hàng
+                                    <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account?page=orders">
+                                            <i class="fa-solid fa-file-invoice-dollar me-2"></i> Lịch sử đơn hàng
                                         </a></li>
                                     <li><a class="dropdown-item rounded-2 py-2 mb-1 fw-medium" href="/MY_WEB/public/account?page=wishlist"><i class="fas fa-heart me-2 text-danger"></i> Yêu Thích</a></li>
                                     <li>

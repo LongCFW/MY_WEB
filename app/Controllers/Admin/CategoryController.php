@@ -5,28 +5,39 @@ use App\Core\Controller;
 
 class CategoryController extends Controller {
     
-    // 1. Xem danh sách
+    // 1. Xem danh sách    
     public function index() {
-        $this->checkAuth();
+        // $this->checkAuth();
         $categoryModel = $this->model('Category');
-        $categories = $categoryModel->all();
+        
+        // Bắt tham số tìm kiếm từ URL
+        $filters = [
+            'search' => trim($_GET['search'] ?? '')
+        ];
+
+        // Gọi hàm lấy dữ liệu mới viết thay vì hàm all() cũ
+        $categories = $categoryModel->getAllCategories($filters);
+        
         $this->view('admin/categories/index', ['categories' => $categories]);
     }
 
     // 2. Hiện form thêm mới
     public function create() {
-        $this->checkAuth();
-        $this->view('admin/categories/create');
+        // $this->checkAuth();
+        $categoryModel = $this->model('Category');
+        // Lấy tất cả danh mục để làm danh mục cha (trừ chính nó sau này)
+        $categories = $categoryModel->all(); 
+        $this->view('admin/categories/create', ['categories' => $categories]);
     }
 
     // 3. Xử lý lưu dữ liệu (STORE)
     public function store() {
-        $this->checkAuth();
+        // $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
             $slug = $_POST['slug']; 
             $desc = $_POST['description'];
-
+            $parent_id = !empty($_POST['parent_id']) ? $_POST['parent_id'] : NULL;
             // Xử lý upload ảnh
             $imageUrl = null;
             if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
@@ -37,6 +48,7 @@ class CategoryController extends Controller {
                 'name' => $name,
                 'slug' => $slug,
                 'description' => $desc,
+                'parent_id' => $parent_id,
                 'image_url' => $imageUrl // Lưu đường dẫn ảnh vào DB
             ];
 
@@ -49,7 +61,7 @@ class CategoryController extends Controller {
 
     // 4. Xóa
     public function delete($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         $categoryModel = $this->model('Category');
         
         // (Tùy chọn) Xóa file ảnh cũ nếu cần thiết
@@ -62,30 +74,37 @@ class CategoryController extends Controller {
 
     // 5. Hiển thị form sửa
     public function edit($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         $categoryModel = $this->model('Category');
         $category = $categoryModel->find($id);
-
+        $categories = $categoryModel->all();
         if (!$category) {
             header('Location: /MY_WEB/public/admin/category');
             exit();
         }
 
-        $this->view('admin/categories/edit', ['category' => $category]);
+        $this->view('admin/categories/edit', ['category' => $category, 'categories' => $categories]);
     }
 
     // 6. Xử lý cập nhật (UPDATE)
     public function update($id) {
-        $this->checkAuth();
+        // $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'];
             $slug = $_POST['slug'];
             $desc = $_POST['description'];
+            $parent_id = !empty($_POST['parent_id']) ? $_POST['parent_id'] : NULL;
+            
+            if ($parent_id == $id) {
+                echo "<script>alert('Không thể chọn danh mục này làm cha của chính nó!'); window.history.back();</script>";
+                exit;
+            }
 
             $data = [
                 'name' => $name,
                 'slug' => $slug,
-                'description' => $desc
+                'description' => $desc,
+                'parent_id' => $parent_id 
             ];
 
             // Kiểm tra nếu có upload ảnh mới
@@ -126,15 +145,15 @@ class CategoryController extends Controller {
         return null;
     }
 
-    private function checkAuth() {
-        if (!isset($_SESSION['admin_logged_in'])) {
-            header('Location: /MY_WEB/public/admin/auth/login');
-            exit();
-        }
-        $allowedRoles = [1, 2];
-        if (!in_array($_SESSION['admin_role'], $allowedRoles)) {
-            echo "<script>alert('Không có quyền truy cập!'); window.location.href='/MY_WEB/public/admin/dashboard';</script>";
-            exit();
-        }
-    }
+    // private function checkAuth() {
+    //     if (!isset($_SESSION['admin_logged_in'])) {
+    //         header('Location: /MY_WEB/public/admin/auth/login');
+    //         exit();
+    //     }
+    //     $allowedRoles = [1, 2];
+    //     if (!in_array($_SESSION['admin_role'], $allowedRoles)) {
+    //         echo "<script>alert('Không có quyền truy cập!'); window.location.href='/MY_WEB/public/admin/dashboard';</script>";
+    //         exit();
+    //     }
+    // }
 }

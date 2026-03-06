@@ -9,6 +9,17 @@
             <div class="card-body p-4">
                 <form action="/MY_WEB/public/admin/category/store" method="POST" enctype="multipart/form-data">
                     <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label class="font-weight-bold">Danh mục cha (Nếu có)</label>
+                            <select name="parent_id" class="form-control">
+                            <option value="">-- Là danh mục gốc --</option>
+                            <?php foreach ($categories as $cat): ?>
+                                <?php if (empty($cat['parent_id'])): ?>
+                                    <option value="<?= $cat['id'] ?>"><?= $cat['name'] ?></option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                            </select>
+                        </div>
                         <div class="form-group col-md-6">
                             <label class="font-weight-bold">Tên danh mục <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control" required placeholder="Nhập tên...">

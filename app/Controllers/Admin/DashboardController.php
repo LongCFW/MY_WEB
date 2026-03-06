@@ -16,6 +16,8 @@ class DashboardController extends Controller {
         $orderModel = $this->model('Order');
         $productModel = $this->model('Product');
         $userModel = $this->model('User');
+        $categoryModel = $this->model('Category'); // Thêm model Category
+        $couponModel = $this->model('Coupon');     // Thêm model Coupon
 
         // Lấy dữ liệu thống kê
         $revenue = $orderModel->getRealRevenue(); 
@@ -23,8 +25,17 @@ class DashboardController extends Controller {
         $stats = [
             'revenue' => $revenue, 
             'total_orders' => $orderModel->countAllOrders(),        
-            'total_products' => $productModel->countAll(),             
-            'total_users' => $userModel->countCustomers(),
+            'total_products' => $productModel->countAll(),            
+            
+            // --- [CẬP NHẬT] PHÂN TÁCH SỐ LIỆU NGƯỜI DÙNG ---
+            'total_real_users' => $userModel->countRealCustomers(), // Chỉ đếm role = 4
+            'total_seeding_users' => $userModel->countSeedingUsers(), // Chỉ đếm role = 5
+            'total_staff' => $userModel->countStaffAndAdmin(), // Admin & Staff
+            
+            // --- [CẬP NHẬT] THÊM THỐNG KÊ MỚI ---
+            'total_categories' => $categoryModel->countAll(),
+            'total_coupons' => $couponModel->countAll(),
+
             'recent_orders' => $orderModel->getRecentOrders(5)
         ];
 

@@ -52,9 +52,20 @@
                     <div class="d-flex justify-content-end mb-3">
                         <a href="/MY_WEB/public/auth/forgotPassword" class="text-decoration-none text-muted small hover-success">Quên mật khẩu?</a>
                     </div>
-                    <button type="submit" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm mb-4 text-uppercase">
+                    <button type="submit" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm mb-3 text-uppercase">
                         Đăng Nhập
                     </button>
+
+                    <div class="d-flex align-items-center mb-4">
+                        <hr class="flex-grow-1">
+                        <span class="px-3 text-muted small">HOẶC</span>
+                        <hr class="flex-grow-1">
+                    </div>
+                    
+                    <a href="<?= isset($googleLoginUrl) ? $googleLoginUrl : '#' ?>" class="btn btn-outline-dark w-100 py-3 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center mb-4 transition-hover">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" style="width: 20px; margin-right: 10px;">
+                        Đăng nhập bằng Google
+                    </a>
                     <div class="text-center mt-4">
                         <span class="text-muted">Chưa có tài khoản? </span>
                         <a href="/MY_WEB/public/auth/register" class="text-decoration-none fw-bold text-success">Đăng ký ngay</a>

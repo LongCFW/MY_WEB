@@ -1,36 +1,4 @@
-// --- TOAST FUNCTION ---
-function showToast(message) {
-    // 1. Tạo container nếu chưa có
-    let container = document.querySelector('.custom-toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.className = 'custom-toast-container';
-        document.body.appendChild(container);
-    }
-
-    // 2. Tạo element toast
-    const toast = document.createElement('div');
-    toast.className = 'custom-toast';
-    toast.innerHTML = `<i class="fas fa-check-circle"></i> <span>${message}</span>`;
-    
-    // 3. Thêm vào DOM
-    container.appendChild(toast);
-
-    // 4. Hiệu ứng hiện (sau 10ms để kích hoạt transition CSS)
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 10);
-
-    // 5. Tự động ẩn và xóa sau 2 giây
-    setTimeout(() => {
-        toast.classList.remove('show');
-        toast.addEventListener('transitionend', () => {
-            toast.remove();
-        });
-    }, 2000);
-}
-
-// --- ADD TO CART GLOBAL (UPDATED) ---
+// --- ADD TO CART GLOBAL ---
 function addToCartGlobal(productId, quantity = 1) {
     const qty = parseInt(quantity) > 0 ? parseInt(quantity) : 1;
 
@@ -47,47 +15,47 @@ function addToCartGlobal(productId, quantity = 1) {
     })
     .then(response => response.json())
     .then(data => {
+        
+        // 1. Xử lý chưa đăng nhập
+        if (data.status === 'login_required') {
+            // Dùng Alert để báo rõ ràng trước khi chuyển trang
+            Alert.error('Yêu cầu đăng nhập', data.message);
+            
+            // Đợi 1.5s để khách đọc thông báo rồi mới chuyển
+            setTimeout(() => {
+                window.location.href = '/MY_WEB/public/auth/login';
+            }, 1500);
+            return;
+        }
+
+        // 2. Xử lý thành công
         if (data.status === 'success') {
             
-            // --- [FIX] CẬP NHẬT BADGE THÔNG MINH HƠN ---
-            
-            // 1. Tìm nút cha chứa icon giỏ hàng (trong header.php bạn đã có class 'cart-icon-hover')
+            // --- Cập nhật Badge giỏ hàng  ---
             const cartIconContainer = document.querySelector('.cart-icon-hover');
-            
             if (cartIconContainer) {
-                // 2. Tìm thẻ badge bên trong
                 let badge = cartIconContainer.querySelector('.badge');
-
                 if (data.cart_count > 0) {
                     if (badge) {
-                        // Trường hợp A: Badge đã có -> Chỉ cập nhật số
                         badge.innerText = data.cart_count;
                         badge.style.display = 'inline-block';
                     } else {
-                        // Trường hợp B: Badge chưa có (lần đầu mua) -> Tạo mới thẻ SPAN
                         badge = document.createElement('span');
-                        // Copy y nguyên class từ header.php vào đây
                         badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light cart-badge';
                         badge.style.fontSize = '0.7rem';
                         badge.innerText = data.cart_count;
-                        
-                        // Chèn vào trong nút cha
                         cartIconContainer.appendChild(badge);
                     }
                 } else {
-                    // Nếu số lượng = 0 thì ẩn đi
                     if (badge) badge.style.display = 'none';
                 }
             }
 
-            // 3. Hiển thị Toast
-            if(typeof showToast === 'function') {
-                showToast(data.message);
-            } else {
-                alert(data.message);
-            }
+            // Dùng Toast mới thay cho showToast cũ
+            // Vì thêm giỏ hàng là hành động thường xuyên, dùng Toast cho nhẹ nhàng
+            Toast.success(data.message);
 
-            // 4. Đóng Modal Quick View (nếu có)
+            // Đóng Modal Quick View (nếu đang mở)
             const qvModalEl = document.getElementById('quickViewModal');
             if (qvModalEl && qvModalEl.classList.contains('show')) {
                 if (typeof bootstrap !== 'undefined') {
@@ -99,25 +67,21 @@ function addToCartGlobal(productId, quantity = 1) {
                 }
             }
         } else {
-            alert(data.message);
+            // 3. Xử lý lỗi (Ví dụ: Hết hàng)
+            // Dùng Alert vì lỗi hết hàng là quan trọng, cần khách chú ý
+            Alert.error('Rất tiếc!', data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Có lỗi xảy ra, vui lòng thử lại!');
+        Alert.error('Lỗi hệ thống', 'Có lỗi xảy ra, vui lòng thử lại sau!');
     });
 }
 
-/**
- * Toggle Wishlist
- * @param {HTMLElement} btnElement - Nút được bấm
- * @param {Number|null} productId - ID sản phẩm (dùng ở trang Home/List)
- * @param {Number|null} variantId - ID biến thể (dùng ở trang Wishlist/Detail)
- * @param {Boolean} removeRow - Có xóa dòng khỏi giao diện không (Dùng cho trang Profile)
- */
 function toggleWishlist(btnElement, productId = null, variantId = null, removeRow = false) {
     const icon = btnElement.querySelector('i');
-    // Hiệu ứng nảy nhẹ khi click để tạo cảm giác tương tác
+    
+    // Hiệu ứng nảy icon
     btnElement.style.transform = 'scale(0.8)';
     setTimeout(() => btnElement.style.transform = 'scale(1)', 200);
     
@@ -132,41 +96,49 @@ function toggleWishlist(btnElement, productId = null, variantId = null, removeRo
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            // --- XỬ LÝ UI NGAY LẬP TỨC ---
+            // --- Cập nhật UI Icon ---
             if (data.action === 'added') {
-                // Nếu đã thêm: đổi sang tim đặc màu đỏ
                 icon.classList.remove('far');
                 icon.classList.add('fas', 'text-danger');
             } else {
-                // Nếu đã xóa: đổi sang tim rỗng
                 icon.classList.remove('fas', 'text-danger');
                 icon.classList.add('far');
             }
 
-            // Xử lý riêng cho trang Profile (xóa card)
+            // Xử lý riêng cho trang Profile (xóa dòng sản phẩm)
             if (removeRow && data.action === 'removed') {
                  const targetId = variantId ? variantId : productId;
                  const col = document.getElementById('wishlist-item-' + targetId);
                  if(col) {
-                     col.style.opacity = '0'; // Hiệu ứng mờ dần
-                     setTimeout(() => col.remove(), 300); // Xóa sau khi mờ
+                     col.style.opacity = '0'; 
+                     setTimeout(() => col.remove(), 300); 
                  }
             }
 
-            // --- HIỆN TOAST THÔNG BÁO ---            
-            if (typeof showToast === 'function') {
-                // data.message từ controller gửi về là "Đã thêm..." hoặc "Đã xóa..."
-                showToast(data.message, data.action === 'added' ? 'success' : 'info');
-            }
-        } else {
-            // Xử lý lỗi (ví dụ chưa đăng nhập)
-            if(data.message && data.message.includes('đăng nhập')) {
-                 // Có thể chuyển hướng login hoặc hiện toast lỗi
-                 window.location.href = '/MY_WEB/public/auth/login';
+            // Dùng Toast mới
+            // Phân loại: Thêm thì Success (Xanh), Xóa thì Info (Xanh dương)
+            if (data.action === 'added') {
+                Toast.success(data.message);
             } else {
-                 alert(data.message);
+                Toast.info(data.message);
+            }
+
+        } else {
+            // Xử lý lỗi
+            if(data.message && data.message.includes('đăng nhập')) {
+                 Alert.error('Thông báo', 'Vui lòng đăng nhập để sử dụng tính năng yêu thích.');
+                 setTimeout(() => {
+                    window.location.href = '/MY_WEB/public/auth/login';
+                 }, 1500);
+            } else {
+                 Alert.error('Lỗi', data.message);
             }
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        // Không dùng Alert ở đây để tránh spam nếu user click liên tục lúc mất mạng
+        // Chỉ log ra console hoặc dùng Toast warning
+        Toast.warning('Không thể kết nối đến máy chủ');
+    });
 }

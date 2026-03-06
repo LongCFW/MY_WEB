@@ -81,11 +81,18 @@
                         <a href="/MY_WEB/public/account?page=wishlist" class="<?= ($current_page == 'wishlist') ? 'active' : '' ?>">
                             <i class="fas fa-heart"></i> Sản phẩm yêu thích
                         </a>
-                        <a href="#" class="<?= ($current_page == 'voucher') ? 'active' : '' ?>">
+                        <a href="/MY_WEB/public/account?page=voucher" class="<?= ($current_page == 'voucher') ? 'active' : '' ?>">
                             <i class="fas fa-ticket-alt"></i> Kho Voucher
                         </a>
-                        <a href="#" class="<?= ($current_page == 'notification') ? 'active' : '' ?>">
+                        <a href="/MY_WEB/public/account?page=notification" class="<?= ($current_page == 'notification') ? 'active' : '' ?>">
                             <i class="fas fa-bell"></i> Thông báo
+                            <?php
+                            // Lấy số đếm (nếu đã lưu từ header hoặc gọi model)
+                            $unreadCount = $unreadCount ?? 0;
+                            if ($unreadCount > 0):
+                            ?>
+                                <span class="badge bg-danger rounded-pill ms-auto"><?= $unreadCount ?></span>
+                            <?php endif; ?>
                         </a>
                         <hr class="my-2 text-muted opacity-25">
                         <a href="/MY_WEB/public/auth/logout" class="text-danger">
@@ -111,6 +118,12 @@
                             break;
                         case 'wishlist':
                             require_once 'parts/wishlist.php';
+                            break;
+                        case 'voucher':
+                            require_once 'parts/coupons.php';
+                            break;
+                        case 'notification':
+                            require_once 'parts/notifications.php';
                             break;
                         default:
                             echo "<div class='text-center py-5 text-muted'>Chức năng đang phát triển...</div>";

@@ -153,7 +153,19 @@
                                     <span class="text-muted">Phí vận chuyển:</span>
                                     <span class="fw-bold"><?= number_format($order['shipping_fee_cents']) ?> đ</span>
                                 </div>
-                                <?php if($order['tax_cents'] > 0): ?>
+
+                                <?php 
+                                    // Tính số tiền đã được giảm
+                                    $tax = $order['tax_cents'] ?? 0;
+                                    $calculatedDiscount = ($order['subtotal_cents'] + $order['shipping_fee_cents'] + $tax) - $order['total_cents'];
+                                ?>
+                                <?php if($calculatedDiscount > 0): ?>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-success"><i class="fas fa-tag"></i> Mã giảm giá:</span>
+                                    <span class="fw-bold text-success">-<?= number_format($calculatedDiscount) ?> đ</span>
+                                </div>
+                                <?php endif; ?>
+                                <?php if(isset($order['tax_cents']) && $order['tax_cents'] > 0): ?>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="text-muted">Thuế VAT:</span>
                                     <span class="fw-bold"><?= number_format($order['tax_cents']) ?> đ</span>

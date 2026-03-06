@@ -27,24 +27,28 @@ class AuthController extends Controller {
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
 
-            // Gọi Model User để tìm email
             $userModel = $this->model('User');
             $user = $userModel->findByEmail($email);
 
             if ($user) {
-                // Kiểm tra mật khẩu (Dùng password_verify cho mã hóa)
-                // Lưu ý: Lúc nãy ta insert hash mẫu, nên ở đây verify sẽ đúng
                 if (password_verify($password, $user['password_hash'])) {
                     $allowedRoles = [1, 2, 3];
-                    // Kiểm tra quyền (Role = 1 là Admin)
                     if (in_array($user['role_id'], $allowedRoles)) {
-                        // Lưu session
+                        
+                        // 1. Lưu session cho Admin (Để truy cập Dashboard)
                         $_SESSION['admin_logged_in'] = true;
                         $_SESSION['admin_id'] = $user['id'];
                         $_SESSION['admin_name'] = $user['name'];
                         $_SESSION['admin_role'] = $user['role_id'];
 
-                        // Chuyển hướng vào Dashboard
+                        // 2. ĐỒNG BỘ SESSION CHO CLIENT (Để ra trang chủ vẫn nhận diện được)
+                        $_SESSION['user_logged_in'] = true;
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['user_name'] = $user['name'];
+                        $_SESSION['user_email'] = $user['email'];
+                        $_SESSION['user_role'] = $user['role_id'];
+                        $_SESSION['user_avatar'] = $user['avatar_url'] ?? '';
+
                         header('Location: /MY_WEB/public/admin/dashboard');
                         exit();
                     } else {
@@ -57,17 +61,16 @@ class AuthController extends Controller {
                 $error = "Email không tồn tại!";
             }
 
-            // Nếu lỗi, load lại view login kèm thông báo
             $this->view('admin/auth/login', ['error' => $error]);
         }
     }
 
     // 3. Đăng xuất
     public function logout() {
-        unset($_SESSION['admin_logged_in']);
-        unset($_SESSION['admin_id']);
-        unset($_SESSION['admin_name']);
-        unset($_SESSION['admin_role']);
+        // Xóa toàn bộ Session (Cả Admin lẫn Client) để tránh kẹt trạng thái
+        session_unset();
+        session_destroy();
         header('Location: /MY_WEB/public/admin/auth/login');
+        exit();
     }
 }

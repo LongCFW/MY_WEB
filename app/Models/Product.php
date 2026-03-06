@@ -6,33 +6,73 @@ use App\Core\Model;
 class Product extends Model {
     protected $table = 'products';
 
-    // --- 1. HÀM DÀNH CHO ADMIN (KHÔI PHỤC LẠI) ---
-    public function getAllProducts() {
-        // Fix lỗi ONLY_FULL_GROUP_BY bằng cách dùng MIN()
-        $sql = "SELECT p.*, c.name as category_name, 
-                       MIN(v.price_cents) as price_cents, 
-                       SUM(v.stock) as total_stock,
-                       MIN(i.image_url) as image_url
+    // --- 1. HÀM DÀNH CHO ADMIN (KHÔI PHỤC LẠI + THÊM BỘ LỌC) ---
+    public function getAllProducts($filters = []) {
+        $sql = "SELECT p.*, c.name as category_name, parent_c.name as parent_category_name,
+                       MIN(v.price_cents) as min_price, 
+                       MAX(v.price_cents) as max_price,
+                       COALESCE(SUM(v.stock), 0) as total_stock,
+                       MIN(i.image_url) as image_url,
+                       COUNT(v.id) as variant_count,
+                       GROUP_CONCAT(v.name SEPARATOR ', ') as variant_names
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
-                LEFT JOIN product_variants v ON p.id = v.product_id 
+                LEFT JOIN categories parent_c ON c.parent_id = parent_c.id 
+                LEFT JOIN product_variants v ON p.id = v.product_id AND v.is_active = 1
                 LEFT JOIN product_images i ON p.id = i.product_id
-                GROUP BY p.id 
-                ORDER BY p.id DESC";
+                WHERE 1=1"; // Điều kiện gốc để dễ dàng nối các WHERE phía dưới
+
+        $params = [];
+
+        // --- BẮT ĐẦU XỬ LÝ LỌC ---
         
-        return $this->db->fetchAll($sql);
+        // 1. Tìm kiếm theo tên hoặc SKU
+        if (!empty($filters['search'])) {
+            $sql .= " AND (p.name LIKE ? OR p.sku LIKE ?)";
+            $params[] = "%" . $filters['search'] . "%";
+            $params[] = "%" . $filters['search'] . "%";
+        }
+
+        // 2. Lọc theo Danh mục
+        if (!empty($filters['category_id'])) {
+            // Lọc cả danh mục cha và các danh mục con của nó
+            $categoryModel = new \App\Models\Category();
+            $catIds = $categoryModel->getCategoryTreeIds($filters['category_id']);
+            $placeholders = implode(',', array_fill(0, count($catIds), '?'));
+            $sql .= " AND p.category_id IN ($placeholders)";
+            $params = array_merge($params, $catIds);
+        }
+
+        // --- KẾT THÚC LỌC ---
+
+        $sql .= " GROUP BY p.id";
+
+        // 3. Lọc theo Tình trạng Kho (Phải dùng HAVING vì total_stock là kết quả của hàm SUM)
+        if (!empty($filters['stock_status'])) {
+            if ($filters['stock_status'] == 'in_stock') {
+                $sql .= " HAVING total_stock > 0";
+            } elseif ($filters['stock_status'] == 'out_of_stock') {
+                $sql .= " HAVING total_stock <= 0";
+            }
+        }
+
+        $sql .= " ORDER BY p.id DESC";
+        
+        return $this->db->fetchAll($sql, $params);
     }
 
     // --- HÀM DÀNH CHO CLIENT (FILTER + PAGINATION) ---
     public function getFilteredProducts($filters = [], $limit = 12, $offset = 0) {
         // Xây dựng câu truy vấn cơ bản
+        // [CẬP NHẬT]: Thêm MAX(v.price_cents) as max_price để Client biết SP có nhiều mức giá
         $sql = "SELECT p.*, c.name as category_name, 
                        MIN(v.price_cents) as price_cents, 
+                       MAX(v.price_cents) as max_price,
                        MIN(i.image_url) as image_url,
                        COALESCE(SUM(v.stock), 0) as total_stock
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
-                LEFT JOIN product_variants v ON p.id = v.product_id 
+                LEFT JOIN product_variants v ON p.id = v.product_id AND v.is_active = 1
                 LEFT JOIN product_images i ON p.id = i.product_id
                 WHERE p.is_active = 1";
 
@@ -114,8 +154,21 @@ class Product extends Model {
         // Thương hiệu
         if (!empty($filters['brands'])) {
             $placeholders = implode(',', array_fill(0, count($filters['brands']), '?'));
-            $sql .= " AND p.brand IN ($placeholders)"; // Giả sử bảng products có cột brand
+            $sql .= " AND p.brand IN ($placeholders)"; 
             $params = array_merge($params, $filters['brands']);
+        }
+
+        // --- [CẬP NHẬT MỚI] LỌC ĐÁNH GIÁ CHÍNH XÁC ---
+        if (!empty($filters['ratings'])) {
+            // Tạo dấu ? tương ứng số lượng sao mà khách hàng check (VD chọn 4 và 5 sao -> IN (?,?))
+            $placeholders = implode(',', array_fill(0, count($filters['ratings']), '?'));
+            
+            // Dùng FLOOR() để làm tròn xuống. VD: 4.8 sao sẽ làm tròn thành 4 sao.
+            // Như vậy sẽ lấy CHÍNH XÁC những mốc sao mà khách hàng đánh dấu tick.
+            $sql .= " AND FLOOR(COALESCE((SELECT AVG(r.rating) FROM reviews r WHERE r.product_id = p.id), 0)) IN ($placeholders)";
+            
+            // Đẩy mảng các số sao vào params
+            $params = array_merge($params, $filters['ratings']);
         }
 
         return $sql;
@@ -123,15 +176,15 @@ class Product extends Model {
 
     // Lấy thương hiệu (Mock hoặc lấy thật)
     public function getDistinctBrands() {
-        $sql = "SELECT DISTINCT brand FROM {$this->table} 
-                WHERE brand IS NOT NULL AND brand != '' AND is_active = 1 
+        $sql = "SELECT TRIM(brand) as brand FROM {$this->table} 
+                WHERE brand IS NOT NULL AND TRIM(brand) != '' AND is_active = 1 
+                GROUP BY TRIM(brand)
                 ORDER BY brand ASC";
         
         return $this->db->fetchAll($sql);
     }
 
     public function getProductDetail($id) {
-        // Truy vấn lấy thông tin cơ bản + danh mục
         $sql = "SELECT p.*, c.name as category_name 
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
@@ -139,29 +192,28 @@ class Product extends Model {
         
         $product = $this->db->fetch($sql, [$id]);
 
-        if (!$product) {
-            return false;
-        }
+        if (!$product) return false;
 
-        // Lấy thêm danh sách ảnh (Gallery)
         $sqlImages = "SELECT image_url FROM product_images WHERE product_id = ?";
         $images = $this->db->fetchAll($sqlImages, [$id]);
-        $product['images'] = array_column($images, 'image_url'); // Chuyển về mảng 1 chiều url
+        $product['images'] = array_column($images, 'image_url');
 
-        // Lấy thông tin biến thể (Giá, SKU, Tồn kho) - Lấy cái đầu tiên làm mặc định hoặc list tất cả
-        // Giả sử ta lấy biến thể đầu tiên để hiển thị giá chính
-        $sqlVariant = "SELECT price_cents, sku, stock FROM product_variants WHERE product_id = ? LIMIT 1";
-        $variant = $this->db->fetch($sqlVariant, [$id]);
+        // [MỚI] Lấy TẤT CẢ biến thể đang hoạt động của sản phẩm này
+        $sqlVariants = "SELECT id, name, price_cents, sku, stock FROM product_variants WHERE product_id = ? AND is_active = 1";
+        $variants = $this->db->fetchAll($sqlVariants, [$id]);
+        $product['variants'] = $variants;
         
-        if ($variant) {
-            $product['price_cents'] = $variant['price_cents'];
-            $product['sku'] = $variant['sku'];
-            $product['stock'] = $variant['stock'];
+        // Gán mặc định là biến thể đầu tiên để load lần đầu
+        if (!empty($variants)) {
+            $product['price_cents'] = $variants[0]['price_cents'];
+            $product['sku'] = $variants[0]['sku'];
+            $product['stock'] = $variants[0]['stock'];
+            $product['default_variant_id'] = $variants[0]['id'];
         } else {
-            // Fallback nếu không có variant
              $product['price_cents'] = 0;
              $product['sku'] = 'N/A';
              $product['stock'] = 0;
+             $product['default_variant_id'] = 0;
         }
 
         return $product;
@@ -170,7 +222,8 @@ class Product extends Model {
     public function getRelatedProducts($categoryId, $excludeId, $limit = 4) {
         $sql = "SELECT p.*, c.name as category_name, 
                        MIN(v.price_cents) as price_cents, 
-                       MIN(i.image_url) as image_url
+                       MIN(i.image_url) as image_url,
+                       COALESCE(SUM(v.stock), 0) as total_stock
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN product_variants v ON p.id = v.product_id 
@@ -192,18 +245,15 @@ class Product extends Model {
         $variantIds = array_column($variants, 'id');
 
         if (!empty($variantIds)) {
-            // Chuyển mảng ID thành chuỗi để dùng trong câu lệnh IN (...)
-            // Ví dụ: 1,2,3
             $idsString = implode(',', array_map('intval', $variantIds));
 
-            // Bước 2: Xóa trong bảng WISHLISTS trước (Gỡ lỗi khóa ngoại 1451)
-            $this->db->query("DELETE FROM wishlists WHERE variant_id IN ($idsString)");
-
-            // Bước 3: Xóa trong bảng CART_ITEMS (Gỡ lỗi khóa ngoại giỏ hàng nếu có)
+            // DỌN SẠCH GIỎ HÀNG VÀ WISHLIST TRƯỚC KHI XÓA
             $this->db->query("DELETE FROM cart_items WHERE variant_id IN ($idsString)");
             
-            // Bước 4: Xóa các biến thể (PRODUCT_VARIANTS)
-            // (Lưu ý: Nếu bảng order_items có liên kết thì phải xóa ở đó nữa, nhưng thường order_items không xóa)
+            try {
+                $this->db->query("DELETE FROM wishlists WHERE variant_id IN ($idsString)");
+            } catch (\Exception $e) {}
+
             $this->db->query("DELETE FROM product_variants WHERE product_id = ?", [$id]);
         }
 
@@ -220,5 +270,19 @@ class Product extends Model {
         $sql = "SELECT COUNT(*) as total FROM {$this->table}";
         $result = $this->db->fetch($sql);
         return $result['total'] ?? 0;
+    }
+
+    // Lấy danh sách Loại (quy cách/trọng lượng)
+    public function getDistinctTypes() {
+        $sql = "SELECT DISTINCT name as type FROM product_variants 
+                WHERE name IS NOT NULL AND name != '' AND is_active = 1 
+                ORDER BY type ASC";
+        return $this->db->fetchAll($sql);
+    }
+
+    // --- [MỚI] HÀM LẤY DANH SÁCH SẢN PHẨM RÚT GỌN (CHO FORM SEEDING ĐÁNH GIÁ) ---
+    public function getSimpleProductList() {
+        $sql = "SELECT id, name, sku FROM {$this->table} WHERE is_active = 1 ORDER BY id DESC";
+        return $this->db->fetchAll($sql);
     }
 }

@@ -1,18 +1,18 @@
 <?php require_once '../app/Views/layouts/client/header.php'; ?>
 <link rel="stylesheet" href="/MY_WEB/public/assets/css/checkout.css">
 
-<?php 
-    $userName = $_SESSION['user_name'] ?? 'Khách hàng';
-    $userEmail = $_SESSION['user_email'] ?? '';
-    
-    // Logic tìm địa chỉ hiển thị (Mặc định)
-    $selectedAddress = null;
-    if (!empty($addresses)) {
-        foreach($addresses as $addr) {
-            if ($addr['is_default']) $selectedAddress = $addr;
-        }
-        if (!$selectedAddress) $selectedAddress = $addresses[0];
+<?php
+$userName = $_SESSION['user_name'] ?? 'Khách hàng';
+$userEmail = $_SESSION['user_email'] ?? '';
+
+// Logic tìm địa chỉ hiển thị (Mặc định)
+$selectedAddress = null;
+if (!empty($addresses)) {
+    foreach ($addresses as $addr) {
+        if ($addr['is_default']) $selectedAddress = $addr;
     }
+    if (!$selectedAddress) $selectedAddress = $addresses[0];
+}
 ?>
 
 <div class="bg-light min-vh-100 pb-5">
@@ -22,18 +22,24 @@
         </a>
 
         <div class="step-indicator">
-            <div class="step completed"><div class="step-num"><i class="fas fa-check"></i></div> Giỏ hàng</div>
+            <div class="step completed">
+                <div class="step-num"><i class="fas fa-check"></i></div> Giỏ hàng
+            </div>
             <div class="line"></div>
-            <div class="step active"><div class="step-num">2</div> Thanh toán</div>
+            <div class="step active">
+                <div class="step-num">2</div> Thanh toán
+            </div>
             <div class="line"></div>
-            <div class="step"><div class="step-num">3</div> Hoàn tất</div>
+            <div class="step">
+                <div class="step-num">3</div> Hoàn tất
+            </div>
         </div>
 
         <form action="/MY_WEB/public/checkout/process" method="POST" id="checkoutForm">
             <div class="row">
-                
+
                 <div class="col-lg-8">
-                    
+
                     <div class="card border-0 shadow-sm rounded-4 mb-3">
                         <div class="card-header bg-white py-3">
                             <h6 class="fw-bold m-0 text-success"><i class="fas fa-user-circle me-2"></i> Thông tin khách hàng</h6>
@@ -70,7 +76,7 @@
                                     <div>
                                         <div class="fw-bold">
                                             <?= $selectedAddress['address_line'] ?>
-                                            <?php if($selectedAddress['is_default']): ?>
+                                            <?php if ($selectedAddress['is_default']): ?>
                                                 <span class="badge bg-success ms-2" style="font-size: 0.7em">Mặc định</span>
                                             <?php endif; ?>
                                         </div>
@@ -127,51 +133,56 @@
                 <div class="col-lg-4">
                     <div class="card border-0 checkout-summary-card p-3 shadow-sm rounded-4 sticky-top" style="top: 100px;">
                         <h5 class="fw-bold mb-3">Đơn hàng (<?= count($cart) ?>)</h5>
-                        
+
                         <div class="checkout-items mb-3 pe-2" style="max-height: 350px; overflow-y: auto;">
-                            <?php foreach($cart as $item): ?>
-                            <div class="d-flex mb-3 position-relative pb-3 border-bottom border-light">
-                                <div class="position-relative me-3">
-                                    <?php $img = !empty($item['image']) ? "/MY_WEB/public/" . $item['image'] : "https://placehold.co/60"; ?>
-                                    <img src="<?= $img ?>" width="60" height="60" class="rounded border" style="object-fit: cover;">
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary border border-light">
-                                        <?= $item['quantity'] ?>
-                                    </span>
+                            <?php foreach ($cart as $item): ?>
+                                <div class="d-flex mb-3 position-relative pb-3 border-bottom border-light">
+                                    <div class="position-relative me-3">
+                                        <?php $img = !empty($item['image']) ? "/MY_WEB/public/" . $item['image'] : "https://placehold.co/60"; ?>
+                                        <img src="<?= $img ?>" width="60" height="60" class="rounded border" style="object-fit: cover;">
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary border border-light">
+                                            <?= $item['quantity'] ?>
+                                        </span>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 small text-truncate fw-bold" style="max-width: 180px;"><?= $item['name'] ?></h6>
+                                        <div class="text-muted small" style="font-size: 0.8rem;">Phân loại: Mặc định</div>
+                                    </div>
+                                    <div class="fw-bold text-end text-success">
+                                        <?= number_format($item['price'] * $item['quantity']) ?> đ
+                                    </div>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1 small text-truncate fw-bold" style="max-width: 180px;"><?= $item['name'] ?></h6>
-                                    <div class="text-muted small" style="font-size: 0.8rem;">Phân loại: Mặc định</div>
-                                </div>
-                                <div class="fw-bold text-end text-success">
-                                    <?= number_format($item['price'] * $item['quantity']) ?> đ
-                                </div>
-                            </div>
                             <?php endforeach; ?>
                         </div>
 
+                        <input type="hidden" name="applied_coupon_code" id="hiddenCouponCode" value="">
+
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Mã giảm giá">
-                            <button class="btn btn-outline-success" type="button">Áp dụng</button>
+                            <input type="text" id="couponInput" class="form-control text-uppercase" placeholder="Nhập mã giảm giá">
+                            <button class="btn btn-outline-success fw-bold" type="button" id="applyCouponBtn">Áp dụng</button>
                         </div>
 
                         <div class="border-top pt-3">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Tạm tính</span>
-                                <span class="fw-bold"><?= number_format($subtotal) ?> đ</span>
+                                <span id="summarySubtotal"
+                                    data-subtotal="<?= (int)$subtotal ?>">
+                                    <?= number_format($subtotal) ?> đ
+                                </span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Phí vận chuyển</span>
-                                <span class="fw-bold"><?= number_format($shipping_fee) ?> đ</span>
+                                <span class="fw-bold" id="summaryShipping" data-shipping="<?= $shipping_fee ?>"><?= number_format($shipping_fee) ?> đ</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Giảm giá</span>
-                                <span class="fw-bold text-success">- 0 đ</span>
+                                <span class="fw-bold text-success" id="summaryDiscount">- 0 đ</span>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <span class="fw-bold fs-5">Tổng cộng</span>
                                 <div>
-                                    <span class="fw-bold fs-4 text-success"><?= number_format($total) ?> đ</span>
+                                    <span class="fw-bold fs-4 text-success" id="summaryTotal"><?= number_format($total) ?> đ</span>
                                     <div class="small text-muted text-end">(Đã bao gồm VAT)</div>
                                 </div>
                             </div>
@@ -195,7 +206,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body pt-2">
-                
+
                 <ul class="nav nav-tabs nav-fill mb-3" id="addrTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active fw-bold" id="list-tab" data-bs-toggle="tab" data-bs-target="#list-pane" type="button">Địa chỉ của tôi</button>
@@ -207,23 +218,23 @@
 
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="list-pane" role="tabpanel">
-                        <?php if(empty($addresses)): ?>
+                        <?php if (empty($addresses)): ?>
                             <div class="text-center py-4">
                                 <p class="text-muted">Bạn chưa có địa chỉ nào.</p>
                                 <button class="btn btn-sm btn-success rounded-pill" onclick="document.getElementById('new-tab').click()">Thêm mới ngay</button>
                             </div>
                         <?php else: ?>
                             <div class="list-group">
-                                <?php foreach($addresses as $addr): ?>
+                                <?php foreach ($addresses as $addr): ?>
                                     <label class="list-group-item d-flex gap-3 align-items-center cursor-pointer list-group-item-action">
-                                        <input class="form-check-input flex-shrink-0" type="radio" name="modal_addr_select" value="<?= $addr['id'] ?>" 
+                                        <input class="form-check-input flex-shrink-0" type="radio" name="modal_addr_select" value="<?= $addr['id'] ?>"
                                             <?= ($selectedAddress && $selectedAddress['id'] == $addr['id']) ? 'checked' : '' ?>
                                             style="font-size: 1.2em;">
                                         <div class="flex-grow-1">
                                             <div class="d-flex align-items-center">
                                                 <span class="fw-bold me-2"><?= $addr['full_name'] ?></span>
                                                 <span class="text-muted small border-start ps-2"><?= $addr['phone'] ?></span>
-                                                <?php if($addr['is_default']): ?><span class="badge bg-success ms-auto">Mặc định</span><?php endif; ?>
+                                                <?php if ($addr['is_default']): ?><span class="badge bg-success ms-auto">Mặc định</span><?php endif; ?>
                                             </div>
                                             <div class="text-muted small mt-1">
                                                 <?= $addr['address_line'] ?>, <?= $addr['city'] ?>, <?= $addr['province'] ?>
@@ -282,6 +293,49 @@
     </div>
 </div>
 
+<div class="modal fade" id="qrModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header bg-success text-white rounded-top-4">
+                <h5 class="modal-title fw-bold"><i class="fas fa-qrcode me-2"></i>Thanh toán Chuyển khoản</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="window.location.href='/MY_WEB/public/cart'"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <h6 class="fw-bold mb-3 text-dark">Quét mã QR qua ứng dụng Ngân hàng</h6>
+
+                <div class="qr-container bg-light p-3 rounded-3 d-inline-block mb-3 border">
+                    <img id="qrImage" src="" alt="VietQR" style="width: 250px; height: 250px; object-fit: contain;">
+                </div>
+
+                <div class="payment-info text-start px-4 mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Số tiền:</span>
+                        <span class="fw-bold text-danger fs-5" id="qrAmount">0đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Nội dung CK:</span>
+                        <span class="fw-bold text-primary" id="qrOrderNumber">ORD-XXX</span>
+                    </div>
+                </div>
+
+                <div id="paymentLoader">
+                    <div class="spinner-border text-success mb-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-success fw-bold animate-pulse m-0">Đang chờ bạn thanh toán và xác nhận...</p>
+                    <small class="text-muted fst-italic">Vui lòng không đóng cửa sổ này</small>
+                </div>
+
+                <div id="paymentSuccess" class="d-none">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    <h5 class="text-success fw-bold mt-2">Thanh toán thành công!</h5>
+                    <p class="text-muted small">Hệ thống đang chuyển hướng...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // Hàm xử lý chọn địa chỉ từ Modal (Giải quyết vấn đề 2)
     function confirmChangeAddress() {
@@ -293,89 +347,236 @@
 
         const addressId = selected.value;
         const confirmMsg = "Bạn có muốn đặt địa chỉ này làm địa chỉ giao hàng mặc định cho các đơn hàng sau không?";
-        
+
         if (confirm(confirmMsg)) {
             // Gọi AJAX Set Default
             fetch(`/MY_WEB/public/ShippingAddress/setDefault/${addressId}`, {
-                method: 'GET', // Hoặc POST tùy router
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.status === 'success') {
-                    // Hiện Toast (nếu có function showToast)
-                    if(typeof showToast === 'function') showToast(data.message);
-                    else alert(data.message);
-                    
-                    // Reload để cập nhật UI
-                    setTimeout(() => location.reload(), 500); 
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(err => console.error(err));
+                    method: 'GET', // Hoặc POST tùy router
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Hiện Toast (nếu có function showToast)
+                        if (typeof showToast === 'function') showToast(data.message);
+                        else alert(data.message);
+
+                        // Reload để cập nhật UI
+                        setTimeout(() => location.reload(), 500);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(err => console.error(err));
         } else {
             // Nếu khách không muốn set default vĩnh viễn, ta chỉ reload lại trang
             // Tuy nhiên, vì code controller Checkout lấy địa chỉ Default, 
             // nên bắt buộc phải set default mới hiển thị được ở màn hình chính.
             // Vì vậy ở đây ta vẫn phải set default để UI cập nhật theo logic hiện tại.
             alert("Hệ thống sẽ cập nhật địa chỉ này cho đơn hàng hiện tại.");
-             fetch(`/MY_WEB/public/ShippingAddress/setDefault/${addressId}`, {
+            fetch(`/MY_WEB/public/ShippingAddress/setDefault/${addressId}`, {
                 method: 'GET',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             }).then(() => location.reload());
         }
     }
 
     // Hàm submit form thêm mới (Giữ nguyên logic cũ)
-   function submitNewAddress() {
-    // 1. Lấy form bằng ID chính xác (Khớp với id="addNewAddrForm" trong HTML)
-    const form = document.getElementById('addNewAddrForm');
+    function submitNewAddress() {
+        // 1. Lấy form bằng ID chính xác (Khớp với id="addNewAddrForm" trong HTML)
+        const form = document.getElementById('addNewAddrForm');
 
-    // Kiểm tra kỹ xem form có tồn tại không
-    if (!form) {
-        alert("Lỗi hệ thống: Không tìm thấy Form nhập liệu (ID: addNewAddrForm).");
-        console.error("Không tìm thấy element #addNewAddrForm");
-        return;
+        // Kiểm tra kỹ xem form có tồn tại không
+        if (!form) {
+            alert("Lỗi hệ thống: Không tìm thấy Form nhập liệu (ID: addNewAddrForm).");
+            console.error("Không tìm thấy element #addNewAddrForm");
+            return;
+        }
+
+        // 2. Tạo FormData từ form đã tìm thấy
+        const formData = new FormData(form);
+
+        // 3. Gửi AJAX
+        fetch('/MY_WEB/public/ShippingAddress/store', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    // QUAN TRỌNG: Báo hiệu AJAX để Controller trả về JSON
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                // Kiểm tra xem server có trả về HTML lỗi không
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") === -1) {
+                    return response.text().then(text => {
+                        // Log lỗi ra console để debug nếu server bị Fatal Error
+                        console.error("Server Response:", text);
+                        throw new Error("Server trả về lỗi HTML. Xem Console để biết chi tiết.");
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    location.reload(); // Load lại trang để hiện địa chỉ mới
+                } else {
+                    alert(data.message); // Hiện lỗi (ví dụ: thiếu thông tin)
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra: ' + error.message);
+            });
     }
 
-    // 2. Tạo FormData từ form đã tìm thấy
-    const formData = new FormData(form);
+    // XỬ LÝ SUBMIT ĐẶT HÀNG BẰNG AJAX
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Chặn tải lại trang
 
-    // 3. Gửi AJAX
-    fetch('/MY_WEB/public/ShippingAddress/store', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            // QUAN TRỌNG: Báo hiệu AJAX để Controller trả về JSON
-            'X-Requested-With': 'XMLHttpRequest' 
-        }
-    })
-    .then(response => {
-        // Kiểm tra xem server có trả về HTML lỗi không
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") === -1) {
-            return response.text().then(text => {
-                // Log lỗi ra console để debug nếu server bị Fatal Error
-                console.error("Server Response:", text);
-                throw new Error("Server trả về lỗi HTML. Xem Console để biết chi tiết.");
+        const btn = this.querySelector('button[type="submit"]');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang xử lý...';
+        btn.disabled = true;
+
+        const formData = new FormData(this);
+
+        fetch('/MY_WEB/public/checkout/process', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.innerHTML = 'Đặt Hàng Ngay';
+                btn.disabled = false;
+
+                if (data.status === 'error') {
+                    alert(data.message);
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                } else if (data.status === 'success') {
+                    if (data.action === 'redirect') {
+                        // Nếu là COD, chuyển thẳng qua trang thành công
+                        window.location.href = data.redirect;
+                    } else if (data.action === 'show_qr') {
+                        // Nếu là Chuyển khoản, mở Modal QR
+                        document.getElementById('qrImage').src = data.qr_url;
+                        document.getElementById('qrAmount').innerText = data.amount;
+                        document.getElementById('qrOrderNumber').innerText = data.order_number;
+
+                        const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+                        qrModal.show();
+
+                        // BẮT ĐẦU AJAX POLLING (Hỏi server 3 giây/lần)
+                        let checkInterval = setInterval(() => {
+                            fetch('/MY_WEB/public/checkout/checkPaymentStatus/' + data.order_id)
+                                .then(res => res.json())
+                                .then(statusData => {
+                                    if (statusData.status === 'paid') {
+                                        clearInterval(checkInterval); // Ngừng hỏi
+
+                                        // Đổi giao diện sang tick xanh
+                                        document.getElementById('paymentLoader').classList.add('d-none');
+                                        document.getElementById('paymentSuccess').classList.remove('d-none');
+
+                                        // Đợi 2 giây rồi chuyển qua trang Success
+                                        setTimeout(() => {
+                                            window.location.href = "/MY_WEB/public/checkout/success?order_id=" + data.order_id;
+                                        }, 2000);
+                                    }
+                                })
+                                .catch(err => console.error("Lỗi polling:", err));
+                        }, 3000); // 3000ms = 3 giây
+                    }
+                }
+            })
+            .catch(error => {
+                btn.innerHTML = 'Đặt Hàng Ngay';
+                btn.disabled = false;
+                alert("Lỗi kết nối máy chủ!");
+                console.error(error);
             });
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.status === 'success') {
-            alert(data.message);
-            location.reload(); // Load lại trang để hiện địa chỉ mới
-        } else {
-            alert(data.message); // Hiện lỗi (ví dụ: thiếu thông tin)
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Có lỗi xảy ra: ' + error.message);
     });
-}
+
+    // --- XỬ LÝ ÁP DỤNG MÃ GIẢM GIÁ ---
+    document.getElementById('applyCouponBtn').addEventListener('click', function() {
+        const codeInput = document.getElementById('couponInput');
+        const code = codeInput.value.trim();
+        const btn = this;
+
+        if (!code) {
+            alert("Vui lòng nhập mã giảm giá!");
+            return;
+        }
+
+        // Lấy subtotal từ HTML
+        const subtotal = parseInt(document.getElementById('summarySubtotal').getAttribute('data-subtotal'));
+
+        // Hiệu ứng loading
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('code', code);
+        formData.append('subtotal', subtotal);
+
+        fetch('/MY_WEB/public/index.php?url=checkout/applyCoupon', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+
+                if (data.status === 'success') {
+                    alert(data.message);
+
+                    // 1. Khóa ô nhập lại, đổi màu nút
+                    codeInput.readOnly = true;
+                    btn.classList.remove('btn-outline-success');
+                    btn.classList.add('btn-success', 'text-white');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Đã áp dụng';
+                    btn.disabled = true;
+
+                    // 2. Điền mã vào input ẩn để Tý nữa submit Form đặt hàng
+                    document.getElementById('hiddenCouponCode').value = code;
+
+                    // 3. Cập nhật UI tiền giảm
+                    document.getElementById('summaryDiscount').innerText = '- ' + data.discount_formatted;
+
+                    // 4. Tính toán lại Tổng tiền mới
+                    const shipping = parseInt(document.getElementById('summaryShipping').getAttribute('data-shipping'));
+                    let newTotal = Number(subtotal) + Number(shipping) - Number(data.discount_amount);
+                    if (newTotal < 0) newTotal = 0; // Chống âm tiền
+
+                    document.getElementById('summaryTotal').innerText = new Intl.NumberFormat('vi-VN').format(newTotal) + ' đ';
+
+                    // Nếu là mã QR, cập nhật luôn số tiền QR
+                    if (document.getElementById('qrAmount')) {
+                        document.getElementById('qrAmount').setAttribute('data-final-amount', newTotal);
+                    }
+
+                } else {
+                    alert(data.message); // Báo lỗi: Hết hạn, chưa đủ điều kiện...
+                    codeInput.value = '';
+                }
+            })
+            .catch(err => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                console.error(err);
+            });
+    });
 </script>
 
 <?php require_once '../app/Views/layouts/client/footer.php'; ?>
