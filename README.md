@@ -120,29 +120,6 @@ Ví dụ:
 
 ---
 
-## Cấu Trúc Thư Mục Chính
-
-MY_WEB/
-│
-├── app/
-│   ├── Controllers/     # Logic điều khiển (Admin, Client)
-│   ├── Models/          # Tương tác Database
-│   ├── Views/           # Giao diện (HTML + PHP)
-│   ├── Core/            # Router, Database, Base Controller
-│   └── Utils/           # Helper, Pagination, Upload...
-│
-├── public/              # Document Root
-│   ├── assets/          # CSS, JS, Images, Uploads
-│   ├── .htaccess        # URL Rewrite
-│   └── index.php        # Entry Point của ứng dụng
-│
-├── config/              # File cấu hình hệ thống
-├── vendor/              # Thư viện Composer (ignore trên git)
-├── .env                 # Biến môi trường (Local)
-└── ecostore.sql         # File Database mẫu
-
----
-
 ## Hướng Dẫn Cài Đặt
 
 * Vui lòng xem chi tiết tại: [SETUP.md](./SETUP.md)
