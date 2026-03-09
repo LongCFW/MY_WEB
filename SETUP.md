@@ -17,19 +17,16 @@
 ### Cách thực hiện an toàn nhất (Dành cho mọi ổ đĩa/vị trí cài đặt)
 
 1. Mở **File Explorer (My Computer)** và tìm đến thư mục cài đặt gốc của Web Server:
-
    - Nếu dùng **Laragon**: Tìm thư mục `www`  
      Ví dụ: `C:\laragon\www` hoặc `D:\laragon\www`
-
    - Nếu dùng **XAMPP**: Tìm thư mục `htdocs`  
      Ví dụ: `C:\xampp\htdocs` hoặc `D:\xampp\htdocs`
 
-2. Click chuột phải vào khoảng trống bên trong thư mục này và chọn:
+2. Mở Terminal tại thư mục này bằng 1 trong 2 cách sau:
+   - **Cách 1 (Khuyên dùng - Sử dụng VS Code):** Click chuột phải vào khoảng trống trong thư mục, chọn **"Open with Code"**. Sau khi VS Code mở lên, nhấn tổ hợp phím `` Ctrl + ` `` (hoặc trên thanh menu chọn *Terminal > New Terminal*) để mở cửa sổ dòng lệnh.
+   - **Cách 2 (Mở Terminal ngoài):** Click chuột phải vào khoảng trống và chọn **"Open in Terminal"** hoặc **"Open Git Bash here"**.
 
-   - **Open in Terminal**
-   - hoặc **Open Git Bash here**
-
-3. Copy và chạy dòng lệnh sau để tải code về:
+3. Copy và chạy lần lượt 2 dòng lệnh sau để tải code về và di chuyển hẳn vào bên trong thư mục dự án:
 
 ```bash
 git clone https://github.com/LongCFW/MY_WEB.git MY_WEB
@@ -57,15 +54,16 @@ composer update
 
 ### Lưu ý trước khi cấu hình file `.env`
 
-- **Lưu ý 1:** `"DB_PASS="` sẽ tùy theo mật khẩu phần mềm quản lý db của bạn. Ví dụ mật khẩu là `abc123` thì `DB_PASS="abc123"`.
+- **Lưu ý 1:** `"DB_PASSWORD="` sẽ tùy theo mật khẩu phần mềm quản lý db của bạn. Ví dụ mật khẩu là `abc123` thì `DB_PASSWORD="abc123"`.
 - **Lưu ý 2:** `"MAIL_USERNAME"` cũng là mail mà bạn sẽ nhận được thông báo từ client khi client thực hiện chức năng liên quan đến gửi mail.
-- **Lưu ý 3:** Nếu Database của bạn đã có tên tương tự, thì chỉ cần đổi `DB_NAME` trong file `.env` và nhập đúng tên `DB_NAME` mà bạn set trong `.env` vào phần mềm quản lý Database của bạn là ok.
 
 ```env
+DB_CONNECTION=mysql
 DB_HOST=localhost
-DB_NAME=ecostore
-DB_USER=root
-DB_PASS=
+DB_PORT=3306
+DB_DATABASE=ecostore
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 
 ### Hướng dẫn lấy thông tin cấu hình
@@ -91,9 +89,11 @@ GOOGLE_CLIENT_SECRET="your_google_client_secret"
 
 Dự án đã đính kèm sẵn file `ecostore.sql` bao gồm cấu trúc bảng và dữ liệu mẫu (Sản phẩm, Đơn hàng, Tài khoản...).
 
+- **Lưu ý:** Nếu Database của bạn đã có tên tương tự, thì chỉ cần đổi `DB_DATABASE` trong file `.env` và nhập đúng tên `DB_DATABASE` mà bạn set trong `.env` vào phần mềm quản lý Database của bạn là ok.
+
 1. Mở phần mềm quản lý Database (phpMyAdmin, HeidiSQL...).
-2. Tạo một Database mới có tên giống với `DB_NAME` đã đặt.  
-   Ví dụ `DB_NAME=ecostore` thì tên Database sẽ là `ecostore`.  
+2. Tạo một Database mới có tên giống với `DB_DATABASE` đã đặt.  
+   Ví dụ `DB_DATABASE=ecostore` thì tên Database sẽ là `ecostore`.  
    *(Collation khuyến nghị: `utf8mb4_unicode_ci`).*
 3. Chọn tính năng **Import (Nhập)** và tải lên file `ecostore.sql` từ thư mục dự án.
 4. Bấm **Go (Thực hiện)** để hoàn tất.
@@ -106,8 +106,11 @@ Dự án đã đính kèm sẵn file `ecostore.sql` bao gồm cấu trúc bảng
 
 2. Mở trình duyệt và truy cập vào đường dẫn sau để hệ thống nhận diện đúng cấu hình MVC:
 
-```bash
-http://localhost/MY_WEB/public/
+**[http://localhost/MY_WEB/public/](http://localhost/MY_WEB/public/)**
+
+**LƯU Ý ĐẶC BIỆT QUAN TRỌNG:**
+**Vị trí đặt thư mục:** Tuyệt đối KHÔNG lồng thư mục `MY_WEB` vào bên trong một thư mục khác (ví dụ: `www/test/MY_WEB/`). Nếu sai cấp thư mục, giao diện sẽ bị vỡ và báo lỗi 404.
+**Không dùng Virtual Host:** Tuyệt đối KHÔNG sử dụng tính năng Auto Virtual Host (như `http://my_web.test` của Laragon). Dự án đã được cấu hình đường dẫn tĩnh bảo mật theo thư mục `public`, việc dùng tên miền ảo sẽ gây xung đột URL Rewrite.
 
 ---
 
