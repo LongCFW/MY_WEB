@@ -145,3 +145,5 @@ Hệ thống đã có sẵn các tài khoản sau trong Database để bạn ki�
 
 - **Email:** `khachhang@gmail.com`
 - **Mật khẩu:** `123456`
+
+- **Mẹo trải nghiệm:** Các tài khoản mẫu ở trên giúp bạn xem nhanh giao diện. Tuy nhiên, để test trọn vẹn các tính năng thực tế (như nhận email xác nhận đơn hàng, đăng nhập bằng Google...), bạn hãy tự **Đăng ký** một tài khoản mới bằng email thật của chính mình nhé!

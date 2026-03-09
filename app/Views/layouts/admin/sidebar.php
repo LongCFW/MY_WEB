@@ -25,21 +25,32 @@ function isActive($path) {
             <a href="/MY_WEB/public/admin/dashboard" class="list-group-item list-group-item-action <?= isActive('dashboard') ?>">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
-            <a href="/MY_WEB/public/admin/category" class="list-group-item list-group-item-action <?= isActive('category') ?>">
-                <i class="fas fa-tags"></i> Danh mục
-            </a>
-            <a href="/MY_WEB/public/admin/product" class="list-group-item list-group-item-action <?= isActive('product') ?>">
-                <i class="fas fa-box-open"></i> Sản phẩm
-            </a>
+            
+            <?php if (isset($_SESSION['admin_role']) && in_array($_SESSION['admin_role'], [1, 2])): ?>
+                <a href="/MY_WEB/public/admin/category" class="list-group-item list-group-item-action <?= isActive('category') ?>">
+                    <i class="fas fa-tags"></i> Danh mục
+                </a>
+                <a href="/MY_WEB/public/admin/product" class="list-group-item list-group-item-action <?= isActive('product') ?>">
+                    <i class="fas fa-box-open"></i> Sản phẩm
+                </a>
+            <?php endif; ?>
+
             <a href="/MY_WEB/public/admin/order" class="list-group-item list-group-item-action <?= isActive('order') ?>">
                 <i class="fas fa-shopping-cart"></i> Đơn hàng
             </a>
-            <a href="/MY_WEB/public/admin/user" class="list-group-item list-group-item-action <?= isActive('user') ?>">
-                <i class="fas fa-users"></i> Khách hàng
-            </a>
-            <a href="/MY_WEB/public/admin/coupon" class="list-group-item list-group-item-action <?= isActive('coupon') ?>">
-                <i class="fas fa-ticket-alt"></i> Mã giảm giá
-            </a>
+
+            <?php if (isset($_SESSION['admin_role']) && $_SESSION['admin_role'] == 1): ?>
+                <a href="/MY_WEB/public/admin/user" class="list-group-item list-group-item-action <?= isActive('user') ?>">
+                    <i class="fas fa-users"></i> Khách hàng
+                </a>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['admin_role']) && in_array($_SESSION['admin_role'], [1, 2])): ?>
+                <a href="/MY_WEB/public/admin/coupon" class="list-group-item list-group-item-action <?= isActive('coupon') ?>">
+                    <i class="fas fa-ticket-alt"></i> Mã giảm giá
+                </a>
+            <?php endif; ?>
+
             <a href="/MY_WEB/public/admin/review" class="list-group-item list-group-item-action <?= isActive('review') ?>">
                 <i class="fas fa-star text-warning"></i> Đánh giá (Seeding)
             </a>
