@@ -32,7 +32,7 @@
 3. Copy và chạy dòng lệnh sau để tải code về:
 
 ```bash
-git clone <đường-dẫn-repo-của-bạn> MY_WEB
+git clone https://github.com/LongCFW/MY_WEB.git MY_WEB
 ```
 
 ---
