@@ -10,14 +10,29 @@
 - Web Server (Laragon hoặc XAMPP)
 - Git (để clone repository)
 
-## Bước 1: Tải mã nguồn (Clone Project)
+## Bước 1: Tải Mã Nguồn (Clone Project)
 
-Mở Terminal (hoặc Git Bash) tại thư mục web của bạn (ví dụ: `C:\laragon\www`) và chạy lệnh:
+Để dự án hoạt động chính xác, mã nguồn **bắt buộc phải được đặt trực tiếp trong thư mục gốc của Web Server** (không được lồng vào thư mục con nào khác).
+
+### Cách thực hiện an toàn nhất (Dành cho mọi ổ đĩa/vị trí cài đặt)
+
+1. Mở **File Explorer (My Computer)** và tìm đến thư mục cài đặt gốc của Web Server:
+
+   - Nếu dùng **Laragon**: Tìm thư mục `www`  
+     Ví dụ: `C:\laragon\www` hoặc `D:\laragon\www`
+
+   - Nếu dùng **XAMPP**: Tìm thư mục `htdocs`  
+     Ví dụ: `C:\xampp\htdocs` hoặc `D:\xampp\htdocs`
+
+2. Click chuột phải vào khoảng trống bên trong thư mục này và chọn:
+
+   - **Open in Terminal**
+   - hoặc **Open Git Bash here**
+
+3. Copy và chạy dòng lệnh sau để tải code về:
 
 ```bash
-git clone https://github.com/LongCFW/MY_WEB.git
-cd MY_WEB
-```
+git clone <đường-dẫn-repo-của-bạn> MY_WEB
 
 ---
 
@@ -85,13 +100,12 @@ Dự án đã đính kèm sẵn file `ecostore.sql` bao gồm cấu trúc bảng
 
 ## Bước 5: Truy Cập Website
 
-Khởi động Apache và MySQL trên Laragon (hoặc XAMPP). Mở trình duyệt và truy cập vào đường dẫn:
+1. Khởi động **Apache** và **MySQL** trên Web Server của bạn (Laragon hoặc XAMPP).
 
-- **Nếu dùng Laragon (Virtual Host):**  
-  `http://my_web.test`
+2. Mở trình duyệt và truy cập vào đường dẫn sau để hệ thống nhận diện đúng cấu hình MVC:
 
-- **Nếu dùng XAMPP / Localhost thường:**  
-  `http://localhost/MY_WEB/public`
+```bash
+http://localhost/MY_WEB/public/
 
 ---
 
