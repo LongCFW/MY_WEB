@@ -32,6 +32,7 @@ class Controller {
         $isAdminRequest = (strpos($requestUri, '/admin/') !== false);
 
         // --- MIDDLEWARE CHO ADMIN ---
+        // --- MIDDLEWARE CHO ADMIN ---
         if ($isAdminRequest) {
             // Bỏ qua check auth nếu đang ở trang đăng nhập/đăng xuất Admin
             if (strpos($requestUri, '/admin/auth') === false) {
@@ -40,17 +41,56 @@ class Controller {
                     header('Location: /MY_WEB/public/admin/auth/login');
                     exit();
                 }
-                // 2. Kiểm tra Role có hợp lệ không (1: Admin, 2: Manager, 3: Staff)
-                $allowedRoles = [1, 2, 3];
-                if (!isset($_SESSION['admin_role']) || !in_array($_SESSION['admin_role'], $allowedRoles)) {
+
+                // 2. Lấy Role của user hiện tại
+                $role = $_SESSION['admin_role'] ?? 0;
+
+                // 3. Phân quyền chi tiết (RBAC - Role Based Access Control)
+                // Cấu trúc: 'chuỗi_url_cần_chặn' => [danh_sách_role_được_phép_vào]
+                $permissions = [
+                    '/admin/dashboard' => [1, 2, 3], // Ai cũng được vào
+                    '/admin/order'     => [1, 2, 3], // Ai cũng được vào
+                    '/admin/review'    => [1, 2, 3], // Ai cũng được vào
+                    '/admin/category'  => [1, 2],    // Chỉ Admin, Manager
+                    '/admin/product'   => [1, 2],    // Chỉ Admin, Manager
+                    '/admin/coupon'    => [1, 2],    // Chỉ Admin, Manager
+                    '/admin/user'      => [1],       // CHỈ ADMIN ĐƯỢC VÀO
+                ];
+
+                $hasPermission = false;
+
+                // Kiểm tra xem URL hiện tại người dùng đang truy cập thuộc nhóm nào
+                foreach ($permissions as $path => $allowedRolesArr) {
+                    if (strpos($requestUri, $path) !== false) {
+                        // Nếu Role của user nằm trong mảng cho phép của URL này -> Hợp lệ
+                        if (in_array($role, $allowedRolesArr)) {
+                            $hasPermission = true;
+                        }
+                        break; // Tìm thấy path khớp rồi thì thoát vòng lặp check
+                    }
+                }
+
+                // 4. Xử lý khi truy cập trái phép
+                // Mặc định nếu URL không nằm trong mảng $permissions (ví dụ URL rác) thì sẽ check xem có phải role 1,2,3 ko
+                // Nếu nằm trong mảng mà $hasPermission = false tức là bị cấm
+                if (isset($path) && strpos($requestUri, $path) !== false && !$hasPermission) {
                     echo "<script>
-                            alert('Tài khoản của bạn không có quyền truy cập khu vực này!');
-                            window.location.href = '/MY_WEB/public/';
+                            alert('Tài khoản của bạn không có quyền truy cập trang này!');
+                            window.location.href = '/MY_WEB/public/admin/dashboard';
+                          </script>";
+                    exit();
+                }
+
+                // Kiểm tra sơ cua xem có phải là 1 trong 3 role không (phòng trường hợp session bị hack)
+                if (!in_array($role, [1, 2, 3])) {
+                    echo "<script>
+                            alert('Tài khoản không hợp lệ!');
+                            window.location.href = '/MY_WEB/public/admin/auth/logout';
                           </script>";
                     exit();
                 }
             }
-            return; // Nếu là Admin hợp lệ, thoát constructor để chạy code Admin
+            return; // Nếu là Admin hợp lệ và có quyền, thoát constructor để chạy code
         }
 
         // --- MIDDLEWARE CHO KHÁCH HÀNG (CLIENT) ---

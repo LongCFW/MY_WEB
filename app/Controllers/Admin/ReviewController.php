@@ -4,11 +4,10 @@ use App\Core\Controller;
 
 class ReviewController extends Controller {
 
-    public function index() {
-        $this->checkAdmin();
+    public function index() {                
         $reviewModel = $this->model('Review');
 
-        // --- [MỚI] BẮT THAM SỐ LỌC ---
+        // --- BẮT THAM SỐ LỌC ---
         $filters = [
             'search' => trim($_GET['search'] ?? ''),
             'type' => $_GET['type'] ?? '',
@@ -34,7 +33,7 @@ class ReviewController extends Controller {
 
     // Xử lý tạo đánh giá mồi (Seeding)
     public function store_seeding() {
-        $this->checkAdmin();
+        // Đã xóa $this->checkAdmin();
         
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $productId = $_POST['product_id'];
@@ -65,23 +64,10 @@ class ReviewController extends Controller {
         }
     }
 
-    public function delete($id) {
-        $this->checkAdmin();
+    public function delete($id) {        
         $reviewModel = $this->model('Review');
         $reviewModel->delete($id);
         
         echo "<script>alert('Đã xóa đánh giá!'); window.location.href='/MY_WEB/public/admin/review';</script>";
-    }
-
-    private function checkAdmin() {
-        if (!isset($_SESSION['admin_logged_in']) && !isset($_SESSION['user_logged_in'])) {
-            header('Location: /MY_WEB/public/admin/auth/login');
-            exit();
-        }
-        $role = $_SESSION['admin_role'] ?? $_SESSION['user_role'] ?? 0;
-        if (!in_array($role, [1, 2])) {
-            echo "<script>alert('Không có quyền!'); window.location.href='/MY_WEB/public/';</script>";
-            exit();
-        }
     }
 }
