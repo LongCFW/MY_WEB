@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 06, 2026 at 03:41 AM
+-- Generation Time: Mar 13, 2026 at 02:14 PM
 -- Server version: 8.0.44
 -- PHP Version: 8.3.16
 
@@ -20,22 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `ecostore`
 --
-
--- --------------------------------------------------------
-
---
--- Table structure for table `audit_logs`
---
-
-CREATE TABLE `audit_logs` (
-  `id` bigint UNSIGNED NOT NULL,
-  `actor_id` bigint UNSIGNED DEFAULT NULL,
-  `action` varchar(255) DEFAULT NULL,
-  `object_type` varchar(255) DEFAULT NULL,
-  `object_id` bigint DEFAULT NULL,
-  `diff` json DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -119,60 +103,15 @@ CREATE TABLE `coupons` (
 --
 
 INSERT INTO `coupons` (`id`, `code`, `type`, `value`, `min_order_cents`, `usage_limit`, `used_count`, `starts_at`, `ends_at`, `applies_to_category_ids`, `created_at`) VALUES
-(4, 'BUON_MAY_BAN_DAT', 'percent', 50, 500000, 50, 9, '2026-03-03 16:02:00', '2026-08-20 20:05:00', NULL, '2026-03-03 09:02:27'),
+(4, 'BUON_MAY_BAN_DAT', 'percent', 50, 500000, 50, 10, '2026-03-03 16:02:00', '2026-08-20 20:05:00', NULL, '2026-03-03 09:02:27'),
 (5, 'VINH_XUAN_QUYEN', 'percent', 20, 500000, 50, 0, '2026-03-04 10:23:00', '2026-03-31 10:23:00', NULL, '2026-03-04 03:23:37'),
 (6, 'HELL_NAH', 'percent', 30, 300000, 50, 0, '2026-03-04 10:25:00', '2026-03-31 10:25:00', NULL, '2026-03-04 03:25:13'),
 (7, 'TEST', 'percent', 10, 123, 123, 0, '2026-03-04 20:34:00', '2026-03-07 20:34:00', NULL, '2026-03-04 13:34:17'),
 (8, 'TEST2', 'percent', 12, 123, 123, 0, '2026-03-04 20:41:00', '2026-03-05 20:41:00', NULL, '2026-03-04 13:41:46'),
 (9, 'TEST3', 'percent', 13, 123, 123, 0, '2026-03-04 20:44:00', '2026-03-05 20:44:00', NULL, '2026-03-04 13:44:37'),
 (10, 'TEST4', 'percent', 15, 1231231, 123, 0, '2026-03-04 20:52:00', '2026-03-05 20:52:00', NULL, '2026-03-04 13:52:53'),
-(11, '123', 'percent', 123, 123, 123, 0, '2026-03-05 13:23:00', '2026-03-11 13:23:00', NULL, '2026-03-05 06:23:45');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `email_queue`
---
-
-CREATE TABLE `email_queue` (
-  `id` bigint UNSIGNED NOT NULL,
-  `to_email` varchar(255) DEFAULT NULL,
-  `subject` varchar(255) DEFAULT NULL,
-  `body` text,
-  `status` varchar(50) DEFAULT NULL,
-  `attempts` int DEFAULT '0',
-  `last_attempt_at` datetime DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `inventory_transactions`
---
-
-CREATE TABLE `inventory_transactions` (
-  `id` bigint UNSIGNED NOT NULL,
-  `variant_id` bigint UNSIGNED DEFAULT NULL,
-  `change_qty` int NOT NULL,
-  `reason` varchar(100) DEFAULT NULL,
-  `ref_table` varchar(50) DEFAULT NULL,
-  `ref_id` bigint UNSIGNED DEFAULT NULL,
-  `created_by` bigint UNSIGNED DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `migrations`
---
-
-CREATE TABLE `migrations` (
-  `id` int UNSIGNED NOT NULL,
-  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `batch` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+(11, '123', 'percent', 123, 123, 123, 0, '2026-03-05 13:23:00', '2026-03-11 13:23:00', NULL, '2026-03-05 06:23:45'),
+(12, '12333', 'percent', 123, 123, 1, 0, '2026-03-10 12:28:00', '2026-03-10 12:28:00', NULL, '2026-03-10 05:28:34');
 
 -- --------------------------------------------------------
 
@@ -251,7 +190,53 @@ INSERT INTO `notifications` (`id`, `user_id`, `type`, `title`, `message`, `is_re
 (92, 37, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69A984F3ADD78 đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"93\"}', '2026-03-05 13:28:23'),
 (93, 37, 'system', 'Thanh toán thành công!', 'Chúng tôi đã nhận được khoản thanh toán cho đơn hàng #ORD-69A98DB5DA3B6. Đơn hàng của bạn đang được xử lý.', 0, NULL, '{\"order_id\": \"94\"}', '2026-03-05 14:05:52'),
 (94, 37, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69A98EE7465CB đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"95\"}', '2026-03-05 14:10:51'),
-(95, 37, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69A98F0C6A04D đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"96\"}', '2026-03-05 14:11:28');
+(95, 37, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69A98F0C6A04D đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"96\"}', '2026-03-05 14:11:28'),
+(98, 38, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69AE87DEB7C83 đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"99\"}', '2026-03-09 08:42:10'),
+(99, 38, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69AE8885B109B đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"100\"}', '2026-03-09 08:44:58'),
+(100, 38, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69AE89D67E93D đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"101\"}', '2026-03-09 08:50:39'),
+(106, 6, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(107, 7, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(108, 8, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(109, 9, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(110, 13, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(111, 14, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(112, 16, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(113, 22, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(114, 23, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(115, 26, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(116, 27, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(117, 34, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(118, 35, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(119, 36, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(120, 37, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(121, 38, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(122, 39, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(124, 41, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(125, 42, 'new_coupon', '🎁 Mã giảm giá mới: 12333', 'Shop vừa tung mã 12333 giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"12333\"}', '2026-03-10 05:28:34'),
+(137, 40, 'order_completed', 'Đơn hàng giao thành công!', 'Đơn hàng #ORD-69AFAA8B2B236 đã được giao đến bạn. Đừng quên để lại đánh giá cho sản phẩm nhé!', 0, NULL, '{\"order_id\": \"104\"}', '2026-03-10 05:32:15'),
+(138, 40, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69AFACF8A0459 đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"106\"}', '2026-03-10 05:32:48'),
+(139, 6, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(140, 7, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(141, 8, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(142, 9, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(143, 13, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(144, 14, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(145, 16, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(146, 22, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(147, 23, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(148, 26, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(149, 27, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(150, 34, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(151, 35, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(152, 36, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(153, 37, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(154, 38, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(155, 39, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(156, 40, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(157, 41, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(158, 42, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(159, 43, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
+(160, 43, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69B3FB022F853 đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"107\"}', '2026-03-13 11:54:50');
 
 -- --------------------------------------------------------
 
@@ -357,7 +342,18 @@ INSERT INTO `orders` (`id`, `user_id`, `order_number`, `status`, `total_cents`, 
 (93, 37, 'ORD-69A984F3ADD78', 'pending', 50000, 20000, 30000, 0, 27, 27, 'unpaid', 'cod', '2026-03-05 20:28:19', NULL, NULL, NULL, '2026-03-05 13:28:19', '2026-03-05 13:28:19'),
 (94, 37, 'ORD-69A98DB5DA3B6', 'processing', 80000, 50000, 30000, 0, 27, 27, 'paid', 'banking', '2026-03-05 21:05:41', NULL, NULL, NULL, '2026-03-05 14:05:41', '2026-03-05 14:05:47'),
 (95, 37, 'ORD-69A98EE7465CB', 'pending', 1030000, 1000000, 30000, 0, 27, 27, 'unpaid', 'cod', '2026-03-05 21:10:47', NULL, NULL, NULL, '2026-03-05 14:10:47', '2026-03-05 14:10:47'),
-(96, 37, 'ORD-69A98F0C6A04D', 'pending', 1030000, 1000000, 30000, 0, 27, 27, 'unpaid', 'cod', '2026-03-05 21:11:24', NULL, NULL, NULL, '2026-03-05 14:11:24', '2026-03-05 14:11:24');
+(96, 37, 'ORD-69A98F0C6A04D', 'pending', 1030000, 1000000, 30000, 0, 27, 27, 'unpaid', 'cod', '2026-03-05 21:11:24', NULL, NULL, NULL, '2026-03-05 14:11:24', '2026-03-05 14:11:24'),
+(97, 38, 'ORD-69AE7980C014D', 'pending', 80000, 50000, 30000, 0, 33, 33, 'unpaid', 'cod', '2026-03-09 14:40:48', NULL, NULL, NULL, '2026-03-09 07:40:48', '2026-03-09 07:40:48'),
+(98, 38, 'ORD-69AE79FB0523B', 'processing', 880000, 850000, 30000, 0, 33, 33, 'paid', 'banking', '2026-03-09 14:42:51', NULL, NULL, NULL, '2026-03-09 07:42:51', '2026-03-09 07:43:07'),
+(99, 38, 'ORD-69AE87DEB7C83', 'pending', 280000, 250000, 30000, 0, 33, 33, 'unpaid', 'cod', '2026-03-09 15:42:06', NULL, NULL, NULL, '2026-03-09 08:42:06', '2026-03-09 08:42:06'),
+(100, 38, 'ORD-69AE8885B109B', 'pending', 80000, 50000, 30000, 0, 33, 33, 'unpaid', 'cod', '2026-03-09 15:44:53', NULL, NULL, NULL, '2026-03-09 08:44:53', '2026-03-09 08:44:53'),
+(101, 38, 'ORD-69AE89D67E93D', 'pending', 80000, 50000, 30000, 0, 33, 33, 'unpaid', 'cod', '2026-03-09 15:50:30', NULL, NULL, NULL, '2026-03-09 08:50:30', '2026-03-09 08:50:30'),
+(102, 40, 'ORD-69AE9022B8AE0', 'pending', 80000, 50000, 30000, 0, 34, 34, 'unpaid', 'cod', '2026-03-09 16:17:22', NULL, NULL, NULL, '2026-03-09 09:17:22', '2026-03-09 09:17:22'),
+(103, 40, 'ORD-69AF94AF0DE00', 'pending', 80000, 50000, 30000, 0, 34, 34, 'unpaid', 'cod', '2026-03-10 10:49:03', NULL, NULL, NULL, '2026-03-10 03:49:03', '2026-03-10 03:49:03'),
+(104, 40, 'ORD-69AFAA8B2B236', 'completed', 430000, 800000, 30000, 0, 34, 34, 'unpaid', 'cod', '2026-03-10 12:22:19', NULL, NULL, NULL, '2026-03-10 05:22:19', '2026-03-10 05:32:15'),
+(105, 40, 'ORD-69AFAABA46123', 'completed', 80000, 50000, 30000, 0, 34, 34, 'paid', 'banking', '2026-03-10 12:23:06', NULL, NULL, NULL, '2026-03-10 05:23:06', '2026-03-10 05:25:24'),
+(106, 40, 'ORD-69AFACF8A0459', 'pending', 130000, 100000, 30000, 0, 35, 35, 'unpaid', 'cod', '2026-03-10 12:32:40', NULL, NULL, NULL, '2026-03-10 05:32:40', '2026-03-10 05:32:40'),
+(107, 43, 'ORD-69B3FB022F853', 'pending', 430000, 400000, 30000, 0, 36, 36, 'unpaid', 'cod', '2026-03-13 18:54:42', NULL, NULL, NULL, '2026-03-13 11:54:42', '2026-03-13 11:54:42');
 
 -- --------------------------------------------------------
 
@@ -391,7 +387,8 @@ INSERT INTO `order_coupons` (`id`, `order_id`, `coupon_id`, `applied_amount_cent
 (12, 63, 4, 500000),
 (13, 64, 4, 500000),
 (14, 80, 4, 500000),
-(15, 83, 4, 500000);
+(15, 83, 4, 500000),
+(16, 104, 4, 400000);
 
 -- --------------------------------------------------------
 
@@ -558,7 +555,26 @@ INSERT INTO `order_items` (`id`, `order_id`, `variant_id`, `product_id`, `produc
 (182, 93, 78, NULL, '{\"name\": \"Nui nơ pastina hữu cơ\", \"image\": \"assets/uploads/products/1769191252_nui-no-pastina-huu-co.png\"}', 1, 20000, 20000),
 (183, 94, 72, NULL, '{\"name\": \"Rau ngót ta hữu cơ\", \"image\": \"assets/uploads/products/1769191099_rau_ngot_ta_huu_co.jpeg\"}', 1, 50000, 50000),
 (184, 95, 88, NULL, '{\"name\": \"Mật ong pure origins leatherwood\", \"image\": \"assets/uploads/products/1769191521_mat_ong_pure_origins_leatherwood_250g.png\"}', 1, 1000000, 1000000),
-(185, 96, 88, NULL, '{\"name\": \"Mật ong pure origins leatherwood\", \"image\": \"assets/uploads/products/1769191521_mat_ong_pure_origins_leatherwood_250g.png\"}', 1, 1000000, 1000000);
+(185, 96, 88, NULL, '{\"name\": \"Mật ong pure origins leatherwood\", \"image\": \"assets/uploads/products/1769191521_mat_ong_pure_origins_leatherwood_250g.png\"}', 1, 1000000, 1000000),
+(186, 97, 101, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 1, 50000, 50000),
+(187, 98, 92, NULL, '{\"name\": \"Bắp cải tím hữu cơ\", \"image\": \"assets/uploads/products/1772762814_bap-cai.jpg\"}', 2, 100000, 200000),
+(188, 98, 93, NULL, '{\"name\": \"Bắp cải tím hữu cơ\", \"image\": \"assets/uploads/products/1772762814_bap-cai.jpg\"}', 1, 50000, 50000),
+(189, 98, 99, NULL, '{\"name\": \"Cá bống đục\", \"image\": \"assets/uploads/products/1772763090_ca-bong.jpg\"}', 2, 50000, 100000),
+(190, 98, 97, NULL, '{\"name\": \"Bào ngư tươi nhập khẩu\", \"image\": \"assets/uploads/products/1772762996_bao-ngu.png\"}', 2, 250000, 500000),
+(191, 99, 99, NULL, '{\"name\": \"Cá bống đục\", \"image\": \"assets/uploads/products/1772763090_ca-bong.jpg\"}', 1, 50000, 50000),
+(192, 99, 101, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 1, 50000, 50000),
+(193, 99, 100, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 1, 150000, 150000),
+(194, 100, 101, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 1, 50000, 50000),
+(195, 101, 99, NULL, '{\"name\": \"Cá bống đục\", \"image\": \"assets/uploads/products/1772763090_ca-bong.jpg\"}', 1, 50000, 50000),
+(196, 102, 101, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 1, 50000, 50000),
+(197, 103, 99, NULL, '{\"name\": \"Cá bống đục\", \"image\": \"assets/uploads/products/1772763090_ca-bong.jpg\"}', 1, 50000, 50000),
+(198, 104, 92, NULL, '{\"name\": \"Bắp cải tím hữu cơ\", \"image\": \"assets/uploads/products/1772762814_bap-cai.jpg\"}', 8, 100000, 800000),
+(199, 105, 101, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 1, 50000, 50000),
+(200, 106, 101, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 1, 50000, 50000),
+(201, 106, 93, NULL, '{\"name\": \"Bắp cải tím hữu cơ\", \"image\": \"assets/uploads/products/1772762814_bap-cai.jpg\"}', 1, 50000, 50000),
+(202, 107, 93, NULL, '{\"name\": \"Bắp cải tím hữu cơ\", \"image\": \"assets/uploads/products/1772762814_bap-cai.jpg\"}', 5, 50000, 250000),
+(203, 107, 98, NULL, '{\"name\": \"Cá bống đục\", \"image\": \"assets/uploads/products/1772763090_ca-bong.jpg\"}', 1, 100000, 100000),
+(204, 107, 101, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 1, 50000, 50000);
 
 -- --------------------------------------------------------
 
@@ -679,37 +695,22 @@ INSERT INTO `order_status_history` (`id`, `order_id`, `status`, `changed_by`, `n
 (125, 94, 'pending', 37, 'Đơn hàng mới được tạo', '2026-03-05 14:05:41'),
 (126, 94, 'processing', 4, 'Admin đã xác nhận nhận được tiền chuyển khoản VietQR.', '2026-03-05 14:05:47'),
 (127, 95, 'pending', 37, 'Đơn hàng mới được tạo', '2026-03-05 14:10:47'),
-(128, 96, 'pending', 37, 'Đơn hàng mới được tạo', '2026-03-05 14:11:24');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `payments`
---
-
-CREATE TABLE `payments` (
-  `id` bigint UNSIGNED NOT NULL,
-  `order_id` bigint UNSIGNED DEFAULT NULL,
-  `payment_method` varchar(50) DEFAULT NULL,
-  `transaction_id` varchar(255) DEFAULT NULL,
-  `amount_cents` bigint DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `paid_at` datetime DEFAULT NULL,
-  `raw_response` json DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `permissions`
---
-
-CREATE TABLE `permissions` (
-  `id` bigint UNSIGNED NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `description` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+(128, 96, 'pending', 37, 'Đơn hàng mới được tạo', '2026-03-05 14:11:24'),
+(129, 97, 'pending', 38, 'Đơn hàng mới được tạo', '2026-03-09 07:40:48'),
+(130, 98, 'pending', 38, 'Đơn hàng mới được tạo', '2026-03-09 07:42:51'),
+(131, 98, 'processing', 4, 'Admin đã xác nhận nhận được tiền chuyển khoản VietQR.', '2026-03-09 07:43:07'),
+(132, 99, 'pending', 38, 'Đơn hàng mới được tạo', '2026-03-09 08:42:06'),
+(133, 100, 'pending', 38, 'Đơn hàng mới được tạo', '2026-03-09 08:44:53'),
+(134, 101, 'pending', 38, 'Đơn hàng mới được tạo', '2026-03-09 08:50:30'),
+(135, 102, 'pending', 40, 'Đơn hàng mới được tạo', '2026-03-09 09:17:22'),
+(136, 103, 'pending', 40, 'Đơn hàng mới được tạo', '2026-03-10 03:49:03'),
+(137, 104, 'pending', 40, 'Đơn hàng mới được tạo', '2026-03-10 05:22:19'),
+(138, 105, 'pending', 40, 'Đơn hàng mới được tạo', '2026-03-10 05:23:06'),
+(139, 105, 'processing', 4, 'Admin đã xác nhận nhận được tiền chuyển khoản VietQR.', '2026-03-10 05:23:19'),
+(140, 105, 'completed', 4, '', '2026-03-10 05:25:24'),
+(141, 104, 'completed', 4, '', '2026-03-10 05:32:15'),
+(142, 106, 'pending', 40, 'Đơn hàng mới được tạo', '2026-03-10 05:32:40'),
+(143, 107, 'pending', 43, 'Đơn hàng mới được tạo', '2026-03-13 11:54:42');
 
 -- --------------------------------------------------------
 
@@ -902,16 +903,16 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `name`, `price_cents`
 (88, 34, 'P1772448712-N3', '50g', 1000000, NULL, 62, NULL, NULL, 1, '2026-03-02 10:51:52', '2026-03-05 14:11:24'),
 (89, 36, 'P1772448773-N2', '250g', 90000, NULL, 0, NULL, NULL, 1, '2026-03-02 10:52:53', '2026-03-03 02:25:36'),
 (90, 36, 'P1772448773-N3', '50g', 45000, NULL, 85, NULL, NULL, 1, '2026-03-02 10:52:53', '2026-03-05 13:25:56'),
-(92, 43, 'P1772762814-1', '250g', 100000, NULL, 100, NULL, NULL, 1, '2026-03-06 02:06:54', '2026-03-06 02:06:54'),
-(93, 43, 'P1772762814-2', '50g', 50000, NULL, 100, NULL, NULL, 1, '2026-03-06 02:06:54', '2026-03-06 02:06:54'),
+(92, 43, 'P1772762814-1', '250g', 100000, NULL, 90, NULL, NULL, 1, '2026-03-06 02:06:54', '2026-03-10 05:22:19'),
+(93, 43, 'P1772762814-2', '50g', 50000, NULL, 93, NULL, NULL, 1, '2026-03-06 02:06:54', '2026-03-13 11:54:42'),
 (94, 44, 'P1772762886-1', '250g', 150000, NULL, 100, NULL, NULL, 1, '2026-03-06 02:08:06', '2026-03-06 02:08:06'),
 (95, 44, 'P1772762886-2', '50g', 50000, NULL, 100, NULL, NULL, 1, '2026-03-06 02:08:06', '2026-03-06 02:08:06'),
 (96, 45, 'P1772762996-1', '250g', 500000, NULL, 100, NULL, NULL, 1, '2026-03-06 02:09:56', '2026-03-06 02:09:56'),
-(97, 45, 'P1772762996-2', '50g', 250000, NULL, 100, NULL, NULL, 1, '2026-03-06 02:09:56', '2026-03-06 02:09:56'),
-(98, 46, 'P1772763090-1', '250g', 100000, NULL, 100, NULL, NULL, 1, '2026-03-06 02:11:30', '2026-03-06 02:11:30'),
-(99, 46, 'P1772763090-2', '50g', 50000, NULL, 100, NULL, NULL, 1, '2026-03-06 02:11:30', '2026-03-06 02:11:30'),
-(100, 47, 'P1772763171-1', '250g', 150000, NULL, 100, NULL, NULL, 1, '2026-03-06 02:12:51', '2026-03-06 02:12:51'),
-(101, 47, 'P1772763171-2', '50g', 50000, NULL, 100, NULL, NULL, 1, '2026-03-06 02:12:51', '2026-03-06 02:12:51'),
+(97, 45, 'P1772762996-2', '50g', 250000, NULL, 98, NULL, NULL, 1, '2026-03-06 02:09:56', '2026-03-09 07:42:51'),
+(98, 46, 'P1772763090-1', '250g', 100000, NULL, 99, NULL, NULL, 1, '2026-03-06 02:11:30', '2026-03-13 11:54:42'),
+(99, 46, 'P1772763090-2', '50g', 50000, NULL, 95, NULL, NULL, 1, '2026-03-06 02:11:30', '2026-03-10 03:49:02'),
+(100, 47, 'P1772763171-1', '250g', 150000, NULL, 99, NULL, NULL, 1, '2026-03-06 02:12:51', '2026-03-09 08:42:06'),
+(101, 47, 'P1772763171-2', '50g', 50000, NULL, 93, NULL, NULL, 1, '2026-03-06 02:12:51', '2026-03-13 11:54:42'),
 (102, 48, 'P1772763233-1', '250g', 100000, NULL, 0, NULL, NULL, 1, '2026-03-06 02:13:53', '2026-03-06 02:13:53'),
 (103, 48, 'P1772763233-2', '50g', 100000, NULL, 0, NULL, NULL, 1, '2026-03-06 02:13:53', '2026-03-06 02:13:53'),
 (104, 49, 'P1772763325-1', '250g', 50000, NULL, 0, NULL, NULL, 1, '2026-03-06 02:15:25', '2026-03-06 02:15:25'),
@@ -992,17 +993,6 @@ INSERT INTO `roles` (`id`, `name`, `description`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `role_permissions`
---
-
-CREATE TABLE `role_permissions` (
-  `role_id` bigint UNSIGNED NOT NULL,
-  `permission_id` bigint UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `shipping_addresses`
 --
 
@@ -1054,7 +1044,11 @@ INSERT INTO `shipping_addresses` (`id`, `user_id`, `full_name`, `phone`, `addres
 (29, 37, 'Long Le', '0980980981', '11', '111', '', '', 'Vietnam', 0, '2026-03-05 13:28:49'),
 (30, 37, 'Long Le', '0980980981', '111', '111', '', '', 'Vietnam', 0, '2026-03-05 13:28:52'),
 (31, 37, 'Long Le', '0980980981', '111', '111', '', '', 'Vietnam', 0, '2026-03-05 13:28:56'),
-(32, 37, 'Long Le', '0980980981', '11', '111', '', '', 'Vietnam', 0, '2026-03-05 13:29:00');
+(32, 37, 'Long Le', '0980980981', '11', '111', '', '', 'Vietnam', 0, '2026-03-05 13:29:00'),
+(33, 38, 'demo', '1112221112', 'ád', 'ád', '', '', 'Vietnam', 1, '2026-03-09 07:40:45'),
+(34, 40, 'Khách hàng', '1111112223', '123', '123', '', '', 'Vietnam', 0, '2026-03-09 09:17:17'),
+(35, 40, 'Khách hàng', '1111112223', '123', 'Hcm', '', '', 'Vietnam', 1, '2026-03-10 05:25:40'),
+(36, 43, 'sss', '1231232221', '123123', '123', '', '', 'Vietnam', 1, '2026-03-13 11:54:38');
 
 -- --------------------------------------------------------
 
@@ -1111,7 +1105,16 @@ INSERT INTO `users` (`id`, `email`, `password_hash`, `name`, `phone`, `avatar_ur
 (34, 'imlongmanhmmme@gmail.com', '$2y$10$c/T.Z6ubPpj4MPeD7bWvHOT8eF1v7YTtR/6iQ0Id0dEmKCniNDYcK', 'donaltrump', '123321321123', NULL, 1, 4, NULL, 1, NULL, NULL, NULL, '2026-03-05 08:55:02', '2026-03-05 09:00:45', NULL, NULL),
 (35, '123@gmail.com', '$2y$10$k/c1NUURnUTBvwM.7KxNJ.fTz.7sy07d5ne2QAUv1hGL4dlxbR7GK', '123', '2131231231', NULL, 1, 4, NULL, 0, '330819', NULL, NULL, '2026-03-05 09:00:08', '2026-03-05 09:00:08', NULL, NULL),
 (36, 'ongmanhme@gmail.com', '$2y$10$WUz1dXTIDgAoEh9711f5deR2RLVDFlK83NL6PigoYx5rI9CHLt/K.', 'Bảo Long', '1212122121', NULL, 1, 4, NULL, 1, NULL, NULL, NULL, '2026-03-05 09:02:00', '2026-03-05 09:03:01', NULL, NULL),
-(37, 'imlongmanhme@gmail.com', '$2y$10$.adbIu6i008KOs365Rw9re5tu9L5RMZFfc2Bzr.pUc.GPNeYhwgq6', 'Long Le', '0980980981', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-05 09:03:08', '2026-03-05 09:05:00', NULL, NULL);
+(37, 'khachhang123@gmail.com', '$2y$10$.adbIu6i008KOs365Rw9re5tu9L5RMZFfc2Bzr.pUc.GPNeYhwgq6', 'Long Le', '0980980981', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-05 09:03:08', '2026-03-09 09:15:27', NULL, NULL),
+(38, 'long@gmail.com', '$2y$10$CQARJXBfiuytDye2vOiiEOxSyJ29hy9XqzoJF8dwpdVk8XSqHkw3u', 'demo', '1112221112', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-09 07:40:14', '2026-03-10 05:11:43', NULL, NULL),
+(39, 'khachhang12321@gmail.com', '$2y$10$K0PXJ3HA52AIk5WANCHRceFuOqRb.IfdKE7PTlfTWLxGfT.yzsioy', 'Khách hàng', '1111112221', NULL, 1, 4, NULL, 0, '303425', NULL, NULL, '2026-03-09 09:15:30', '2026-03-09 09:17:57', NULL, NULL),
+(40, 'khachhang@gmail.com', '$2y$10$6FRQMAWbNuZjbupHDx7OFuhWZJBgKg5bSba7/rortktMhv6ej5rnq', 'Khách hàng', '1111112223', NULL, 1, 4, NULL, 1, NULL, NULL, NULL, '2026-03-09 09:16:11', '2026-03-10 05:24:26', NULL, NULL),
+(41, 'l@gmail.com', '$2y$10$NE0BWUBw0olb96lB71tYiOwl.mkhGXj4Pgw8Yoi3d8Wt1Dk150OaG', 'long', '1010191810', NULL, 1, 4, NULL, 1, NULL, NULL, NULL, '2026-03-10 05:12:15', '2026-03-10 05:34:19', NULL, NULL),
+(42, 'imlon@gmail.com', '$2y$10$fpP8av.5E0wFbjEi4jqPb.8j46js1nshIzEP9QYi82V5Bq2UiiTH.', 'Long Le', '', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-10 05:14:06', '2026-03-10 05:14:29', NULL, NULL),
+(43, 'longconchua35@gmail.com', '$2y$10$ASXH/sWCoD9foR7b0p8bLOIPUsjli5OcwdlOvpcUbehxXUiH9S5ji', 'sss', '1231232221', NULL, 1, 4, NULL, 1, NULL, NULL, NULL, '2026-03-10 05:34:41', '2026-03-10 05:35:02', NULL, NULL),
+(44, 'lgbt@gmail.com', '$2y$10$qqsOQ3COFRQdWcnGJBVlXu0afZY4lg5LGlKqj5nbaZEMkLECJbuGS', 'Lau Ga Binh Thuan', '1231231121', NULL, 1, 5, NULL, 0, NULL, NULL, NULL, '2026-03-10 05:39:24', '2026-03-10 05:39:24', NULL, NULL),
+(45, 'thuky@gmail.com', '$2y$10$Luuh7aM3WqBC395sF9MWFuRAcv6dxEooi06Z.7Z846y08tnQPIPvG', 'THU KY CUA SEP', '1232223332', NULL, 1, 3, NULL, 0, NULL, NULL, NULL, '2026-03-10 05:40:08', '2026-03-10 05:40:08', NULL, NULL),
+(46, 'imlongmanhme@gmail.com', '$2y$10$SQJ8h9SyETRs7JRDUpr/p.jGSxJy3eODadw8sbkhutb4xg5ccy.am', 'Long Le', '', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-13 12:02:00', '2026-03-13 12:02:00', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1141,7 +1144,9 @@ INSERT INTO `user_coupons` (`id`, `user_id`, `coupon_id`, `is_used`, `saved_at`)
 (8, 37, 8, 0, '2026-03-05 20:29:17'),
 (9, 37, 7, 0, '2026-03-05 20:29:19'),
 (10, 37, 11, 0, '2026-03-05 20:29:21'),
-(11, 37, 10, 0, '2026-03-05 20:29:23');
+(11, 37, 10, 0, '2026-03-05 20:29:23'),
+(12, 40, 4, 0, '2026-03-10 12:20:15'),
+(13, 40, 5, 0, '2026-03-10 12:20:49');
 
 -- --------------------------------------------------------
 
@@ -1169,18 +1174,12 @@ INSERT INTO `wishlists` (`id`, `user_id`, `variant_id`, `created_at`) VALUES
 (41, 37, 81, '2026-03-05 13:25:10'),
 (42, 37, 79, '2026-03-05 13:25:11'),
 (43, 37, 77, '2026-03-05 13:25:12'),
-(44, 37, 75, '2026-03-05 13:25:14');
+(44, 37, 75, '2026-03-05 13:25:14'),
+(48, 38, 100, '2026-03-09 07:40:34');
 
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `audit_logs`
---
-ALTER TABLE `audit_logs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_audit_actor` (`actor_id`);
 
 --
 -- Indexes for table `cart_items`
@@ -1205,26 +1204,6 @@ ALTER TABLE `categories`
 ALTER TABLE `coupons`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `code` (`code`);
-
---
--- Indexes for table `email_queue`
---
-ALTER TABLE `email_queue`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `inventory_transactions`
---
-ALTER TABLE `inventory_transactions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_it_variant` (`variant_id`),
-  ADD KEY `idx_it_user` (`created_by`);
-
---
--- Indexes for table `migrations`
---
-ALTER TABLE `migrations`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `notifications`
@@ -1267,20 +1246,6 @@ ALTER TABLE `order_status_history`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_osh_order` (`order_id`),
   ADD KEY `changed_by` (`changed_by`);
-
---
--- Indexes for table `payments`
---
-ALTER TABLE `payments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_pay_order` (`order_id`);
-
---
--- Indexes for table `permissions`
---
-ALTER TABLE `permissions`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
 
 --
 -- Indexes for table `products`
@@ -1326,14 +1291,6 @@ ALTER TABLE `roles`
   ADD UNIQUE KEY `name` (`name`);
 
 --
--- Indexes for table `role_permissions`
---
-ALTER TABLE `role_permissions`
-  ADD PRIMARY KEY (`role_id`,`permission_id`),
-  ADD KEY `idx_rp_role` (`role_id`),
-  ADD KEY `idx_rp_perm` (`permission_id`);
-
---
 -- Indexes for table `shipping_addresses`
 --
 ALTER TABLE `shipping_addresses`
@@ -1369,94 +1326,58 @@ ALTER TABLE `wishlists`
 --
 
 --
--- AUTO_INCREMENT for table `audit_logs`
---
-ALTER TABLE `audit_logs`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=118;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=140;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `coupons`
 --
 ALTER TABLE `coupons`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- AUTO_INCREMENT for table `email_queue`
---
-ALTER TABLE `email_queue`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `inventory_transactions`
---
-ALTER TABLE `inventory_transactions`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `migrations`
---
-ALTER TABLE `migrations`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=161;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
 
 --
 -- AUTO_INCREMENT for table `order_coupons`
 --
 ALTER TABLE `order_coupons`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=186;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=205;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
-
---
--- AUTO_INCREMENT for table `payments`
---
-ALTER TABLE `payments`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
-
---
--- AUTO_INCREMENT for table `permissions`
---
-ALTER TABLE `permissions`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=144;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `product_images`
@@ -1468,13 +1389,13 @@ ALTER TABLE `product_images`
 -- AUTO_INCREMENT for table `product_variants`
 --
 ALTER TABLE `product_variants`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=106;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
 
 --
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -1486,35 +1407,29 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `shipping_addresses`
 --
 ALTER TABLE `shipping_addresses`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `user_coupons`
 --
 ALTER TABLE `user_coupons`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `wishlists`
 --
 ALTER TABLE `wishlists`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- Constraints for dumped tables
 --
-
---
--- Constraints for table `audit_logs`
---
-ALTER TABLE `audit_logs`
-  ADD CONSTRAINT `audit_logs_ibfk_1` FOREIGN KEY (`actor_id`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `cart_items`
@@ -1528,13 +1443,6 @@ ALTER TABLE `cart_items`
 --
 ALTER TABLE `categories`
   ADD CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`id`);
-
---
--- Constraints for table `inventory_transactions`
---
-ALTER TABLE `inventory_transactions`
-  ADD CONSTRAINT `inventory_transactions_ibfk_1` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`),
-  ADD CONSTRAINT `inventory_transactions_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `notifications`
@@ -1572,12 +1480,6 @@ ALTER TABLE `order_status_history`
   ADD CONSTRAINT `order_status_history_ibfk_2` FOREIGN KEY (`changed_by`) REFERENCES `users` (`id`);
 
 --
--- Constraints for table `payments`
---
-ALTER TABLE `payments`
-  ADD CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
-
---
 -- Constraints for table `products`
 --
 ALTER TABLE `products`
@@ -1604,13 +1506,6 @@ ALTER TABLE `reviews`
   ADD CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
   ADD CONSTRAINT `reviews_ibfk_3` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`);
-
---
--- Constraints for table `role_permissions`
---
-ALTER TABLE `role_permissions`
-  ADD CONSTRAINT `role_permissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
-  ADD CONSTRAINT `role_permissions_ibfk_2` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`);
 
 --
 -- Constraints for table `shipping_addresses`
