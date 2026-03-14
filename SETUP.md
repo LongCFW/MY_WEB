@@ -10,6 +10,28 @@
 - Web Server (Laragon hoặc XAMPP)
 - Git (để clone repository)
 
+**Lưu ý:** Trong trường hợp **không clone bằng Git** mà chạy dự án bằng **file source code (.zip)** được cung cấp sẵn (ví dụ: file nén đồ án), trong thư mục dự án có thể **không có sẵn hai thư mục `vendor/` và `node_modules/`**
+
+**Để dự án hoạt động chính xác, thư mục dự án bắt buộc phải được đặt trực tiếp trong thư mục gốc của Web Server và không được lồng vào thư mục con khác.**
+
+1. Ví dụ đúng:
+   - `laragon/www/MY_WEB`
+   - `xampp/htdocs/MY_WEB`
+
+2. Ví dụ sai:
+   - `laragon/www/test/MY_WEB`
+   - `xampp/htdocs/project/MY_WEB`
+
+Để khôi phục lại đầy đủ các thư viện cần thiết, hãy thực hiện các lệnh sau khi đã mở Terminal tại thư mục dự án:
+
+```bash
+cd MY_WEB
+composer install 
+npm install
+```
+
+*Sau khi hai thư mục này được cài đặt xong, có thể tiếp tục thực hiện từ **Bước 3: Cấu Hình Biến Môi Trường (.env)**.*
+
 ## Bước 1: Tải Mã Nguồn (Clone Project)
 
 Để dự án hoạt động chính xác, mã nguồn **bắt buộc phải được đặt trực tiếp trong thư mục gốc của Web Server** (không được lồng vào thư mục con nào khác).
