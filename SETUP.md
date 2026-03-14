@@ -14,13 +14,13 @@
 
 **Để dự án hoạt động chính xác, thư mục dự án bắt buộc phải được đặt trực tiếp trong thư mục gốc của Web Server và không được lồng vào thư mục con khác.**
 
-Ví dụ đúng:
-laragon/www/MY_WEB
-xampp/htdocs/MY_WEB
+1. Ví dụ đúng:
+   - `laragon/www/MY_WEB`
+   - `xampp/htdocs/MY_WEB`
 
-Ví dụ sai:
-laragon/www/test/MY_WEB
-xampp/htdocs/project/MY_WEB
+2. Ví dụ sai:
+   - `laragon/www/test/MY_WEB`
+   - `xampp/htdocs/project/MY_WEB`
 
 Để khôi phục lại đầy đủ các thư viện cần thiết, hãy thực hiện các lệnh sau khi đã mở Terminal tại thư mục dự án:
 
