@@ -8,8 +8,10 @@ class CartItem extends Model {
     // 1. Lấy chi tiết giỏ hàng
     public function getCartDetails($userId) {
         $sql = "SELECT c.id, c.quantity, c.variant_id,
-                       p.id as product_id, p.name, p.slug, p.is_active, 
-                       pv.price_cents as price,
+                       p.id as product_id, p.name, p.slug, 
+                       IF(p.is_active = 1 AND pv.is_active = 1, 1, 0) as is_active, 
+                       pv.price_cents as price, 
+                       pv.stock, /* <--- [THÊM CỘT NÀY] Lấy số lượng tồn kho thực tế */
                        (SELECT image_url FROM product_images WHERE product_id = p.id LIMIT 1) as image
                 FROM {$this->table} c
                 JOIN product_variants pv ON c.variant_id = pv.id

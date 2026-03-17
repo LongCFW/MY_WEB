@@ -24,6 +24,13 @@ class AccountController extends Controller
             exit();
         }
 
+        // ---ĐỒNG BỘ SESSION LẤY DỮ LIỆU MỚI NHẤT TỪ DB ---
+        $_SESSION['user_name'] = $user['name'];
+        $_SESSION['user_email'] = $user['email'];
+        if (!empty($user['avatar_url'])) {
+            $_SESSION['user_avatar'] = $user['avatar_url'];
+        }
+
         $currentPage = $_GET['page'] ?? 'info';
 
         // Cấu hình chung cho phân trang (có thể đổi limit tùy ý mỗi mục)
@@ -201,18 +208,29 @@ class AccountController extends Controller
     // --- API Xóa Voucher đã lưu khỏi Ví của khách ---
     public function removeSavedCoupon() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_logged_in'])) {
-            $couponId = $_GET['id'] ?? 0;
+            // Lấy ID từ JSON body (vì ta dùng JS POST)
+            $input = json_decode(file_get_contents('php://input'), true);
+            $userCouponId = $input['id'] ?? 0;
             $userId = $_SESSION['user_id'];
 
-            if ($couponId > 0) {
+            if ($userCouponId > 0) {
                 $userCouponModel = $this->model('UserCoupon');
-                $success = $userCouponModel->removeCouponFromWallet($userId, $couponId);
-                
+                $success = $userCouponModel->removeCouponFromWallet($userId, $userCouponId);
                 echo json_encode(['success' => $success]);
                 exit;
             }
         }
         echo json_encode(['success' => false, 'message' => 'Lỗi tham số hoặc chưa đăng nhập']);
         exit;
+    }
+
+    // --- API Xóa nhanh voucher hết hạn ---
+    public function cleanCoupons() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_logged_in'])) {
+            $userCouponModel = $this->model('UserCoupon');
+            $success = $userCouponModel->cleanExpiredCoupons($_SESSION['user_id']);
+            echo json_encode(['success' => $success]);
+            exit;
+        }
     }
 }

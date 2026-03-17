@@ -20,7 +20,7 @@ class Product extends Model {
                 LEFT JOIN categories parent_c ON c.parent_id = parent_c.id 
                 LEFT JOIN product_variants v ON p.id = v.product_id AND v.is_active = 1
                 LEFT JOIN product_images i ON p.id = i.product_id
-                WHERE 1=1"; // Điều kiện gốc để dễ dàng nối các WHERE phía dưới
+                WHERE p.is_active = 1"; // CHỈ LẤY SẢN PHẨM ĐANG KINH DOANH
 
         $params = [];
 
@@ -74,7 +74,7 @@ class Product extends Model {
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN product_variants v ON p.id = v.product_id AND v.is_active = 1
                 LEFT JOIN product_images i ON p.id = i.product_id
-                WHERE p.is_active = 1";
+                WHERE p.is_active = 1"; // TRẢ LẠI ĐIỀU KIỆN: CHỈ HIỆN SẢN PHẨM CÒN BÁN
 
         $params = [];
         $sql .= $this->buildFilterConditions($filters, $params);
@@ -105,7 +105,7 @@ class Product extends Model {
         $sql = "SELECT COUNT(DISTINCT p.id) as total
                 FROM products p
                 LEFT JOIN product_variants v ON p.id = v.product_id 
-                WHERE p.is_active = 1";
+                WHERE p.is_active = 1"; // TRẢ LẠI ĐIỀU KIỆN: CHỈ HIỆN SẢN PHẨM CÒN BÁN
 
         $params = [];
         $sql .= $this->buildFilterConditions($filters, $params);
@@ -236,33 +236,36 @@ class Product extends Model {
     }
 
     public function delete($id) {
-        // Bước 1: Lấy danh sách Variant ID của sản phẩm này
-        // (Vì Wishlist và CartItem liên kết qua variant_id)
         $sqlGetVariants = "SELECT id FROM product_variants WHERE product_id = ?";
         $variants = $this->db->fetchAll($sqlGetVariants, [$id]);
         
-        // Tạo mảng chứa các ID biến thể
-        $variantIds = array_column($variants, 'id');
+        if (!empty($variants)) {
+            $variantIds = implode(',', array_column($variants, 'id'));
 
-        if (!empty($variantIds)) {
-            $idsString = implode(',', array_map('intval', $variantIds));
+            // --- KIỂM TRA PHỦ ĐẦU: XEM CÓ TRONG ĐƠN HÀNG CHƯA ---
+            $checkOrderSql = "SELECT COUNT(*) as total FROM order_items WHERE variant_id IN ($variantIds)";
+            $checkOrder = $this->db->fetch($checkOrderSql);
 
-            // DỌN SẠCH GIỎ HÀNG VÀ WISHLIST TRƯỚC KHI XÓA
-            $this->db->query("DELETE FROM cart_items WHERE variant_id IN ($idsString)");
-            
-            try {
-                $this->db->query("DELETE FROM wishlists WHERE variant_id IN ($idsString)");
-            } catch (\Exception $e) {}
+            if ($checkOrder['total'] > 0) {
+                // Bật Alert và chặn lại ngay lập tức
+                echo "<script>
+                    alert('⛔ Sản phẩm này đã phát sinh đơn hàng, không thể xóa để bảo toàn dữ liệu doanh thu!'); 
+                    window.history.back();
+                </script>";
+                exit();
+            }
 
-            $this->db->query("DELETE FROM product_variants WHERE product_id = ?", [$id]);
+            // Nếu an toàn, tiến hành dọn rác giỏ hàng
+            $this->db->query("DELETE FROM cart_items WHERE variant_id IN ($variantIds)");
+            try { $this->db->query("DELETE FROM wishlists WHERE variant_id IN ($variantIds)"); } catch (\Exception $e) {}
         }
 
-        // Bước 5: Xóa Hình ảnh sản phẩm (product_images)
+        // --- XÓA CỨNG AN TOÀN ---
         $this->db->query("DELETE FROM product_images WHERE product_id = ?", [$id]);
-
-        // Bước 6: Cuối cùng mới xóa SẢN PHẨM chính
-        $sql = "DELETE FROM {$this->table} WHERE id = ?";
-        return $this->db->query($sql, [$id]);
+        $this->db->query("DELETE FROM product_variants WHERE product_id = ?", [$id]);
+        $this->db->query("DELETE FROM {$this->table} WHERE id = ?", [$id]);
+        
+        return true; 
     }
 
     // Hàm đếm tổng số sản phẩm

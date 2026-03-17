@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 13, 2026 at 02:14 PM
+-- Generation Time: Mar 17, 2026 at 05:42 AM
 -- Server version: 8.0.44
 -- PHP Version: 8.3.16
 
@@ -55,6 +55,7 @@ CREATE TABLE `categories` (
   `slug` varchar(200) DEFAULT NULL,
   `description` text,
   `parent_id` bigint UNSIGNED DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
   `image_url` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -64,19 +65,20 @@ CREATE TABLE `categories` (
 -- Dumping data for table `categories`
 --
 
-INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `parent_id`, `image_url`, `created_at`, `updated_at`) VALUES
-(2, 'Rau Củ ', 'rau-cu', 'demo', NULL, 'assets/uploads/categories/1769241470_Rau-cu.jpg', '2026-01-18 16:37:07', '2026-01-27 07:36:06'),
-(3, 'Tươi sống', 'tuoi-song', 'Đây là demo', NULL, 'assets/uploads/categories/1769241425_quy-dinh-van-chuyen-do-tuoi-song.jpg', '2026-01-19 09:20:55', '2026-01-24 07:57:05'),
-(4, 'Thực Phẩm Khô', 'thuc-pham-kho', 'Demo', NULL, 'assets/uploads/categories/1769241524_thuc-pham-chay-kho.jpg', '2026-01-23 15:26:14', '2026-01-24 07:58:44'),
-(5, 'Gia Vị & Phụ Liệu', 'gia-vi-phu-lieu', 'demo', NULL, 'assets/uploads/categories/1769241555_gia-vi.webp', '2026-01-23 15:26:40', '2026-02-05 08:23:02'),
-(12, 'Rau lá hữu cơ', 'rau-la-huu-co', '', 2, 'assets/uploads/categories/1772762357_rau-la-huu-co.jpg', '2026-03-02 08:37:16', '2026-03-06 01:59:17'),
-(13, 'Củ quả hữu cơ', 'cu-qua-huu-co', '', 2, 'assets/uploads/categories/1772762384_cu-qua-huu-co.jpg', '2026-03-02 08:37:35', '2026-03-06 01:59:44'),
-(14, 'Thịt hữu cơ', 'thit-huu-co', '', 3, 'assets/uploads/categories/1772762414_thit-huu-co.jpg', '2026-03-02 08:38:40', '2026-03-06 02:00:14'),
-(15, 'Hải sản tươi sống', 'hai-san-tuoi-song', '', 3, 'assets/uploads/categories/1772762456_hai-san-tuoi-song.jpg', '2026-03-02 08:38:57', '2026-03-06 02:00:56'),
-(16, 'Mì và nui hữu cơ', 'mi-nui-huu-co', '', 4, 'assets/uploads/categories/1772762498_myvanuoihuuco.jpg', '2026-03-02 08:41:04', '2026-03-06 02:01:38'),
-(17, 'Đồ khô khác', 'do-kho-khac', '', 4, 'assets/uploads/categories/1772762524_do-kho-khac.jpg', '2026-03-02 08:41:17', '2026-03-06 02:02:04'),
-(18, 'Gia vị', 'gia-vi', '', 5, 'assets/uploads/categories/1772762549_gia-vi-vi.jpg', '2026-03-02 08:42:18', '2026-03-06 02:02:29'),
-(19, 'Phụ liệu', 'phu-lieu', '', 5, 'assets/uploads/categories/1772762585_phulieu.jpg', '2026-03-02 08:42:29', '2026-03-06 02:03:05');
+INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `parent_id`, `is_active`, `image_url`, `created_at`, `updated_at`) VALUES
+(2, 'Rau Củ ', 'rau-cu', 'demo', NULL, 1, 'assets/uploads/categories/1769241470_Rau-cu.jpg', '2026-01-18 16:37:07', '2026-01-27 07:36:06'),
+(3, 'Tươi sống', 'tuoi-song', 'Đây là demo', NULL, 1, 'assets/uploads/categories/1769241425_quy-dinh-van-chuyen-do-tuoi-song.jpg', '2026-01-19 09:20:55', '2026-01-24 07:57:05'),
+(4, 'Thực Phẩm Khô', 'thuc-pham-kho', 'Demo', NULL, 1, 'assets/uploads/categories/1769241524_thuc-pham-chay-kho.jpg', '2026-01-23 15:26:14', '2026-01-24 07:58:44'),
+(5, 'Gia Vị & Phụ Liệu', 'gia-vi-phu-lieu', 'demo', NULL, 1, 'assets/uploads/categories/1769241555_gia-vi.webp', '2026-01-23 15:26:40', '2026-02-05 08:23:02'),
+(12, 'Rau lá hữu cơ', 'rau-la-huu-co', '', 2, 1, 'assets/uploads/categories/1772762357_rau-la-huu-co.jpg', '2026-03-02 08:37:16', '2026-03-06 01:59:17'),
+(13, 'Củ quả hữu cơ', 'cu-qua-huu-co', '', 2, 1, 'assets/uploads/categories/1772762384_cu-qua-huu-co.jpg', '2026-03-02 08:37:35', '2026-03-06 01:59:44'),
+(14, 'Thịt hữu cơ', 'thit-huu-co', '', 3, 1, 'assets/uploads/categories/1772762414_thit-huu-co.jpg', '2026-03-02 08:38:40', '2026-03-06 02:00:14'),
+(15, 'Hải sản tươi sống', 'hai-san-tuoi-song', '', 3, 1, 'assets/uploads/categories/1772762456_hai-san-tuoi-song.jpg', '2026-03-02 08:38:57', '2026-03-06 02:00:56'),
+(16, 'Mì và nui hữu cơ', 'mi-nui-huu-co', '', 4, 1, 'assets/uploads/categories/1772762498_myvanuoihuuco.jpg', '2026-03-02 08:41:04', '2026-03-06 02:01:38'),
+(17, 'Đồ khô khác', 'do-kho-khac', '', 4, 1, 'assets/uploads/categories/1772762524_do-kho-khac.jpg', '2026-03-02 08:41:17', '2026-03-06 02:02:04'),
+(18, 'Gia vị', 'gia-vi', '', 5, 1, 'assets/uploads/categories/1772762549_gia-vi-vi.jpg', '2026-03-02 08:42:18', '2026-03-06 02:02:29'),
+(19, 'Phụ liệu', 'phu-lieu', '', 5, 1, 'assets/uploads/categories/1772762585_phulieu.jpg', '2026-03-02 08:42:29', '2026-03-06 02:03:05'),
+(26, 'demomo', 'demo', '', 2, 1, NULL, '2026-03-17 04:20:47', '2026-03-17 04:38:07');
 
 -- --------------------------------------------------------
 
@@ -104,14 +106,13 @@ CREATE TABLE `coupons` (
 
 INSERT INTO `coupons` (`id`, `code`, `type`, `value`, `min_order_cents`, `usage_limit`, `used_count`, `starts_at`, `ends_at`, `applies_to_category_ids`, `created_at`) VALUES
 (4, 'BUON_MAY_BAN_DAT', 'percent', 50, 500000, 50, 10, '2026-03-03 16:02:00', '2026-08-20 20:05:00', NULL, '2026-03-03 09:02:27'),
-(5, 'VINH_XUAN_QUYEN', 'percent', 20, 500000, 50, 0, '2026-03-04 10:23:00', '2026-03-31 10:23:00', NULL, '2026-03-04 03:23:37'),
-(6, 'HELL_NAH', 'percent', 30, 300000, 50, 0, '2026-03-04 10:25:00', '2026-03-31 10:25:00', NULL, '2026-03-04 03:25:13'),
 (7, 'TEST', 'percent', 10, 123, 123, 0, '2026-03-04 20:34:00', '2026-03-07 20:34:00', NULL, '2026-03-04 13:34:17'),
 (8, 'TEST2', 'percent', 12, 123, 123, 0, '2026-03-04 20:41:00', '2026-03-05 20:41:00', NULL, '2026-03-04 13:41:46'),
 (9, 'TEST3', 'percent', 13, 123, 123, 0, '2026-03-04 20:44:00', '2026-03-05 20:44:00', NULL, '2026-03-04 13:44:37'),
 (10, 'TEST4', 'percent', 15, 1231231, 123, 0, '2026-03-04 20:52:00', '2026-03-05 20:52:00', NULL, '2026-03-04 13:52:53'),
-(11, '123', 'percent', 123, 123, 123, 0, '2026-03-05 13:23:00', '2026-03-11 13:23:00', NULL, '2026-03-05 06:23:45'),
-(12, '12333', 'percent', 123, 123, 1, 0, '2026-03-10 12:28:00', '2026-03-10 12:28:00', NULL, '2026-03-10 05:28:34');
+(11, '123', 'percent', 123, 123, 123, 0, '2026-03-05 13:23:00', '2026-03-12 13:23:00', NULL, '2026-03-05 06:23:45'),
+(12, '12333', 'percent', 123, 123, 1, 1, '2026-03-10 12:28:00', '2026-03-20 12:28:00', NULL, '2026-03-10 05:28:34'),
+(14, 'DEMO', 'fixed', 12300000, 123, NULL, 1, '2026-03-13 21:23:00', '2026-03-18 21:24:00', NULL, '2026-03-13 14:24:23');
 
 -- --------------------------------------------------------
 
@@ -236,7 +237,32 @@ INSERT INTO `notifications` (`id`, `user_id`, `type`, `title`, `message`, `is_re
 (157, 41, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
 (158, 42, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
 (159, 43, 'new_coupon', '🎁 Mã giảm giá mới: TESTDEMO', 'Shop vừa tung mã TESTDEMO giảm ngay 123% cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"TESTDEMO\"}', '2026-03-10 05:41:50'),
-(160, 43, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69B3FB022F853 đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"107\"}', '2026-03-13 11:54:50');
+(160, 43, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69B3FB022F853 đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"107\"}', '2026-03-13 11:54:50'),
+(161, 6, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(162, 7, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(163, 8, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(164, 9, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(165, 13, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(166, 14, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(167, 16, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(168, 22, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(169, 23, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(170, 26, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(171, 27, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(172, 34, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(173, 35, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(174, 36, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(175, 37, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(176, 38, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(177, 39, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(178, 40, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(179, 41, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(180, 42, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(181, 43, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(182, 46, 'new_coupon', '🎁 Mã giảm giá mới: DEMO', 'Shop vừa tung mã DEMO giảm ngay 123,000đ cho đơn từ 123đ. Nhanh tay lưu mã kẻo lỡ!', 0, NULL, '{\"coupon_code\": \"DEMO\"}', '2026-03-13 14:24:23'),
+(194, 48, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69B8D6CE46ADA đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 1, NULL, '{\"order_id\": \"109\"}', '2026-03-17 04:21:43'),
+(195, 49, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69B8DCF60AE84 đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 0, NULL, '{\"order_id\": \"110\"}', '2026-03-17 04:47:58'),
+(196, 52, 'system', 'Đặt hàng thành công!', 'Đơn hàng #ORD-69B8E94861EF4 đã được đặt thành công bằng hình thức COD. Cảm ơn bạn đã mua sắm!', 1, NULL, '{\"order_id\": \"111\"}', '2026-03-17 05:40:33');
 
 -- --------------------------------------------------------
 
@@ -353,7 +379,11 @@ INSERT INTO `orders` (`id`, `user_id`, `order_number`, `status`, `total_cents`, 
 (104, 40, 'ORD-69AFAA8B2B236', 'completed', 430000, 800000, 30000, 0, 34, 34, 'unpaid', 'cod', '2026-03-10 12:22:19', NULL, NULL, NULL, '2026-03-10 05:22:19', '2026-03-10 05:32:15'),
 (105, 40, 'ORD-69AFAABA46123', 'completed', 80000, 50000, 30000, 0, 34, 34, 'paid', 'banking', '2026-03-10 12:23:06', NULL, NULL, NULL, '2026-03-10 05:23:06', '2026-03-10 05:25:24'),
 (106, 40, 'ORD-69AFACF8A0459', 'pending', 130000, 100000, 30000, 0, 35, 35, 'unpaid', 'cod', '2026-03-10 12:32:40', NULL, NULL, NULL, '2026-03-10 05:32:40', '2026-03-10 05:32:40'),
-(107, 43, 'ORD-69B3FB022F853', 'pending', 430000, 400000, 30000, 0, 36, 36, 'unpaid', 'cod', '2026-03-13 18:54:42', NULL, NULL, NULL, '2026-03-13 11:54:42', '2026-03-13 11:54:42');
+(107, 43, 'ORD-69B3FB022F853', 'pending', 430000, 400000, 30000, 0, 36, 36, 'unpaid', 'cod', '2026-03-13 18:54:42', NULL, NULL, NULL, '2026-03-13 11:54:42', '2026-03-13 11:54:42'),
+(108, 47, 'ORD-69B41E2922C83', 'completed', 1182000, 1275000, 30000, 0, 37, 37, 'paid', 'banking', '2026-03-13 21:24:41', NULL, NULL, NULL, '2026-03-13 14:24:41', '2026-03-13 14:25:16'),
+(109, 48, 'ORD-69B8D6CE46ADA', 'pending', 30123, 123, 30000, 0, 38, 38, 'unpaid', 'cod', '2026-03-17 11:21:34', NULL, NULL, NULL, '2026-03-17 04:21:34', '2026-03-17 04:21:34'),
+(110, 49, 'ORD-69B8DCF60AE84', 'pending', 30123, 123, 30000, 0, 39, 39, 'unpaid', 'cod', '2026-03-17 11:47:50', NULL, NULL, NULL, '2026-03-17 04:47:50', '2026-03-17 04:47:50'),
+(111, 52, 'ORD-69B8E94861EF4', 'pending', 30000, 50000, 30000, 0, 40, 40, 'unpaid', 'cod', '2026-03-17 12:40:24', NULL, NULL, NULL, '2026-03-17 05:40:24', '2026-03-17 05:40:24');
 
 -- --------------------------------------------------------
 
@@ -388,7 +418,9 @@ INSERT INTO `order_coupons` (`id`, `order_id`, `coupon_id`, `applied_amount_cent
 (13, 64, 4, 500000),
 (14, 80, 4, 500000),
 (15, 83, 4, 500000),
-(16, 104, 4, 400000);
+(16, 104, 4, 400000),
+(17, 108, 14, 123000),
+(18, 111, 12, 50000);
 
 -- --------------------------------------------------------
 
@@ -574,7 +606,19 @@ INSERT INTO `order_items` (`id`, `order_id`, `variant_id`, `product_id`, `produc
 (201, 106, 93, NULL, '{\"name\": \"Bắp cải tím hữu cơ\", \"image\": \"assets/uploads/products/1772762814_bap-cai.jpg\"}', 1, 50000, 50000),
 (202, 107, 93, NULL, '{\"name\": \"Bắp cải tím hữu cơ\", \"image\": \"assets/uploads/products/1772762814_bap-cai.jpg\"}', 5, 50000, 250000),
 (203, 107, 98, NULL, '{\"name\": \"Cá bống đục\", \"image\": \"assets/uploads/products/1772763090_ca-bong.jpg\"}', 1, 100000, 100000),
-(204, 107, 101, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 1, 50000, 50000);
+(204, 107, 101, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 1, 50000, 50000),
+(205, 108, 100, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 2, 150000, 300000),
+(206, 108, 99, NULL, '{\"name\": \"Cá bống đục\", \"image\": \"assets/uploads/products/1772763090_ca-bong.jpg\"}', 1, 50000, 50000),
+(207, 108, 101, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 2, 50000, 100000),
+(208, 108, 44, NULL, '{\"name\": \"Cà chua xay nhuyễn hữu cơ Passata\", \"image\": \"assets/uploads/products/1769191565_ca_chua_xay_nhuyen_huu_co_passata_hung_que_luce_680g_beb71dda50b34667b2955e1d555de6bb_grande.png\"}', 1, 15000, 15000),
+(209, 108, 78, NULL, '{\"name\": \"Nui nơ pastina hữu cơ\", \"image\": \"assets/uploads/products/1769191252_nui-no-pastina-huu-co.png\"}', 1, 20000, 20000),
+(210, 108, 62, NULL, '{\"name\": \"Cải thìa hữu cơ Sunny Harvest\", \"image\": \"assets/uploads/products/1769190872_c_i_th_a_.png\"}', 1, 20000, 20000),
+(211, 108, 58, NULL, '{\"name\": \"Đuôi heo hữu cơ \", \"image\": \"assets/uploads/products/1769190740_duoi-heo-huu-co.jpg\"}', 1, 20000, 20000),
+(212, 108, 80, NULL, '{\"name\": \"Nui Rau Củ Hữu Cơ Cho Bé Hình Ô Tô\", \"image\": \"assets/uploads/products/1769191304_nui_rau_cu_huu_co_cho_be_hinh_o_to_300g_dalla_costa.jpeg\"}', 1, 250000, 250000),
+(213, 108, 84, NULL, '{\"name\": \"Mì spaghetti rau củ quả hữu cơ\", \"image\": \"assets/uploads/products/1769191403_mi_spaghetti_rau_cu_qua_huu_co_.jpg\"}', 1, 500000, 500000),
+(214, 109, 115, NULL, '{\"name\": \"demo\", \"image\": \"\"}', 1, 123, 123),
+(215, 110, 115, NULL, '{\"name\": \"demo\", \"image\": \"\"}', 1, 123, 123),
+(216, 111, 101, NULL, '{\"name\": \"Bánh phồng tôm\", \"image\": \"assets/uploads/products/1772763171_banh-phong-tom.jpg\"}', 1, 50000, 50000);
 
 -- --------------------------------------------------------
 
@@ -710,7 +754,13 @@ INSERT INTO `order_status_history` (`id`, `order_id`, `status`, `changed_by`, `n
 (140, 105, 'completed', 4, '', '2026-03-10 05:25:24'),
 (141, 104, 'completed', 4, '', '2026-03-10 05:32:15'),
 (142, 106, 'pending', 40, 'Đơn hàng mới được tạo', '2026-03-10 05:32:40'),
-(143, 107, 'pending', 43, 'Đơn hàng mới được tạo', '2026-03-13 11:54:42');
+(143, 107, 'pending', 43, 'Đơn hàng mới được tạo', '2026-03-13 11:54:42'),
+(144, 108, 'pending', 47, 'Đơn hàng mới được tạo', '2026-03-13 14:24:41'),
+(145, 108, 'processing', 4, 'Admin đã xác nhận nhận được tiền chuyển khoản VietQR.', '2026-03-13 14:24:47'),
+(146, 108, 'completed', 4, '', '2026-03-13 14:25:16'),
+(147, 109, 'pending', 48, 'Đơn hàng mới được tạo', '2026-03-17 04:21:34'),
+(148, 110, 'pending', 49, 'Đơn hàng mới được tạo', '2026-03-17 04:47:50'),
+(149, 111, 'pending', 52, 'Đơn hàng mới được tạo', '2026-03-17 05:40:24');
 
 -- --------------------------------------------------------
 
@@ -769,7 +819,8 @@ INSERT INTO `products` (`id`, `sku`, `name`, `brand`, `slug`, `description`, `sh
 (46, 'P1772763090', 'Cá bống đục', 'TBD', 'c-b-ng-c-1772763090', 'CÁ BỐNG ĐỤC\r\nCá bống đục vừa ngon ngọt, ít xương, dù là cá nhỏ nhưng không có xương dăm, xương chử Y.\r\n\r\nThịt cá lành tính, không chứa histamin, không gây dị ứng cho bé, người bệnh hoặc người mẩn cảm với cá biển.\r\nCá đục hay còn gọi là cá bống vàng. Cá đục ngon phải là cá sống ven cửa sông vùng giáp nước ngọt mặn (Gọi là nước lợ). Vì nơi đó dồi dào thức ăn, ít kẻ thù, môi trường sống tối ưu. Nên cá vừa béo, thịt vừa ngọt lại tươi sống nhảy soi sói.', 'CÁ BỐNG ĐỤC\r\nCá bống đục vừa ngon ngọt, ít xương, dù là cá nhỏ nhưng không có xương dăm, xương chử Y.\r\n\r\nThịt cá lành tính, không chứa histamin, không', 15, 1, 0, NULL, '2026-03-06 02:11:30', '2026-03-06 02:11:30'),
 (47, 'P1772763171', 'Bánh phồng tôm', 'KHO', 'b-nh-ph-ng-t-m-1772763171', 'Nguyên liệu chính của bánh vẫn là tôm rừng.\r\nTôm được xay nhuyễn với bột và trứng vịt. Sau đó nêm thêm gia vị gồm đường, tỏi, ớt và tiêu. Đặc biệt không sử dụng bột ngọt.\r\n\r\nSau đó đem bánh đi chán bằng nồi hấp trên bếp củi, rồi mang đi phơi nắng trên giàn phơi cho khô. Một cách thủ công thuyền thống của người dân xứ này.\r\n\r\nBánh này khi ăn mình sẽ chiên với dầu nóng, ăn không bị ngán và ngấy như ở ngoài. Bánh có tiêu và ớt nhưng không cay, bé nhà vẫn ăn được.', 'Nguyên liệu chính của bánh vẫn là tôm rừng.\r\nTôm được xay nhuyễn với bột và trứng vịt. Sau đó nêm thêm gia vị gồm đường, tỏi, ớt và tiêu. Đặc biệt khô', 17, 1, 0, NULL, '2026-03-06 02:12:51', '2026-03-06 02:12:51'),
 (48, 'P1772763233', 'Bánh tráng gạo lứt hữu cơ hoa sữa', 'KHO', 'b-nh-tr-ng-g-o-l-t-h-u-c-hoa-s-a-1772763233', 'Sản phẩm bánh tráng gạo lứt hữu cơ Hoa Sữa Foods được sản xuất từ gạo lứt đạt chứng nhận hữu cơ USDA & EU, đảm bảo an toàn cho sức khỏe, là nguyên liệu cho nhiều món ăn, tiện lợi và dễ cuốn. Bánh tráng gạo lứt hoàn toàn không sử dụng hóa chất, chất bảo quản trong quá trình chế biến.\r\n\r\nĐược làm từ những hạt gạo chất lượng cao, đã được tuyển chọn cùng công nghệ hiện đại, nguyên liệu gạo làm nên sản phẩm đạt chuẩn các tiêu chí hữu cơ quốc tế với ưu điểm nội trội', 'Sản phẩm bánh tráng gạo lứt hữu cơ Hoa Sữa Foods được sản xuất từ gạo lứt đạt chứng nhận hữu cơ USDA & EU, đảm bảo an toàn cho sức khỏe, là nguyên liệ', 17, 1, 0, NULL, '2026-03-06 02:13:53', '2026-03-06 02:13:53'),
-(49, 'P1772763325', 'Bột gạo tẻ hữu cơ', 'OMG', 'b-t-g-o-t-h-u-c--1772763325', 'Chứng nhận USDA\r\n\r\nChứng nhận EU ORGANIC BIO LOGO (EU) quy trình sản xuất hữu cơ và phương thức canh tác hữu cơ\r\n\r\nBột hữu cơ Lotus Floating với thành phần 100% các loại gạo được gieo trồng, thu hoạch và xay thành bột đều theo đúng tiêu chuẩn hữu cơ. Bột gạo tẻ Jasmine (gạo hương lài) được sử dụng để làm các bánh như: bánh tráng, bánh cuốn, bánh gạo, bánh cake, bánh xèo, banha canh, bánh giò,...Hay làm các loại bún, phở.... Bột gạo cũng có thể dùng nấu bột ăn dặm cho bé.', 'Chứng nhận USDA\r\n\r\nChứng nhận EU ORGANIC BIO LOGO (EU) quy trình sản xuất hữu cơ và phương thức canh tác hữu cơ\r\n\r\nBột hữu cơ Lotus Floating với thành', 19, 1, 0, NULL, '2026-03-06 02:15:25', '2026-03-06 02:15:25');
+(49, 'P1772763325', 'Bột gạo tẻ hữu cơ', 'OMG', 'b-t-g-o-t-h-u-c--1772763325', 'Chứng nhận USDA\r\n\r\nChứng nhận EU ORGANIC BIO LOGO (EU) quy trình sản xuất hữu cơ và phương thức canh tác hữu cơ\r\n\r\nBột hữu cơ Lotus Floating với thành phần 100% các loại gạo được gieo trồng, thu hoạch và xay thành bột đều theo đúng tiêu chuẩn hữu cơ. Bột gạo tẻ Jasmine (gạo hương lài) được sử dụng để làm các bánh như: bánh tráng, bánh cuốn, bánh gạo, bánh cake, bánh xèo, banha canh, bánh giò,...Hay làm các loại bún, phở.... Bột gạo cũng có thể dùng nấu bột ăn dặm cho bé.', 'Chứng nhận USDA\r\n\r\nChứng nhận EU ORGANIC BIO LOGO (EU) quy trình sản xuất hữu cơ và phương thức canh tác hữu cơ\r\n\r\nBột hữu cơ Lotus Floating với thành', 19, 1, 0, NULL, '2026-03-06 02:15:25', '2026-03-06 02:15:25'),
+(57, 'P1773721270', 'demo', '', 'demo-1773721270', '123', '123', 26, 1, 0, NULL, '2026-03-17 04:21:10', '2026-03-17 04:21:10');
 
 -- --------------------------------------------------------
 
@@ -856,7 +907,7 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `name`, `price_cents`
 (35, 35, 'V1769191565', '250g', 250000, NULL, 98, NULL, NULL, 0, '2026-01-23 18:06:05', '2026-03-03 02:07:13'),
 (36, 36, 'V1769191604', '250g', 90000, NULL, 99, NULL, NULL, 0, '2026-01-23 18:06:44', '2026-03-03 02:07:13'),
 (43, 35, 'P1770285626-N2', '250g', 400000, NULL, 98, NULL, NULL, 1, '2026-02-05 10:00:26', '2026-03-04 13:33:15'),
-(44, 35, 'P1772440369-N3', '50g', 15000, NULL, 76, NULL, NULL, 1, '2026-03-02 08:32:49', '2026-03-05 13:27:00'),
+(44, 35, 'P1772440369-N3', '50g', 15000, NULL, 75, NULL, NULL, 1, '2026-03-02 08:32:49', '2026-03-13 14:24:41'),
 (45, 14, 'P1772447058-N2', '250g', 300000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:24:18', '2026-03-02 10:24:18'),
 (46, 14, 'P1772447079-N2', '50g', 150000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:24:39', '2026-03-02 10:24:39'),
 (47, 13, 'P1772447105-N2', '250g', 225000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:25:05', '2026-03-02 10:25:05'),
@@ -870,11 +921,11 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `name`, `price_cents`
 (55, 18, 'P1772447243-N2', '250g', 155000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:27:23', '2026-03-02 10:27:23'),
 (56, 18, 'P1772447243-N3', '50g', 55000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:27:23', '2026-03-02 10:27:23'),
 (57, 19, 'P1772447275-N2', '250g', 120000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:27:55', '2026-03-02 10:27:55'),
-(58, 19, 'P1772447275-N3', '50g', 20000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:27:55', '2026-03-02 10:27:55'),
+(58, 19, 'P1772447275-N3', '50g', 20000, NULL, 99, NULL, NULL, 1, '2026-03-02 10:27:55', '2026-03-13 14:24:41'),
 (59, 20, 'P1772447305-N2', '250g', 190000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:28:25', '2026-03-02 10:28:25'),
 (60, 20, 'P1772447305-N3', '50g', 90000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:28:25', '2026-03-02 10:28:25'),
 (61, 21, 'P1772447342-N2', '250g', 40000, NULL, 99, NULL, NULL, 1, '2026-03-02 10:29:02', '2026-03-03 02:23:53'),
-(62, 21, 'P1772447342-N3', '50g', 20000, NULL, 96, NULL, NULL, 1, '2026-03-02 10:29:02', '2026-03-05 13:25:56'),
+(62, 21, 'P1772447342-N3', '50g', 20000, NULL, 95, NULL, NULL, 1, '2026-03-02 10:29:02', '2026-03-13 14:24:41'),
 (63, 22, 'P1772447374-N2', '250g', 44000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:29:34', '2026-03-02 10:29:34'),
 (64, 22, 'P1772447374-N3', '50g', 22000, NULL, 99, NULL, NULL, 1, '2026-03-02 10:29:34', '2026-03-05 13:25:56'),
 (65, 23, 'P1772447406-N2', '250g', 50000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:30:06', '2026-03-02 10:30:06'),
@@ -890,13 +941,13 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `name`, `price_cents`
 (75, 28, 'P1772447593-N2', '250g', 160000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:33:13', '2026-03-02 10:33:13'),
 (76, 28, 'P1772447593-N3', '50g', 80000, NULL, 99, NULL, NULL, 1, '2026-03-02 10:33:13', '2026-03-05 13:25:56'),
 (77, 29, 'P1772447631-N2', '250g', 400000, NULL, 99, NULL, NULL, 1, '2026-03-02 10:33:51', '2026-03-03 02:05:21'),
-(78, 29, 'P1772447631-N3', '50g', 20000, NULL, 95, NULL, NULL, 1, '2026-03-02 10:33:51', '2026-03-05 13:28:19'),
+(78, 29, 'P1772447631-N3', '50g', 20000, NULL, 94, NULL, NULL, 1, '2026-03-02 10:33:51', '2026-03-13 14:24:41'),
 (79, 30, 'P1772447665-N2', '250g', 500000, NULL, 99, NULL, NULL, 1, '2026-03-02 10:34:25', '2026-03-03 02:05:21'),
-(80, 30, 'P1772447665-N3', '50g', 250000, NULL, 97, NULL, NULL, 1, '2026-03-02 10:34:25', '2026-03-05 13:25:56'),
+(80, 30, 'P1772447665-N3', '50g', 250000, NULL, 96, NULL, NULL, 1, '2026-03-02 10:34:25', '2026-03-13 14:24:41'),
 (81, 31, 'P1772447700-N2', '250g', 900000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:35:00', '2026-03-02 10:35:00'),
 (82, 31, 'P1772447700-N3', '50g', 300000, NULL, 96, NULL, NULL, 1, '2026-03-02 10:35:00', '2026-03-05 13:28:07'),
 (83, 32, 'P1772447739-N2', '250g', 1000000, NULL, 100, NULL, NULL, 1, '2026-03-02 10:35:39', '2026-03-02 10:35:39'),
-(84, 32, 'P1772447739-N3', '50g', 500000, NULL, 98, NULL, NULL, 1, '2026-03-02 10:35:39', '2026-03-05 13:25:56'),
+(84, 32, 'P1772447739-N3', '50g', 500000, NULL, 97, NULL, NULL, 1, '2026-03-02 10:35:39', '2026-03-13 14:24:41'),
 (85, 33, 'P1772447784-N2', '250g', 1500000, NULL, 99, NULL, NULL, 1, '2026-03-02 10:36:24', '2026-03-03 02:25:36'),
 (86, 33, 'P1772447784-N3', '50g', 500000, NULL, 77, NULL, NULL, 1, '2026-03-02 10:36:24', '2026-03-05 13:27:23'),
 (87, 34, 'P1772448690-N2', '250g', 2000000, NULL, 99, NULL, NULL, 1, '2026-03-02 10:51:30', '2026-03-03 02:25:36'),
@@ -910,13 +961,14 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `name`, `price_cents`
 (96, 45, 'P1772762996-1', '250g', 500000, NULL, 100, NULL, NULL, 1, '2026-03-06 02:09:56', '2026-03-06 02:09:56'),
 (97, 45, 'P1772762996-2', '50g', 250000, NULL, 98, NULL, NULL, 1, '2026-03-06 02:09:56', '2026-03-09 07:42:51'),
 (98, 46, 'P1772763090-1', '250g', 100000, NULL, 99, NULL, NULL, 1, '2026-03-06 02:11:30', '2026-03-13 11:54:42'),
-(99, 46, 'P1772763090-2', '50g', 50000, NULL, 95, NULL, NULL, 1, '2026-03-06 02:11:30', '2026-03-10 03:49:02'),
-(100, 47, 'P1772763171-1', '250g', 150000, NULL, 99, NULL, NULL, 1, '2026-03-06 02:12:51', '2026-03-09 08:42:06'),
-(101, 47, 'P1772763171-2', '50g', 50000, NULL, 93, NULL, NULL, 1, '2026-03-06 02:12:51', '2026-03-13 11:54:42'),
+(99, 46, 'P1772763090-2', '50g', 50000, NULL, 94, NULL, NULL, 1, '2026-03-06 02:11:30', '2026-03-13 14:24:41'),
+(100, 47, 'P1772763171-1', '250g', 150000, NULL, 97, NULL, NULL, 1, '2026-03-06 02:12:51', '2026-03-13 14:24:41'),
+(101, 47, 'P1772763171-2', '50g', 50000, NULL, 90, NULL, NULL, 1, '2026-03-06 02:12:51', '2026-03-17 05:40:24'),
 (102, 48, 'P1772763233-1', '250g', 100000, NULL, 0, NULL, NULL, 1, '2026-03-06 02:13:53', '2026-03-06 02:13:53'),
 (103, 48, 'P1772763233-2', '50g', 100000, NULL, 0, NULL, NULL, 1, '2026-03-06 02:13:53', '2026-03-06 02:13:53'),
 (104, 49, 'P1772763325-1', '250g', 50000, NULL, 0, NULL, NULL, 1, '2026-03-06 02:15:25', '2026-03-06 02:15:25'),
-(105, 49, 'P1772763325-2', '50g', 25000, NULL, 0, NULL, NULL, 1, '2026-03-06 02:15:25', '2026-03-06 02:15:25');
+(105, 49, 'P1772763325-2', '50g', 25000, NULL, 0, NULL, NULL, 1, '2026-03-06 02:15:25', '2026-03-06 02:15:25'),
+(115, 57, 'P1773721270-1', '250g', 123, NULL, 1, NULL, NULL, 1, '2026-03-17 04:21:10', '2026-03-17 04:56:30');
 
 -- --------------------------------------------------------
 
@@ -1048,7 +1100,11 @@ INSERT INTO `shipping_addresses` (`id`, `user_id`, `full_name`, `phone`, `addres
 (33, 38, 'demo', '1112221112', 'ád', 'ád', '', '', 'Vietnam', 1, '2026-03-09 07:40:45'),
 (34, 40, 'Khách hàng', '1111112223', '123', '123', '', '', 'Vietnam', 0, '2026-03-09 09:17:17'),
 (35, 40, 'Khách hàng', '1111112223', '123', 'Hcm', '', '', 'Vietnam', 1, '2026-03-10 05:25:40'),
-(36, 43, 'sss', '1231232221', '123123', '123', '', '', 'Vietnam', 1, '2026-03-13 11:54:38');
+(36, 43, 'sss', '1231232221', '123123', '123', '', '', 'Vietnam', 1, '2026-03-13 11:54:38'),
+(37, 47, 'demo', '123111333232', 'ád', 'ád', '', '', 'Vietnam', 1, '2026-03-13 14:23:24'),
+(38, 48, 'Long Le', '', '123', '123', '', '', 'Vietnam', 1, '2026-03-17 04:21:30'),
+(39, 49, 'Long Le', '', '1', '1', '', '', 'Vietnam', 1, '2026-03-17 04:47:47'),
+(40, 52, 'Long Le', '', '123', '123', '', '', 'Vietnam', 1, '2026-03-17 05:40:12');
 
 -- --------------------------------------------------------
 
@@ -1111,10 +1167,15 @@ INSERT INTO `users` (`id`, `email`, `password_hash`, `name`, `phone`, `avatar_ur
 (40, 'khachhang@gmail.com', '$2y$10$6FRQMAWbNuZjbupHDx7OFuhWZJBgKg5bSba7/rortktMhv6ej5rnq', 'Khách hàng', '1111112223', NULL, 1, 4, NULL, 1, NULL, NULL, NULL, '2026-03-09 09:16:11', '2026-03-10 05:24:26', NULL, NULL),
 (41, 'l@gmail.com', '$2y$10$NE0BWUBw0olb96lB71tYiOwl.mkhGXj4Pgw8Yoi3d8Wt1Dk150OaG', 'long', '1010191810', NULL, 1, 4, NULL, 1, NULL, NULL, NULL, '2026-03-10 05:12:15', '2026-03-10 05:34:19', NULL, NULL),
 (42, 'imlon@gmail.com', '$2y$10$fpP8av.5E0wFbjEi4jqPb.8j46js1nshIzEP9QYi82V5Bq2UiiTH.', 'Long Le', '', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-10 05:14:06', '2026-03-10 05:14:29', NULL, NULL),
-(43, 'longconchua35@gmail.com', '$2y$10$ASXH/sWCoD9foR7b0p8bLOIPUsjli5OcwdlOvpcUbehxXUiH9S5ji', 'sss', '1231232221', NULL, 1, 4, NULL, 1, NULL, NULL, NULL, '2026-03-10 05:34:41', '2026-03-10 05:35:02', NULL, NULL),
+(43, 'longconchua35@gmail.com', '$2y$10$ASXH/sWCoD9foR7b0p8bLOIPUsjli5OcwdlOvpcUbehxXUiH9S5ji', 'sss', '1231232221', NULL, 1, 4, NULL, 1, NULL, '880829', '2026-03-13 21:42:23', '2026-03-10 05:34:41', '2026-03-13 14:27:23', NULL, NULL),
 (44, 'lgbt@gmail.com', '$2y$10$qqsOQ3COFRQdWcnGJBVlXu0afZY4lg5LGlKqj5nbaZEMkLECJbuGS', 'Lau Ga Binh Thuan', '1231231121', NULL, 1, 5, NULL, 0, NULL, NULL, NULL, '2026-03-10 05:39:24', '2026-03-10 05:39:24', NULL, NULL),
 (45, 'thuky@gmail.com', '$2y$10$Luuh7aM3WqBC395sF9MWFuRAcv6dxEooi06Z.7Z846y08tnQPIPvG', 'THU KY CUA SEP', '1232223332', NULL, 1, 3, NULL, 0, NULL, NULL, NULL, '2026-03-10 05:40:08', '2026-03-10 05:40:08', NULL, NULL),
-(46, 'imlongmanhme@gmail.com', '$2y$10$SQJ8h9SyETRs7JRDUpr/p.jGSxJy3eODadw8sbkhutb4xg5ccy.am', 'Long Le', '', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-13 12:02:00', '2026-03-13 12:02:00', NULL, NULL);
+(46, 'manhme@gmail.com', '$2y$10$SQJ8h9SyETRs7JRDUpr/p.jGSxJy3eODadw8sbkhutb4xg5ccy.am', 'Long Le', '', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-13 12:02:00', '2026-03-13 14:20:34', NULL, NULL),
+(47, 'nhme@gmail.com', '$2y$10$7utaIl9KnK8Y07cAm1JmIe2ixuZxpr5aoKxRG/f3AP0EhSzOC1n5K', 'demo', '123111333232', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-13 14:20:51', '2026-03-13 14:26:49', NULL, NULL),
+(48, 'melong@gmail.com', '$2y$10$Lg1vNiKiPkJOy0puasAjvu7loiYJoN/LNLGbtm6kycb7MoYnA/0uy', 'Long Le', '', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-17 03:09:15', '2026-03-17 04:48:48', NULL, NULL),
+(49, 'longnehuhu@gmail.com', '$2y$10$hgJVx.D7ENWheMjhBF3ZdOkSL0rKV09ATYSWI/8uDFxpmNZ8BBHIa', 'Long Le', '', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-17 04:47:28', '2026-03-17 05:07:03', NULL, NULL),
+(51, 'longhaha@gmail.com', '$2y$10$jdUcxQpIyv.AqmadoKRIHe0vNvAJoQsdHzcv3laJfw0Iy24U3N9qS', 'Long Le', '', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-17 05:07:15', '2026-03-17 05:07:35', NULL, NULL),
+(52, 'longhoho@gmail.com', '$2y$10$cRcbV9f1dbSCsfgiqskAFOp7v2VHWHOT5X/VT8V.wjGhudJm3e0I.', 'Long Le', '', 'https://lh3.googleusercontent.com/a/ACg8ocKWE3axMSc26C9GWIoDL_GyVALqslc5QelmYzTMvKC2vDZ07w=s96-c', 1, 4, '107490554611304066542', 1, NULL, NULL, NULL, '2026-03-17 05:22:12', '2026-03-17 05:29:30', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1146,7 +1207,10 @@ INSERT INTO `user_coupons` (`id`, `user_id`, `coupon_id`, `is_used`, `saved_at`)
 (10, 37, 11, 0, '2026-03-05 20:29:21'),
 (11, 37, 10, 0, '2026-03-05 20:29:23'),
 (12, 40, 4, 0, '2026-03-10 12:20:15'),
-(13, 40, 5, 0, '2026-03-10 12:20:49');
+(13, 40, 5, 0, '2026-03-10 12:20:49'),
+(14, 48, 4, 0, '2026-03-17 10:09:20'),
+(15, 48, 5, 0, '2026-03-17 10:09:23'),
+(16, 48, 6, 0, '2026-03-17 11:39:02');
 
 -- --------------------------------------------------------
 
@@ -1175,7 +1239,10 @@ INSERT INTO `wishlists` (`id`, `user_id`, `variant_id`, `created_at`) VALUES
 (42, 37, 79, '2026-03-05 13:25:11'),
 (43, 37, 77, '2026-03-05 13:25:12'),
 (44, 37, 75, '2026-03-05 13:25:14'),
-(48, 38, 100, '2026-03-09 07:40:34');
+(48, 38, 100, '2026-03-09 07:40:34'),
+(53, 47, 83, '2026-03-13 14:21:43'),
+(54, 47, 79, '2026-03-13 14:21:44'),
+(55, 47, 100, '2026-03-13 14:23:03');
 
 --
 -- Indexes for dumped tables
@@ -1329,55 +1396,55 @@ ALTER TABLE `wishlists`
 -- AUTO_INCREMENT for table `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=140;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=160;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `coupons`
 --
 ALTER TABLE `coupons`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=161;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=197;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
 
 --
 -- AUTO_INCREMENT for table `order_coupons`
 --
 ALTER TABLE `order_coupons`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=205;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=217;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=144;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=150;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT for table `product_images`
@@ -1389,7 +1456,7 @@ ALTER TABLE `product_images`
 -- AUTO_INCREMENT for table `product_variants`
 --
 ALTER TABLE `product_variants`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
 
 --
 -- AUTO_INCREMENT for table `reviews`
@@ -1407,25 +1474,25 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `shipping_addresses`
 --
 ALTER TABLE `shipping_addresses`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `user_coupons`
 --
 ALTER TABLE `user_coupons`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `wishlists`
 --
 ALTER TABLE `wishlists`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- Constraints for dumped tables
