@@ -123,6 +123,17 @@ class UserController extends Controller {
             }
 
             $userModel->update($id, $data);
+
+            // Cập nhật lại Session nếu người bị sửa chính là người đang đăng nhập trên trình duyệt này
+            if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $id) {
+                $_SESSION['user_name'] = $name;
+                $_SESSION['user_email'] = $email;
+                // Nếu admin có thể đổi avatar ở đây thì update luôn $_SESSION['user_avatar']
+            }
+            if (isset($_SESSION['admin_id']) && $_SESSION['admin_id'] == $id) {
+                $_SESSION['admin_name'] = $name;
+                // Session admin thường không lưu email, nhưng nếu có thì anh update tương tự
+            }
             header('Location: /MY_WEB/public/admin/user');
         }
     }
@@ -137,21 +148,19 @@ class UserController extends Controller {
 
         $userModel = $this->model('User');
 
-        // Bước 1: Kiểm tra xem User này đã có đơn hàng nào chưa (Gọi qua Model)
-        $hasOrders = $userModel->hasOrders($id);
+        // Gọi hàm xóa ở Model (Hàm này đã tích hợp sẵn Guard kiểm tra nhiều bảng)
+        $result = $userModel->delete($id);
 
-        // Bước 2: Xử lý logic theo kết quả kiểm tra
-        if ($hasOrders) {
-            // TH1: Đã có đơn hàng -> CHẶN lại để bảo vệ DB và báo lỗi thân thiện
+        if ($result['status'] === false) {
+            // Bị chặn lại do có dữ liệu
             echo "<script>
-                    alert('Không thể xóa! Tài khoản này đã có lịch sử mua hàng để phục vụ thống kê. Vui lòng sử dụng tính năng Sửa để Khóa (Đổi trạng thái) tài khoản này.'); 
+                    alert('" . addslashes($result['message']) . " Vui lòng khóa (đổi trạng thái) tài khoản này thay vì xóa.'); 
                     window.location.href='/MY_WEB/public/admin/user';
                   </script>";
         } else {
-            // TH2: Chưa từng mua hàng (Tài khoản rác/test) -> Xóa thoải mái
-            $userModel->delete($id); // Giả sử model User của bạn đã được kế thừa hàm delete từ Core/Model
+            // Xóa thành công (Tài khoản rác)
             echo "<script>
-                    alert('Đã xóa tài khoản thành công!'); 
+                    alert('" . addslashes($result['message']) . "'); 
                     window.location.href='/MY_WEB/public/admin/user';
                   </script>";
         }

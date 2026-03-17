@@ -22,7 +22,7 @@ $catTree = [];
 try {
     if (class_exists('\App\Models\Category')) {
         $categoryModelHeader = new \App\Models\Category();
-        $categoriesHeader = $categoryModelHeader->all();
+        $categoriesHeader = $categoryModelHeader->getAllCategories();
 
         // Chuyển mảng phẳng thành cây (Cha -> Con)
         foreach ($categoriesHeader as $c) {

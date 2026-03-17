@@ -191,4 +191,46 @@ class User extends Model {
         $sql = "SELECT id, name, avatar_url FROM {$this->table} WHERE role_id = 5 AND status = 1";
         return $this->db->fetchAll($sql);
     }
+
+    // --- XÓA NGƯỜI DÙNG (KIỂM TRA BẢO MẬT DỮ LIỆU) ---
+    public function delete($id) {
+        // BƯỚC 1: KIỂM TRA "VẾT TÍCH" DỮ LIỆU QUAN TRỌNG
+        // Các bảng không được phép xóa nếu user đã có dữ liệu
+        $checkTables = [
+            'orders' => 'user_id',
+            'reviews' => 'user_id',
+            'shipping_addresses' => 'user_id',
+            'notifications' => 'user_id'
+        ];
+
+        foreach ($checkTables as $table => $column) {
+            $sql = "SELECT COUNT(*) as total FROM {$table} WHERE {$column} = ?";
+            $result = $this->db->fetch($sql, [$id]);
+            if ($result['total'] > 0) {
+                // Trả về mảng báo lỗi, ghi rõ đang vướng ở bảng nào
+                return ['status' => false, 'message' => "Tài khoản đã có dữ liệu trong bảng {$table}, không thể xóa!"];
+            }
+        }
+
+        // BƯỚC 2: NẾU VƯỢT QUA KIỂM TRA -> DỌN DẸP DỮ LIỆU RÁC TRƯỚC KHI XÓA CỨNG
+        try {
+            // Dọn dẹp giỏ hàng
+            $this->db->query("DELETE FROM cart_items WHERE user_id = ?", [$id]);
+            // Dọn dẹp danh sách yêu thích
+            try { $this->db->query("DELETE FROM wishlists WHERE user_id = ?", [$id]); } catch (\Exception $e) {}
+            // Dọn dẹp voucher đã nhận
+            try { $this->db->query("DELETE FROM user_coupons WHERE user_id = ?", [$id]); } catch (\Exception $e) {}
+            
+            // Xóa cứng User
+            $this->db->query("DELETE FROM {$this->table} WHERE id = ?", [$id]);
+            
+            return ['status' => true, 'message' => 'Đã xóa tài khoản thành công!'];
+        } catch (\PDOException $e) {
+            // Bắt lỗi dự phòng nếu còn sót khóa ngoại nào đó
+            if ($e->getCode() == '23000') {
+                return ['status' => false, 'message' => 'Tài khoản đang dính líu đến dữ liệu hệ thống, không thể xóa!'];
+            }
+            throw $e;
+        }
+    }
 }

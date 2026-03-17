@@ -76,35 +76,38 @@
                             <div class="cart-scroll-container custom-scrollbar">
                                 <?php foreach ($cart as $id => $item): ?>
                                     <?php 
-                                        // --- LOGIC MỚI: KIỂM TRA TRẠNG THÁI ---
+                                        // --- LOGIC: KIỂM TRA TRẠNG THÁI VÀ TỒN KHO ---
                                         $isActive = isset($item['is_active']) ? $item['is_active'] == 1 : true; 
+                                        $stock = isset($item['stock']) ? (int)$item['stock'] : 0;
+                                        $isOutOfStock = ($stock <= 0); // Kiểm tra hết hàng
+                                        $canBuy = $isActive && !$isOutOfStock; // Chỉ cho mua khi Đang bán VÀ Còn hàng
                                     ?>
 
-                                    <div class="cart-item p-3 border-bottom <?= !$isActive ? 'bg-secondary bg-opacity-10' : '' ?>" id="item-<?= $item['id'] ?>">
+                                    <div class="cart-item p-3 border-bottom <?= !$canBuy ? 'bg-secondary bg-opacity-10' : '' ?>" id="item-<?= $item['id'] ?>">
                                         <div class="d-flex align-items-center">
                                             
                                             <div class="me-3">
-                                                <?php if ($isActive): ?>
+                                                <?php if ($canBuy): ?>
                                                     <input class="form-check-input item-checkbox" type="checkbox"
                                                         value="<?= $item['id'] ?>"
                                                         data-price="<?= $item['price'] ?>"
                                                         style="width: 20px; height: 20px; cursor: pointer;">
                                                 <?php else: ?>
                                                     <input class="form-check-input" type="checkbox" disabled 
-                                                           title="Sản phẩm ngừng kinh doanh"
+                                                           title="<?= !$isActive ? 'Sản phẩm ngừng kinh doanh' : 'Sản phẩm đã hết hàng' ?>"
                                                            style="width: 20px; height: 20px; cursor: not-allowed; opacity: 0.5;">
                                                 <?php endif; ?>
                                             </div>
 
                                             <a href="<?= $isActive ? "/MY_WEB/public/product/detail/" . $item['product_id'] : '#' ?>" class="me-3 flex-shrink-0">
                                                 <?php $img = !empty($item['image']) ? "/MY_WEB/public/" . $item['image'] : "https://placehold.co/100"; ?>
-                                                <img src="<?= $img ?>" class="cart-item-img border" style="<?= !$isActive ? 'filter: grayscale(100%); opacity: 0.6;' : '' ?>">
+                                                <img src="<?= $img ?>" class="cart-item-img border" style="<?= !$canBuy ? 'filter: grayscale(100%); opacity: 0.6;' : '' ?>">
                                             </a>
 
                                             <div class="flex-grow-1">
                                                 <div class="d-flex justify-content-between mb-1">
                                                     <h6 class="fw-bold mb-0 text-truncate" style="max-width: 200px;">
-                                                        <?php if ($isActive): ?>
+                                                        <?php if ($canBuy): ?>
                                                             <a href="/MY_WEB/public/product/detail/<?= $item['product_id'] ?>" class="text-dark text-decoration-none">
                                                                 <?= htmlspecialchars($item['name']) ?>
                                                             </a>
@@ -112,17 +115,21 @@
                                                             <span class="text-muted text-decoration-line-through">
                                                                 <?= htmlspecialchars($item['name']) ?>
                                                             </span>
-                                                            <span class="badge bg-danger ms-2" style="font-size: 0.7em;">Ngừng kinh doanh</span>
+                                                            <?php if (!$isActive): ?>
+                                                                <span class="badge bg-danger ms-2" style="font-size: 0.7em;">Ngừng kinh doanh</span>
+                                                            <?php elseif ($isOutOfStock): ?>
+                                                                <span class="badge bg-secondary ms-2" style="font-size: 0.7em;">Hết hàng</span>
+                                                            <?php endif; ?>
                                                         <?php endif; ?>
                                                     </h6>
 
-                                                    <a href="/MY_WEB/public/cart/remove/<?= $item['id'] ?>" class="text-danger small text-decoration-none" onclick="return confirm('Xóa sản phẩm này?')">
+                                                    <a href="/MY_WEB/public/cart/remove/<?= $item['id'] ?>" class="text-danger small text-decoration-none" onclick="return confirm('Xóa sản phẩm này khỏi giỏ hàng?')">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </a>
                                                 </div>
 
                                                 <div class="d-flex justify-content-between align-items-end mt-2">
-                                                    <?php if ($isActive): ?>
+                                                    <?php if ($canBuy): ?>
                                                         <div class="d-flex align-items-center bg-light rounded-pill px-2 py-1 border">
                                                             <button class="qty-btn small" onclick="updateCartQty(<?= $item['id'] ?>, -1)"><i class="fas fa-minus small"></i></button>
                                                             <input type="number" id="qty-<?= $item['id'] ?>" class="qty-input" value="<?= $item['quantity'] ?>" readonly>
@@ -135,7 +142,7 @@
                                                         </div>
                                                     <?php else: ?>
                                                         <div class="text-danger small fst-italic">
-                                                            <i class="fas fa-exclamation-circle"></i> Sản phẩm tạm ngưng bán
+                                                            <i class="fas fa-exclamation-circle"></i> <?= !$isActive ? 'Sản phẩm tạm ngưng bán' : 'Sản phẩm hiện đã hết hàng' ?>
                                                         </div>
                                                         <div class="text-end text-muted text-decoration-line-through">
                                                             <?= number_format($item['price'] * $item['quantity']) ?> đ
@@ -203,7 +210,12 @@
     if(checkAll) {
         checkAll.addEventListener('change', function() {
             const isChecked = this.checked;
-            checkboxes.forEach(cb => { cb.checked = isChecked; });
+            checkboxes.forEach(cb => { 
+                // CHỈ CHECK NHỮNG ITEM KHÔNG BỊ DISABLED (Đang kinh doanh & Còn hàng)
+                if (!cb.disabled) {
+                    cb.checked = isChecked; 
+                }
+            });
             calculateTotal();
         });
     }
@@ -212,8 +224,12 @@
         cb.addEventListener('change', function() {
             if (!this.checked) checkAll.checked = false;
             else {
-                const allChecked = document.querySelectorAll('.item-checkbox:checked').length === checkboxes.length;
-                if (allChecked) checkAll.checked = true;
+                // Kiểm tra xem số lượng ô checkbox ĐÃ CHỌN có bằng số lượng ô checkbox CÓ THỂ CHỌN hay không
+                const availableCheckboxes = document.querySelectorAll('.item-checkbox:not(:disabled)').length;
+                const checkedCheckboxes = document.querySelectorAll('.item-checkbox:checked').length;
+                if (checkedCheckboxes > 0 && checkedCheckboxes === availableCheckboxes) {
+                    checkAll.checked = true;
+                }
             }
             calculateTotal();
         });
